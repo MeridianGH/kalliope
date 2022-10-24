@@ -37,14 +37,14 @@ export class Lavalink {
         player.previousTracks = []
       })
       .on('trackStart', (player) => {
-        this.client.dashboard.update(player)
+        // Update Dashboard
       })
       .on('trackEnd', (player, track) => {
         player.previousTracks.push(track)
         player.previousTracks = player.previousTracks.slice(-11)
       })
       .on('queueEnd', (player) => {
-        this.client.dashboard.update(player)
+        // Update Dashboard
         setTimeout(() => { if (!player.playing && !player.queue.current) { player.destroy() } }, 30000)
       })
 

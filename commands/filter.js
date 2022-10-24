@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js'
 import { errorEmbed, simpleEmbed } from '../utilities/utilities.js'
-import { getLanguage } from '../../language/locale.js'
 
 export const { data, execute } = {
   data: new SlashCommandBuilder()

@@ -11,7 +11,7 @@ export const { data, execute } = {
     if (interaction.member.voice.channel?.id !== player.voiceChannel) { return await interaction.reply(errorEmbed('You need to be in the same voice channel as the bot to use this command!', true)) }
 
     player.pause(!player.paused)
-    await interaction.reply(simpleEmbed(player.paused ? '⏸ Paused' : '▶ Resumed'))
+    await interaction.reply(simpleEmbed(player.paused ? '⏸ Paused.' : '▶ Resumed.'))
     // Update Dashboard
   }
 }

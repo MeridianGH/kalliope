@@ -1,16 +1,13 @@
 import { ActivityType, Client, Collection, EmbedBuilder, GatewayIntentBits } from 'discord.js'
-import database from './utilities/database.js'
 import { Lavalink } from './music/lavalink.js'
 import { getFilesRecursively } from './utilities/utilities.js'
 import fs from 'fs'
 
 import { adminId, token } from './utilities/config.js'
-import { getLanguage } from './language/locale.js'
 import { iconURL } from './events/ready.js'
 import { logging } from './utilities/logging.js'
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates], presence: { status: 'online', activities: [{ name: '/help | suitbot.xyz', type: ActivityType.Playing }] } })
-client.database = database
 client.lavalink = new Lavalink(client)
 await client.lavalink.initialize()
 
@@ -47,13 +44,12 @@ async function shutdown() {
   logging.info(`Closing ${client.lavalink.manager.players.size} queues.`)
   for (const entry of client.lavalink.manager.players) {
     const player = entry[1]
-    const lang = getLanguage(await client.database.getLocale(player.guild)).serverShutdown
     // noinspection JSUnresolvedFunction
     await client.channels.cache.get(player.textChannel).send({
       embeds: [
         new EmbedBuilder()
-          .setTitle(lang.title)
-          .setDescription(lang.description)
+          .setTitle('Server shutdown.')
+          .setDescription('The server the bot is hosted on has been forced to shut down.\nThe bot should be up and running again in a few minutes.')
           .setFooter({ text: 'SuitBot', iconURL: iconURL })
           .setColor([255, 0, 0])
       ]
@@ -61,7 +57,6 @@ async function shutdown() {
     player.destroy()
   }
   client.destroy()
-  client.dashboard?.shutdown()
   logging.info('Received SIGTERM, shutting down.')
   process.exit(0)
 }

@@ -15,7 +15,7 @@ export const { data, execute } = {
     if (time < 0 || time > player.queue.current.duration) { return await interaction.reply(errorEmbed(`You can only seek between 0:00-${player.queue.current.duration}!`, true)) }
 
     await player.seek(time)
-    await interaction.reply(simpleEmbed('⏩ Skipped to ' + lang.other.response(msToHMS(time))))
+    await interaction.reply(simpleEmbed(`⏩ Skipped to ${msToHMS(time)}`))
     // Update Dashboard
   }
 }

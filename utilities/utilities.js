@@ -5,7 +5,6 @@ import fs from 'fs'
 import path from 'path'
 import { iconURL } from '../events/ready.js'
 import _ from 'lodash'
-import { getLanguage } from '../language/locale.js'
 import { logging } from './logging.js'
 
 export function simpleEmbed(content, ephemeral = false) {
@@ -76,7 +75,6 @@ export function getFilesRecursively(directory, files) {
 }
 
 export async function addMusicControls(message, player) {
-  const { previous, pause, skip, stop, dashboard } = getLanguage(await message.client.database.getLocale(message.guildId))
   const previousButton = new ButtonBuilder()
     .setCustomId('previous')
     .setEmoji('⏮')
@@ -94,15 +92,15 @@ export async function addMusicControls(message, player) {
     .setEmoji('⏹')
     .setStyle(ButtonStyle.Secondary)
   const dashboardButton = new ButtonBuilder()
-    .setURL(`${message.client.dashboard.host}/dashboard/${message.guildId}`)
-    .setLabel(dashboard.author)
+    .setURL(`test.xyz/dashboard/${message.guildId}`)
+    .setLabel('Dashboard')
     .setStyle(ButtonStyle.Link)
 
   message.edit({ components: [new ActionRowBuilder().setComponents([previousButton, pauseButton, skipButton, stopButton, dashboardButton])] })
 
   const collector = message.createMessageComponentCollector({ idle: 300000 })
   collector.on('collect', async (buttonInteraction) => {
-    if (buttonInteraction.member.voice.channel?.id !== player.voiceChannel) { return await buttonInteraction.reply(errorEmbed(previous.errors.sameChannel, true)) }
+    if (buttonInteraction.member.voice.channel?.id !== player.voiceChannel) { return await buttonInteraction.reply(errorEmbed('You need to be in the same voice channel as the bot to use this command!', true)) }
 
     switch (buttonInteraction.customId) {
       case 'previous': {
@@ -112,12 +110,12 @@ export async function addMusicControls(message, player) {
           break
         }
         try {
-          if (player.previousTracks.length === 0) { return await buttonInteraction.reply(errorEmbed(previous.errors.generic, true)) }
+          if (player.previousTracks.length === 0) { return await buttonInteraction.reply(errorEmbed('You can\'t use the command `/previous` right now!', true)) }
           const track = player.previousTracks.pop()
           player.queue.add(track, 0)
           player.manager.once('trackEnd', (player) => { player.queue.add(player.previousTracks.pop(), 0) })
           player.stop()
-          await buttonInteraction.reply(simpleEmbed('⏮ ' + previous.other.response(`\`#0\`: **${track.title}**`), true))
+          await buttonInteraction.reply(simpleEmbed(`⏮ Playing previous track \`#0\`: **${track.title}**.`, true))
         } catch (e) {
           await player.seek(0)
           await buttonInteraction.deferUpdate()
@@ -126,7 +124,7 @@ export async function addMusicControls(message, player) {
       }
       case 'pause': {
         player.pause(!player.paused)
-        await buttonInteraction.reply(simpleEmbed(player.paused ? '⏸ ' + pause.other.paused : '▶ ' + pause.other.resumed, true))
+        await buttonInteraction.reply(simpleEmbed(player.paused ? '⏸ Paused.' : '▶ Resumed.', true))
         break
       }
       case 'skip': {
@@ -145,7 +143,7 @@ export async function addMusicControls(message, player) {
         break
       }
     }
-    message.client.dashboard.update(player)
+    // Update Dashboard
   })
   collector.on('end', async () => {
     const fetchedMessage = await message.fetch(true).catch((e) => { logging.warn(`Failed to edit message components: ${e}`) })
