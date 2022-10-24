@@ -92,7 +92,7 @@ export async function addMusicControls(message, player) {
     .setEmoji('⏹')
     .setStyle(ButtonStyle.Secondary)
   const dashboardButton = new ButtonBuilder()
-    .setURL(`test.xyz/dashboard/${message.guildId}`)
+    .setURL(`https://test.xyz/dashboard/${message.guildId}`)
     .setLabel('Dashboard')
     .setStyle(ButtonStyle.Link)
 
