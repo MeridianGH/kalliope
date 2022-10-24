@@ -1,0 +1,40 @@
+{
+  "name": "suitbot",
+  "description": "A lightweight music and general purpose bot, that uses slash commands and buttons to be as user-friendly as possible!",
+  "homepage": "https://suitbot.xyz",
+  "author": "Meridian",
+  "license": "Apache-2.0",
+  "main": "main.js",
+  "type": "module",
+  "engines": {
+    "node": "16.x"
+  },
+  "scripts": {
+    "start:win": "set NODE_ENV=production && node .",
+    "start:unix": "NODE_ENV=production node ."
+  },
+  "dependencies": {
+    "@discordjs/rest": "^1.1.0",
+    "discord-api-types": "^0.37.10",
+    "discord.js": "^14.3.0",
+    "ejs": "^3.0.2",
+    "erela.js": "github:menudocs/erela.js#build",
+    "express": "^4.17.1",
+    "express-minify": "^1.0.0",
+    "express-session": "^1.17.2",
+    "genius-lyrics": "^4.4.0",
+    "isomorphic-unfetch": "^3.1.0",
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "marked": "^4.1.0",
+    "memorystore": "^1.6.6",
+    "postgres": "^3.2.4",
+    "spotify-url-info": "^3.1.8",
+    "websocket": "^1.0.34",
+    "ytdl-core": "^4.11.2",
+    "ytpl": "^2.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.23.1"
+  }
+}

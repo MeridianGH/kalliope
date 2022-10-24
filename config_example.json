@@ -1,0 +1,10 @@
+{
+	"token": "yourToken",
+	"appId": "yourApplicationID",
+	"clientSecret": "yourClientSecret",
+	"guildId": "yourGuildID",
+	"adminId": "yourUserID",
+	"papisid": "yourPAPISID",
+	"psid": "yourPSID",
+	"geniusAppId": "yourGeniusAppId"
+}
