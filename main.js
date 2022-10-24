@@ -31,12 +31,13 @@ process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)
 process.on('uncaughtException', async (error) => {
   logging.warn(`Ignoring uncaught exception: ${error} | ${error.stack.split(/\r?\n/)[1].split('\\').pop().slice(0, -1).trim()}`)
-  if (client.isReady()) {
+  logging.error(error.stack)
+/*  if (client.isReady()) {
     fs.writeFileSync('error.txt', error.stack)
     const user = await client.users.fetch(adminId)
     await user.send({ content: `\`New Exception | ${error}\``, files: ['error.txt'] })
     fs.unlink('error.txt', () => {})
-  }
+  }*/
 })
 
 // Shutdown Handling
