@@ -5,19 +5,14 @@ import readline from 'readline'
 
 const { client: WebSocketClient } = ws
 
-export function setup() {
-  const client = { id: 1 }
-
-  function send(ws, data) {
-    data.clientId = client.id
-    ws.sendUTF(JSON.stringify(data))
-  }
+export function setup(client) {
+  client = { id: 1 }
 
   function simplifyPlayer(player) {
     return {
-      type: 'playerData',
       guild: player.guild,
       queue: player.queue,
+      channel: player.channel.id,
       current: player.queue.current,
       paused: player.paused,
       volume: player.volume,
@@ -28,6 +23,15 @@ export function setup() {
     }
   }
 
+  function executePlayerAction(player, action, index) {
+    switch (action) {
+      case 'play': {
+        // Play function
+        break
+      }
+    }
+  }
+
   const websocket = new WebSocketClient({})
   websocket.connect('ws://clients.kalliope.xyz')
 
@@ -35,30 +39,52 @@ export function setup() {
     console.log('[WebSocket] Connection failed with reason: ' + reason)
   })
 
-  websocket.on('connect', (connection) => {
-    connection.on('close', (reasonCode, description) => {
-      console.log('Closed: ' + description)
-    })
-    connection.on('error', (error) => {
-      console.log('Error: ' + error)
-    })
-    connection.on('message', (message) => {
+  websocket.on('connect', (ws) => {
+    ws.send = (type = 'none', data = {}) => {
+      data.type = data.type ?? type
+      data.clientId = client.id
+      ws.sendUTF(JSON.stringify(data))
+    }
+
+    ws.updatePlayer = (player) => {
+      ws.send('playerData', simplifyPlayer(player))
+    }
+
+    ws.on('message', (message) => {
       if (message.type !== 'utf8') { return }
       const data = JSON.parse(message.utf8Data)
+      console.log('Client received message:')
       console.log(data)
-      if (data.type === 'ping') { send(connection, { type: 'pong' }) }
+
+      const player = client.lavalink.getPlayer(data.guildId)
+      switch (data.type) {
+        case 'requestPlayerData': {
+          const playerData = simplifyPlayer(player)
+          ws.send('playerData', playerData ?? {})
+          break
+        }
+        case 'playerAction': {
+          executePlayerAction(player, data.action, data.index)
+          break
+        }
+      }
     })
 
+    client.websocket = ws
+
     console.log('[WebSocket] Opened WebSocket connection.')
-    send(connection, {
-      type: 'clientConnectionOpen'
+    ws.send('clientData', {
       // guilds: client.guilds.cache.size,
       // users: client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
     })
+
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+    rl.question('', () => {
+      ws.close()
+      rl.close()
+    })
   })
 
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
-  rl.question('', () => { rl.close() })
 }
 
 setup()
