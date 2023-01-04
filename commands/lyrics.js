@@ -1,11 +1,11 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { errorEmbed } from '../utilities/utilities.js'
 import ytdl from 'ytdl-core'
-import { geniusAppId } from '../utilities/config.js'
+import { geniusClientToken } from '../utilities/config.js'
 import genius from 'genius-lyrics'
 import { logging } from '../utilities/logging.js'
 
-const Genius = new genius.Client(geniusAppId)
+const Genius = new genius.Client(geniusClientToken)
 
 export const { data, execute } = {
   data: new SlashCommandBuilder()
