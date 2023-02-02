@@ -7,7 +7,7 @@
   "main": "main.js",
   "type": "module",
   "engines": {
-    "node": "16.x"
+    "node": ">=16.0"
   },
   "scripts": {
     "start:win": "set NODE_ENV=production && node .",
