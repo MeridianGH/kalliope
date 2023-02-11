@@ -71,7 +71,7 @@ export function setupWebsocket(client) {
 
     console.log('[WebSocket] Opened WebSocket connection.')
     send(ws, 'clientData', {
-      guilds: client.guilds.cache,
+      guilds: client.guilds.cache.map((guild) => guild.id),
       users: client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
     })
   })
