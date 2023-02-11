@@ -8,8 +8,8 @@ import { iconURL } from './events/ready.js'
 import { logging } from './utilities/logging.js'
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates], presence: { status: 'online', activities: [{ name: '/help | suitbot.xyz', type: ActivityType.Playing }] } })
-client.lavalink = new Lavalink(client)
-await client.lavalink.initialize()
+// client.lavalink = new Lavalink(client)
+// await client.lavalink.initialize()
 
 // Commands
 client.commands = new Collection()
@@ -42,7 +42,7 @@ process.on('uncaughtException', async (error) => {
 
 // Shutdown Handling
 async function shutdown() {
-  logging.info(`Closing ${client.lavalink.manager.players.size} queues.`)
+/*  logging.info(`Closing ${client.lavalink.manager.players.size} queues.`)
   for (const entry of client.lavalink.manager.players) {
     const player = entry[1]
     // noinspection JSUnresolvedFunction
@@ -56,7 +56,7 @@ async function shutdown() {
       ]
     })
     player.destroy()
-  }
+  }*/
   client.destroy()
   logging.info('Received SIGTERM, shutting down.')
   process.exit(0)

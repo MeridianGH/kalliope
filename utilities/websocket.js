@@ -1,12 +1,15 @@
 // Send: Client Info, Playback Status, Receive: Playback Status
 // Register with ID
 import ws from 'websocket'
-import readline from 'readline'
-
 const { client: WebSocketClient } = ws
 
-export function setup(client) {
-  client = { id: 1 }
+
+export function setupWebsocket(client) {
+  function send(ws, type = 'none', data = {}) {
+    data.type = data.type ?? type
+    data.clientId = client.user.id
+    ws.sendUTF(JSON.stringify(data))
+  }
 
   function simplifyPlayer(player) {
     return {
@@ -33,21 +36,15 @@ export function setup(client) {
   }
 
   const websocket = new WebSocketClient({})
-  websocket.connect('ws://clients.kalliope.xyz')
+  websocket.connect('ws://clients.kalliope.xyz:8080')
 
   websocket.on('connectFailed', (reason) => {
     console.log('[WebSocket] Connection failed with reason: ' + reason)
   })
 
   websocket.on('connect', (ws) => {
-    ws.send = (type = 'none', data = {}) => {
-      data.type = data.type ?? type
-      data.clientId = client.id
-      ws.sendUTF(JSON.stringify(data))
-    }
-
     ws.updatePlayer = (player) => {
-      ws.send('playerData', simplifyPlayer(player))
+      send(ws, 'playerData', simplifyPlayer(player))
     }
 
     ws.on('message', (message) => {
@@ -73,18 +70,10 @@ export function setup(client) {
     client.websocket = ws
 
     console.log('[WebSocket] Opened WebSocket connection.')
-    ws.send('clientData', {
-      // guilds: client.guilds.cache.size,
-      // users: client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
-    })
-
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
-    rl.question('', () => {
-      ws.close()
-      rl.close()
+    send(ws, 'clientData', {
+      guilds: client.guilds.cache,
+      users: client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
     })
   })
 
 }
-
-setup()
