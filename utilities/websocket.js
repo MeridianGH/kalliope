@@ -3,18 +3,47 @@
 import ws from 'websocket'
 const { client: WebSocketClient } = ws
 
+const playerObject = {
+  'guild': '610498937874546699',
+  'queue': [],
+  'voiceChannel': '658690208295944232',
+  'textChannel': '658690163290931220',
+  'current': {
+    'requester': {
+      'displayName': 'Meridian',
+      'displayAvatarURL': 'https://cdn.discordapp.com/avatars/360817252158930954/5ca503af7e9f9b64c1eee2d4f947a29d.webp'
+    },
+    'track': 'QAAAiwIAKEppbSBZb3NlZiB4IFJJRUxMIC0gQW5pbWFsIChMeXJpYyBWaWRlbykACUppbSBZb3NlZgAAAAAAArNoAAtRUVgyaHBtdE1KcwABACtodHRwczovL3d3dy55b3V0dWJlLmNvbS93YXRjaD92PVFRWDJocG10TUpzAAd5b3V0dWJlAAAAAAAAAAA=',
+    'title': 'Jim Yosef x RIELL - Animal (Lyric Video)',
+    'identifier': 'QQX2hpmtMJs',
+    'author': 'Jim Yosef',
+    'duration': 177000,
+    'isSeekable': true,
+    'isStream': false,
+    'uri': 'https://www.youtube.com/watch?v=QQX2hpmtMJs',
+    'thumbnail': 'https://img.youtube.com/vi/QQX2hpmtMJs/maxresdefault.jpg'
+  },
+  'paused': false,
+  'volume': 50,
+  'filter': 'none',
+  'position': 0,
+  'timescale': 1,
+  'repeatMode': 'none'
+}
 
 export function setupWebsocket(client) {
   function simplifyPlayer(player) {
+    return playerObject
     return player ? {
       guild: player.guild,
       queue: player.queue,
-      channel: player.channel.id,
-      current: player.queue.current,
+      current: (({ requester, ...rest }) => ({ requester: { displayName: requester.displayName, displayAvatarURL: requester.displayAvatarURL() }, ...rest }))(player.queue.current),
+      voiceChannel: player.voiceChannel,
+      textChannel: player.textChannel,
       paused: player.paused,
       volume: player.volume,
-      filter: player.filter,
       position: player.position,
+      filter: player.filter,
       timescale: player.timescale,
       repeatMode: player.queueRepeat ? 'queue' : player.trackRepeat ? 'track' : 'none'
     } : {}

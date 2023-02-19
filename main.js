@@ -8,8 +8,8 @@ import { iconURL } from './events/ready.js'
 import { logging } from './utilities/logging.js'
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates], presence: { status: 'online', activities: [{ name: '/help | suitbot.xyz', type: ActivityType.Playing }] } })
-// client.lavalink = new Lavalink(client)
-// await client.lavalink.initialize()
+client.lavalink = new Lavalink(client)
+await client.lavalink.initialize()
 
 // Commands
 client.commands = new Collection()
