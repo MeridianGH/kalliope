@@ -1,6 +1,7 @@
 // Send: Client Info, Playback Status, Receive: Playback Status
 // Register with ID
 import ws from 'websocket'
+import { logging } from './logging.js'
 const { client: WebSocketClient } = ws
 
 const playerObject = {
@@ -61,11 +62,25 @@ export function setupWebsocket(client) {
   const websocket = new WebSocketClient({})
   websocket.connect('ws://clients.kalliope.xyz:8080')
 
+  let reconnectDelay = 1000
+  const maxDelay = 128000
+  websocket.reconnect = () => {
+    const randomDelay = Math.floor(Math.random() * 5000)
+    logging.info(`[WebSocket] Trying to reconnect in ${reconnectDelay / 1000}s (+${randomDelay / 1000}s variation).`)
+    setTimeout(() => {
+      websocket.connect('ws://clients.kalliope.xyz:8080')
+    }, reconnectDelay + randomDelay)
+    if (reconnectDelay < maxDelay) { reconnectDelay *= 2 }
+  }
+
   websocket.on('connectFailed', (reason) => {
-    console.log('[WebSocket] Connection failed with reason: ' + reason)
+    logging.error('[WebSocket] Connection failed with reason: ' + reason)
+    websocket.reconnect()
   })
 
   websocket.on('connect', (ws) => {
+    reconnectDelay = 1000
+
     ws.sendData = (type = 'none', data = {}) => {
       data.type = data.type ?? type
       data.clientId = client.user.id
@@ -96,9 +111,14 @@ export function setupWebsocket(client) {
       }
     })
 
+    ws.on('close', (reason, description) => {
+      logging.error(`[WebSocket] Socket closed with reason: ${reason} | ${description}`)
+      websocket.reconnect()
+    })
+
     client.websocket = ws
 
-    console.log('[WebSocket] Opened WebSocket connection.')
+    logging.success('[WebSocket] Opened WebSocket connection.')
     ws.sendData('clientData', {
       guilds: client.guilds.cache.map((guild) => guild.id),
       users: client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
