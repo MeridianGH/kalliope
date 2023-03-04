@@ -12,6 +12,6 @@ export const { data, execute } = {
 
     player.queue.shuffle()
     await interaction.reply(simpleEmbed('🔀 Shuffled the queue.'))
-    // Update Dashboard
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

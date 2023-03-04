@@ -52,7 +52,7 @@ export const { data, execute } = {
         .setURL(song.url)
         .setThumbnail(player.queue.current.thumbnail)
         .setDescription(pages[0])
-        .setFooter({ text: `SuitBot | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
+        .setFooter({ text: `Kalliope | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
 
       const message = await interaction.editReply({ embeds: [embed], components: isOnePage ? [] : [new ActionRowBuilder().setComponents([previous.setDisabled(true), next.setDisabled(false)])], fetchReply: true })
 
@@ -70,7 +70,7 @@ export const { data, execute } = {
                 .setURL(song.url)
                 .setThumbnail(player.queue.current.thumbnail)
                 .setDescription(pages[currentIndex])
-                .setFooter({ text: `SuitBot | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
+                .setFooter({ text: `Kalliope | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
             ],
             components: [new ActionRowBuilder().setComponents([previous.setDisabled(currentIndex === 0), next.setDisabled(currentIndex === pages.length - 1)])]
           })
@@ -89,7 +89,7 @@ export const { data, execute } = {
             .setURL(player.queue.current.uri)
             .setThumbnail(player.queue.current.thumbnail)
             .setDescription('No results found!')
-            .setFooter({ text: `SuitBot | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
+            .setFooter({ text: `Kalliope | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
         ]
       })
     }

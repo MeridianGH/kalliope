@@ -16,6 +16,6 @@ export const { data, execute } = {
 
     await player.seek(time)
     await interaction.reply(simpleEmbed(`⏩ Skipped to ${msToHMS(time)}`))
-    // Update Dashboard
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

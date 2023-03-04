@@ -31,7 +31,7 @@ export const { data, execute } = {
         await player.connect()
       }
       if (!player.playing && !player.paused && player.queue.totalSize === result.tracks.length) { await player.play() }
-      // Update Dashboard
+      interaction.client.websocket?.updatePlayer(player)
 
       // noinspection JSUnresolvedVariable
       const embed = new EmbedBuilder()
@@ -44,7 +44,7 @@ export const { data, execute } = {
           { name: 'Author', value: result.playlist.author, inline: true },
           { name: 'Position', value: `${player.queue.indexOf(result.tracks[0]) + 1}-${player.queue.indexOf(result.tracks[result.tracks.length - 1]) + 1}`, inline: true }
         ])
-        .setFooter({ text: 'SuitBot', iconURL: interaction.client.user.displayAvatarURL() })
+        .setFooter({ text: 'Kalliope', iconURL: interaction.client.user.displayAvatarURL() })
       const message = await interaction.editReply({ embeds: [embed] })
       await addMusicControls(message, player)
     } else {
@@ -59,7 +59,7 @@ export const { data, execute } = {
         await player.connect()
       }
       if (!player.playing && !player.paused && !player.queue.length) { await player.play() }
-      // Update Dashboard
+      interaction.client.websocket?.updatePlayer(player)
 
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Added to queue.', iconURL: interaction.member.user.displayAvatarURL() })
@@ -71,7 +71,7 @@ export const { data, execute } = {
           { name: 'Author', value: track.author, inline: true },
           { name: 'Position', value: (player.queue.indexOf(track) + 1).toString(), inline: true }
         ])
-        .setFooter({ text: 'SuitBot', iconURL: interaction.client.user.displayAvatarURL() })
+        .setFooter({ text: 'Kalliope', iconURL: interaction.client.user.displayAvatarURL() })
       const message = await interaction.editReply({ embeds: [embed] })
       await addMusicControls(message, player)
     }

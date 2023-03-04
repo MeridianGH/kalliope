@@ -13,6 +13,6 @@ export const { data, execute } = {
 
     player.pause(false)
     await interaction.reply(simpleEmbed('▶ Resumed'))
-    // Update Dashboard
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

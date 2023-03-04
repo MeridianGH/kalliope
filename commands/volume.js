@@ -14,6 +14,6 @@ export const { data, execute } = {
 
     player.setVolume(volume)
     await interaction.reply(simpleEmbed(`🔊 Set volume to ${volume}%.`))
-    // Update Dashboard
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

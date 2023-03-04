@@ -12,6 +12,6 @@ export const { data, execute } = {
 
     player.queue.clear()
     await interaction.reply(simpleEmbed('🗑️ Cleared the queue.'))
-    // Update Dashboard
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

@@ -12,6 +12,6 @@ export const { data, execute } = {
 
     player.pause(!player.paused)
     await interaction.reply(simpleEmbed(player.paused ? '⏸ Paused.' : '▶ Resumed.'))
-    // Update Dashboard
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

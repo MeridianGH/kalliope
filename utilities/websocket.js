@@ -10,7 +10,7 @@ export function setupWebsocket(client) {
     return player ? {
       guild: player.guild,
       queue: player.queue,
-      current: (({ requester, ...rest }) => ({ requester: { displayName: requester.displayName, displayAvatarURL: requester.displayAvatarURL() }, ...rest }))(player.queue.current),
+      current: player.queue.current,
       voiceChannel: player.voiceChannel,
       textChannel: player.textChannel,
       paused: player.paused,
@@ -65,7 +65,7 @@ export function setupWebsocket(client) {
         break
       }
       case 'play': {
-        const member = await client.guilds.fetch(player.guild).members.fetch(data.userId)
+        const member = await (await client.guilds.fetch(player.guild)).members.fetch(data.userId)
         const result = await player.search(data.query, member)
         if (result.loadType === 'LOAD_FAILED' || result.loadType === 'NO_MATCHES') { return }
 
@@ -93,7 +93,7 @@ export function setupWebsocket(client) {
               { name: 'Author', value: result.playlist.author, inline: true },
               { name: 'Position', value: `${player.queue.indexOf(result.tracks[0]) + 1}-${player.queue.indexOf(result.tracks[result.tracks.length - 1]) + 1}`, inline: true }
             ])
-            .setFooter({ text: 'SuitBot', iconURL: client.user.displayAvatarURL() })
+            .setFooter({ text: 'Kalliope', iconURL: client.user.displayAvatarURL() })
           const message = await client.channels.cache.get(player.textChannel).send({ embeds: [embed] })
           await addMusicControls(message, player)
         } else {
@@ -120,7 +120,7 @@ export function setupWebsocket(client) {
               { name: 'Author', value: track.author, inline: true },
               { name: 'Position', value: (player.queue.indexOf(track) + 1).toString(), inline: true }
             ])
-            .setFooter({ text: 'SuitBot', iconURL: client.user.displayAvatarURL() })
+            .setFooter({ text: 'Kalliope', iconURL: client.user.displayAvatarURL() })
           const message = await client.channels.cache.get(player.textChannel).send({ embeds: [embed] })
           await addMusicControls(message, player)
         }
@@ -170,20 +170,19 @@ export function setupWebsocket(client) {
     reconnectDelay = 1000
 
     ws.sendData = (type = 'none', data = {}) => {
-      console.log('sent', data)
       data.type = data.type ?? type
       data.clientId = client.user.id
       ws.sendUTF(JSON.stringify(data))
     }
 
     ws.updatePlayer = (player) => {
+      console.log('update' + player.position)
       ws.sendData('playerData', { guildId: player.guild, player: simplifyPlayer(player) })
     }
 
     ws.on('message', (message) => {
       if (message.type !== 'utf8') { return }
       const data = JSON.parse(message.utf8Data)
-      console.log('received', data)
 
       const player = client.lavalink.getPlayer(data.guildId)
       if (data.type == 'requestPlayerData') {

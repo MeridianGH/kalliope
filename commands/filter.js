@@ -25,6 +25,6 @@ export const { data, execute } = {
     // noinspection JSUnresolvedFunction
     player.setFilter(filter)
     await interaction.reply(simpleEmbed(`Set filter to ${filter}.`))
-    // Update Dashboard
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

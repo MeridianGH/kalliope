@@ -31,7 +31,7 @@ export const { data, execute } = {
           .setAuthor({ name: 'Search Results.', iconURL: interaction.member.user.displayAvatarURL() })
           .setTitle(`Here are the search results for your search\n"${query}":`)
           .setThumbnail(result.tracks[0].thumbnail)
-          .setFooter({ text: 'SuitBot | This embed expires after one minute.', iconURL: interaction.client.user.displayAvatarURL() })
+          .setFooter({ text: 'Kalliope | This embed expires after one minute.', iconURL: interaction.client.user.displayAvatarURL() })
       ],
       components: [new ActionRowBuilder().setComponents(selectMenu)]
     })
@@ -49,7 +49,7 @@ export const { data, execute } = {
         await player.connect()
       }
       if (!player.playing && !player.paused && !player.queue.length) { await player.play() }
-      // Update Dashboard
+      interaction.client.websocket?.updatePlayer(player)
 
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Added to queue.', iconURL: interaction.member.user.displayAvatarURL() })
@@ -61,7 +61,7 @@ export const { data, execute } = {
           { name: 'Author', value: track.author, inline: true },
           { name: 'Position', value: (player.queue.indexOf(track) + 1).toString(), inline: true }
         ])
-        .setFooter({ text: 'SuitBot', iconURL: interaction.client.user.displayAvatarURL() })
+        .setFooter({ text: 'Kalliope', iconURL: interaction.client.user.displayAvatarURL() })
 
       const message = await menuInteraction.editReply({ embeds: [embed], components: [] })
       collector.stop()

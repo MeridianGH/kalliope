@@ -18,6 +18,6 @@ export const { data, execute } = {
 
     mode === 'track' ? player.setTrackRepeat(true) : mode === 'queue' ? player.setQueueRepeat(true) : player.setTrackRepeat(false)
     await interaction.reply(simpleEmbed(`Set repeat mode to ${player.queueRepeat ? 'Queue 🔁' : player.trackRepeat ? 'Track 🔂' : 'None ▶'}`))
-    // Update Dashboard
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

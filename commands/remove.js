@@ -15,6 +15,6 @@ export const { data, execute } = {
     if (index < 1 || index > player.queue.length) { return await interaction.reply(errorEmbed(`You can only specify a song number between 1-${player.queue.length}.`, true)) }
     const track = player.queue.remove(index - 1)[0]
     await interaction.reply(simpleEmbed(`🗑️ Removed track \`#${index}\`: **${track.title}**`))
-    // Update Dashboard
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

@@ -23,7 +23,7 @@ export const { data, execute } = {
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Queue.', iconURL: interaction.member.user.displayAvatarURL() })
         .setDescription(description)
-        .setFooter({ text: `SuitBot | Page 1/1 | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
+        .setFooter({ text: `Kalliope | Page 1/1 | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
       pages.push(embed)
     } else if (queue.length > 0 && queue.length <= 10) {
       // Format single page.
@@ -35,7 +35,7 @@ export const { data, execute } = {
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Queue.', iconURL: interaction.member.user.displayAvatarURL() })
         .setDescription(description)
-        .setFooter({ text: `SuitBot | Page 1/1 | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
+        .setFooter({ text: `Kalliope | Page 1/1 | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
       pages.push(embed)
     } else {
       // Format all pages.
@@ -50,7 +50,7 @@ export const { data, execute } = {
         const embed = new EmbedBuilder()
           .setAuthor({ name: 'Queue.', iconURL: interaction.member.user.displayAvatarURL() })
           .setDescription(description)
-          .setFooter({ text: `SuitBot | 'Page ${pages.length + 1}/${Math.ceil(queue.length / 10)} | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
+          .setFooter({ text: `Kalliope | 'Page ${pages.length + 1}/${Math.ceil(queue.length / 10)} | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
         pages.push(embed)
       }
     }

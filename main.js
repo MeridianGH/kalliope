@@ -7,7 +7,7 @@ import { adminId, token } from './utilities/config.js'
 import { iconURL } from './events/ready.js'
 import { logging } from './utilities/logging.js'
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates], presence: { status: 'online', activities: [{ name: '/help | suitbot.xyz', type: ActivityType.Playing }] } })
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates], presence: { status: 'online', activities: [{ name: '/help | Kalliope.xyz', type: ActivityType.Playing }] } })
 client.lavalink = new Lavalink(client)
 await client.lavalink.initialize()
 
@@ -51,7 +51,7 @@ async function shutdown() {
         new EmbedBuilder()
           .setTitle('Server shutdown.')
           .setDescription('The server the bot is hosted on has been forced to shut down.\nThe bot should be up and running again in a few minutes.')
-          .setFooter({ text: 'SuitBot', iconURL: iconURL })
+          .setFooter({ text: 'Kalliope', iconURL: iconURL })
           .setColor([255, 0, 0])
       ]
     })

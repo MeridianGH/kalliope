@@ -12,7 +12,7 @@ export function simpleEmbed(content, ephemeral = false) {
     embeds: [
       new EmbedBuilder()
         .setDescription(content)
-        .setFooter({ text: 'SuitBot', iconURL: iconURL })
+        .setFooter({ text: 'Kalliope', iconURL: iconURL })
     ],
     ephemeral: ephemeral
   }
@@ -23,7 +23,7 @@ export function errorEmbed(content, ephemeral = false) {
     embeds: [
       new EmbedBuilder()
         .setDescription(content)
-        .setFooter({ text: 'SuitBot', iconURL: iconURL })
+        .setFooter({ text: 'Kalliope', iconURL: iconURL })
         .setColor([255, 0, 0])
     ],
     ephemeral: ephemeral
@@ -130,20 +130,20 @@ export async function addMusicControls(message, player) {
       case 'skip': {
         if (player.queue.length === 0) {
           player.destroy()
-          await buttonInteraction.reply(simpleEmbed('⏹ ' + stop.other.response, true))
+          await buttonInteraction.reply(simpleEmbed('⏹ Stopped', true))
           break
         }
         player.stop()
-        await buttonInteraction.reply(simpleEmbed('⏭ ' + skip.other.skipped, true))
+        await buttonInteraction.reply(simpleEmbed('⏭ Skipped', true))
         break
       }
       case 'stop': {
         player.destroy()
-        await buttonInteraction.reply(simpleEmbed('⏹ ' + stop.other.response, true))
+        await buttonInteraction.reply(simpleEmbed('⏹ Stopped', true))
         break
       }
     }
-    // Update Dashboard
+    message.client.websocket?.updatePlayer(player)
   })
   collector.on('end', async () => {
     const fetchedMessage = await message.fetch(true).catch((e) => { logging.warn(`Failed to edit message components: ${e}`) })

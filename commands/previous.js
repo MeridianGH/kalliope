@@ -18,6 +18,6 @@ export const { data, execute } = {
     player.stop()
 
     await interaction.reply(simpleEmbed(`⏮ Playing previous track \`#0\`: **${track.title}**.`))
-    // Update Dashboard
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

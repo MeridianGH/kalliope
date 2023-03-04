@@ -25,7 +25,7 @@ export const { data, execute } = {
         { name: 'Author', value: track.author, inline: true },
         { name: 'Requested By', value: track.requester.toString(), inline: true }
       ])
-      .setFooter({ text: `SuitBot | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
+      .setFooter({ text: `Kalliope | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
 
     const message = await interaction.reply({ embeds: [embed], fetchReply: true })
     await addMusicControls(message, player)

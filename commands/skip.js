@@ -16,7 +16,7 @@ export const { data, execute } = {
     if (player.queue.length === 0) {
       player.destroy()
       await interaction.reply(simpleEmbed('⏹ Stopped.'))
-      // Update Dashboard
+      interaction.client.websocket?.updatePlayer(player)
       return
     }
 
@@ -28,6 +28,6 @@ export const { data, execute } = {
       player.stop()
       await interaction.reply(simpleEmbed('⏭ Skipped.'))
     }
-    // Update Dashboard
+    interaction.client.websocket?.updatePlayer(player)
   }
 }
