@@ -1,7 +1,6 @@
 import { ActivityType, Client, Collection, EmbedBuilder, GatewayIntentBits } from 'discord.js'
 import { Lavalink } from './music/lavalink.js'
 import { getFilesRecursively } from './utilities/utilities.js'
-import fs from 'fs'
 
 import { token } from './utilities/config.js'
 import { iconURL } from './events/ready.js'
@@ -31,9 +30,7 @@ process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)
 process.on('uncaughtException', async (error) => {
   logging.warn(`Ignoring uncaught exception: ${error} | ${error.stack.split(/\r?\n/)[1].split('\\').pop().slice(0, -1).trim()}`)
-  logging.warn(`Full error stack trace logged in ${__dirname}/error.txt`)
-  const now = new Date()
-  fs.appendFileSync('error.txt', `[${now.toLocaleTimeString()}] Exception: ${error}\n` + error.stack)
+  logging.error(error.stack)
 })
 
 // Shutdown Handling
