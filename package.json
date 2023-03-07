@@ -1,4 +1,5 @@
 {
+  "version": "1.0.0",
   "name": "kalliope",
   "description": "A Discord music bot that still supports most platforms.",
   "homepage": "https://kalliope.xyz",

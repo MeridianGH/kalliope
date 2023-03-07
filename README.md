@@ -90,10 +90,11 @@ Kalliope uses slash commands to integrate itself into the server. You can easily
 ## Installation
 
 ### Prerequisites
+- **[Node.js](https://nodejs.org/en/download/)**
 - **[Java](https://www.oracle.com/java/technologies/downloads/)**
 
-Install the latest version available.\
-If you encounter any issues with playback, try installing OpenJDK 13.0.2:
+Install the latest versions available.\
+If you encounter any issues with playback, try installing OpenJDK 13.0.2 instead of the latest Java version:
 
 <details>
 <summary style="cursor: pointer"><b>OpenJDK 13.0.2</b></summary>
@@ -113,32 +114,28 @@ Regardless of your method, make sure to add the `/bin` folder to your path varia
 Make sure Java is installed properly by running `java --version` in your terminal. If it displays the correct version, you are good to go!
 
 ### Getting started
-To install Kalliope, simply download the respective file for your operating system from **[releases](https://github.com/MeridianGH/Kalliope/releases)**.\
-On Linux and macOS you'll need to make the file explicitly executable using `chmod`.
 
-If you choose to install Kalliope manually, here's how to do so. Make sure you have **[Node.js](https://nodejs.org/en/download/)** installed.
+Download and install the latest version of Kalliope using git:
 ```shell
 git clone https://github.com/MeridianGH/kalliope.git
 cd kalliope
 npm install
 ```
 
-### Configuration
-Create a file `config.json` in the same directory as your executable and copy the file contents from [`config_example.json`](https://github.com/MeridianGH/Kalliope/blob/main/config_example.json). If you're installing manually, simply rename the file.
+Alternatively use **[GitHub Desktop](https://desktop.github.com/)** or download as **[.zip](https://github.com/MeridianGH/Kalliope/archive/refs/heads/main.zip)**.
 
-Replace the placeholders inside with your info:
+### Configuration
+Rename `config_example.json` to `config.json` and replace the placeholders inside with your info:
 - A Discord Bot Token (**[Guide](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot)**)
 - Your Application ID which you can find in the `General Information` tab in your Discord application.
 - Get your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**. Once you have `PAPISID` and `PSID`, set them in the config.
 - Create a Genius API application **[here](https://docs.genius.com/)**, generate an access token and paste it in the config.
 
-Run `node .\deploy-commands.js` _once_ to synchronize the bots commands with Discord.\
+Run `node .\deployCommands.js` _once_ to synchronize the bots commands with Discord.\
 You only need to run this during the initial setup or when you install a new update that changes some commands.
 
 ### Run
-Start Kalliope by running the executable using double-click on Windows and `./<filename>` on Linux and macOS.
-
-If you installed Kalliope manually, start the bot with the following command:
+Start the bot using:
 ```shell
 node .
 ```
@@ -152,7 +149,7 @@ node .
 ![Repo size](https://img.shields.io/github/repo-size/MeridianGH/Kalliope?style=for-the-badge)
 
 ### Code
-[![GitHub release](https://img.shields.io/github/v/release/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/releases)
+[![Version](https://img.shields.io/github/package-json/v/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/blob/main/package.json#L2)
 [![Top language](https://img.shields.io/github/languages/top/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/search?l=javascript)
 \
 [![CodeFactor](https://img.shields.io/codefactor/grade/github/MeridianGH/Kalliope?style=for-the-badge)](https://www.codefactor.io/repository/github/meridiangh/kalliope)
