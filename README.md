@@ -132,8 +132,8 @@ Replace the placeholders inside with your info:
 - Get your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**. Once you have `PAPISID` and `PSID`, set them in the config.
 - Create a Genius API application **[here](https://docs.genius.com/)**, generate an access token and paste it in the config.
 
-Run `node .\deploy-commands.js` _once_ to synchronize the bot's commands with Discord.\
-You only need to run this during the initial setup or when you install a new update that changes some of the commands.
+Run `node .\deploy-commands.js` _once_ to synchronize the bots commands with Discord.\
+You only need to run this during the initial setup or when you install a new update that changes some commands.
 
 ### Run
 Start Kalliope by running the executable using double-click on Windows and `./<filename>` on Linux and macOS.
