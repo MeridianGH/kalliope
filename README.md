@@ -12,6 +12,7 @@
 <b>A Discord music bot that still supports most platforms.</b>
 
 </div>
+<br/>
 
 <details>
 <summary style="cursor: pointer"><b>Table of Contents</b></summary>
@@ -89,8 +90,27 @@ Kalliope uses slash commands to integrate itself into the server. You can easily
 ## Installation
 
 ### Prerequisites
-- **[FFmpeg](https://ffmpeg.org/download.html)**
-- **[OpenJDK](https://openjdk.org/projects/jdk/)** (Java v11 or newer is required. Try the newest version, if you encounter issues use v13)
+- **[Java](https://www.oracle.com/java/technologies/downloads/)**
+
+Install the latest version available.\
+If you encounter any issues with playback, try installing OpenJDK 13.0.2:
+
+<details>
+<summary style="cursor: pointer"><b>OpenJDK 13.0.2</b></summary>
+
+Download the OpenJDK 13.0.2 installer either from the official **[Oracle Archive website](https://www.oracle.com/java/technologies/javase/jdk13-archive-downloads.html)** (Account creation required)
+
+**OR**
+
+Download the binaries from the [Java Archives](https://jdk.java.net/archive) and unzip it to a location you can remember.
+
+Regardless of your method, make sure to add the `/bin` folder to your path variable. If you don't know how to do that, a quick Google search will help you.\
+
+---
+
+</details>
+
+Make sure Java is installed properly by running `java --version` in your terminal. If it displays the correct version, you are good to go!
 
 ### Getting started
 To install Kalliope, simply download the respective file for your operating system from **[releases](https://github.com/MeridianGH/Kalliope/releases)**.\
@@ -119,9 +139,6 @@ If you installed Kalliope manually, start the bot with the following command:
 ```shell
 node .
 ```
-
-If you encounter any errors, make sure you have Java and FFmpeg properly installed.\
-Check your Java version using `java --version`.
 
 ---
 
