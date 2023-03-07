@@ -1,6 +1,6 @@
 <!--suppress HtmlDeprecatedAttribute -->
 
-[![logo](https://repository-images.githubusercontent.com/556876246/97fc51e6-1179-4eb8-8401-0fc20a25636e)]()
+![logo](https://repository-images.githubusercontent.com/556876246/97fc51e6-1179-4eb8-8401-0fc20a25636e)
 
 <div align="center">
 
@@ -8,7 +8,7 @@
 [![Discord](https://shields.io/discord/610498937874546699?style=for-the-badge&logo=discord&label=discord)](https://discord.gg/qX2CBrrUpf)
 [![License](https://img.shields.io/github/license/MeridianGH/kalliope?logo=gnu&style=for-the-badge)](https://github.com/MeridianGH/Kalliope/blob/main/LICENSE.md)
 
-# Kalliope.
+<h1>Kalliope.</h1>
 <b>A Discord music bot that still supports most platforms.</b>
 
 </div>
@@ -104,7 +104,7 @@ npm install
 ```
 
 ### Configuration
-Create a file `config.json` in the same directory as your executable and copy the file contents from [<u>`config_example.json`</u>](https://github.com/MeridianGH/Kalliope/blob/main/config_example.json). If you're installing manually, simply rename the file.
+Create a file `config.json` in the same directory as your executable and copy the file contents from [`config_example.json`](https://github.com/MeridianGH/Kalliope/blob/main/config_example.json). If you're installing manually, simply rename the file.
 
 Replace the placeholders inside with your info:
 - A Discord Bot Token (**[Guide](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot)**)
@@ -128,12 +128,12 @@ Check your Java version using `java --version`.
 ## Stats
 
 ### Size
-[![Total lines](https://img.shields.io/tokei/lines/github/MeridianGH/Kalliope?style=for-the-badge)]()
-[![Repo size](https://img.shields.io/github/repo-size/MeridianGH/Kalliope?style=for-the-badge)]()
+![Total lines](https://img.shields.io/tokei/lines/github/MeridianGH/Kalliope?style=for-the-badge)
+![Repo size](https://img.shields.io/github/repo-size/MeridianGH/Kalliope?style=for-the-badge)
 
 ### Code
-[![GitHub release](https://img.shields.io/github/v/release/MeridianGH/Kalliope?style=for-the-badge)]()
-[![Top language](https://img.shields.io/github/languages/top/MeridianGH/Kalliope?style=for-the-badge)]()
+[![GitHub release](https://img.shields.io/github/v/release/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/releases)
+[![Top language](https://img.shields.io/github/languages/top/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/search?l=javascript)
 \
 [![CodeFactor](https://img.shields.io/codefactor/grade/github/MeridianGH/Kalliope?style=for-the-badge)](https://www.codefactor.io/repository/github/meridiangh/kalliope)
 [![Libraries.io](https://img.shields.io/librariesio/github/MeridianGH/Kalliope?style=for-the-badge)](https://libraries.io/github/MeridianGH/Kalliope)
