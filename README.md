@@ -1,88 +1,70 @@
-![logo](https://repository-images.githubusercontent.com/406747355/0c0fcbbd-8dab-4259-a5d6-d8cc5069ef37)
+<!--suppress HtmlDeprecatedAttribute -->
 
-[![Invite](https://img.shields.io/static/v1?style=for-the-badge&logo=discord&label=Invite&message=SuitBot&color=000000)](https://discord.com/oauth2/authorize?client_id=887122733010411611&scope=bot%20applications.commands&permissions=2167425024)
+[![logo](https://repository-images.githubusercontent.com/556876246/97fc51e6-1179-4eb8-8401-0fc20a25636e)]()
+
+<div align="center">
+
+[![Dashboard](https://img.shields.io/static/v1?style=for-the-badge&logo=google%20chrome&label=Dashboard&message=kalliope.xyz&color=121212)](http://kalliope.xyz)
 [![Discord](https://shields.io/discord/610498937874546699?style=for-the-badge&logo=discord&label=discord)](https://discord.gg/qX2CBrrUpf)
-[![License](https://img.shields.io/github/license/MeridianGH/suitbot?logo=gnu&style=for-the-badge)](https://github.com/MeridianGH/suitbot/blob/main/LICENSE.md)
+[![License](https://img.shields.io/github/license/MeridianGH/kalliope?logo=gnu&style=for-the-badge)](https://github.com/MeridianGH/Kalliope/blob/main/LICENSE.md)
 
-# SuitBot
+# Kalliope.
+<b>A Discord music bot that still supports most platforms.</b>
 
-> A lightweight music and general purpose bot with dashboard, that uses slash commands and buttons to be as user-friendly as possible!
-
-
-
-[![Dashboard](https://img.shields.io/static/v1?style=for-the-badge&logo=google%20chrome&label=&message=Dashboard&color=212121)](https://suitbot.xyz)
-[![Progress Board](https://img.shields.io/static/v1?style=for-the-badge&logo=trello&label=&message=Progress%20Board&color=212121)](https://github.com/MeridianGH/suitbot/projects/1)
-[![Discord Server](https://img.shields.io/static/v1?style=for-the-badge&logo=discord&label=&message=Discord%20Server&color=212121)](https://discord.gg/qX2CBrrUpf)
+</div>
 
 <details>
 <summary style="cursor: pointer"><b>Table of Contents</b></summary>
 
-- [Invite](#invite)
 - [Features](#features)
 - [Commands](#commands)
 - [Installation](#installation)
+  - [Prerequisites](#prerequisites)
+  - [Getting started](#getting-started)
+  - [Configuration](#configuration)
+  - [Run](#run)
 - [Stats](#stats)
+  - [Size](#size)
+  - [Code](#code)
+  - [GitHub](#github)
 - [Licensing](#licensing)
+
 </details>
 
 ---
 
-## Invite
-> Disclaimer: The bot is still in development, so expect some bugs or features that might not work 100% yet. Please report any bugs or suggestions via the respective commands.
+## Disclaimer
+> The bot is still in development, so expect some bugs or features that might not work 100% yet. Please report any bugs you encounter by opening an issue.
 
-[![Invite](https://img.shields.io/static/v1?style=for-the-badge&logo=discord&label=&message=Invite&color=212121)](https://discord.com/oauth2/authorize?client_id=887122733010411611&scope=bot%20applications.commands&permissions=2167425024)
 
 ## Features
-- Slash commands
-  - Use commands directly integrated in Discord
-  - No more guessing with variables
-  - Quick overview of all commands
+- Kalliope still offers full support for almost every platform you can imagine:
+  - YouTube, Spotify, Twitch and many others!
+  - It also supports playlists, livestreams and HTTP sources.
+  - Spotify queries will be resolved on YouTube.
 
 
-- Music
-  - Supports many sources (YouTube, Spotify, Bandcamp, SoundCloud, Twitch, Vimeo or any other HTTP source)
-  - Supports playlists and livestreams
-  - Interactive Web Dashboard
-  - Pause, Skip, Remove, Volume and more commands
+- YouTube Search
+  - Search up to five songs from YouTube and play one directly from Discord, without ever opening a browser!
+  - Playing music in your channel was never this easy.
 
 
-- Language support
-  - Supports multiple languages
-  - Change the language for your server using `/language`
-  - Add your own language by contacting me on the Discord server
+- Dashboard
+  - Use the web dashboard to control your bot without having to type out commands ever again.
+  - You can even use your keyboard's built-in music buttons to skip songs and pause or resume playback.
 
 
-- Activities
-  - Create invites for Discord Activities
-  - YouTube Together and a lot of fun minigames
-  - Have fun with everyone in your voice channel
+- Genius Lyrics
+  - Kalliope supports Genius Lyrics!
+  - Quite literally actually, because they are directly accessible in Discord itself via a command.
 
-
-- Basic Moderation
-  - Info commands (User, Server, Avatar)
-  - Kick, Ban, Move, Slowmode and more commands
-  - Permission check on commands
 
 ## Commands
-SuitBot uses slash commands to integrate itself into the server. You can easily access its commands directly by typing `/` in your chat window.
+Kalliope uses slash commands to integrate itself into the server. You can easily access the commands directly by typing `/` in your chat window.
 
 <details>
 <summary style="cursor: pointer"><b>Show all commands</b></summary>
 
-### General
-| Command     | Description                               |
-|-------------|-------------------------------------------|
-| /activity   | Creates a Discord activity.               |
-| /dashboard  | Sends a link to the dashboard.            |
-| /help       | Replies with help on how to use this bot. |
-| /info       | Shows info about the bot.                 |
-| /invite     | Sends an invite link for the bot.         |
-| /language   | Changes the bots language.                |
-| /ping       | Replies with the current latency.         |
-| /serverinfo | Shows info about the server.              |
-| /userinfo   | Shows info about a user.                  |
-
-### Music
 | Command     | Description                                                       |
 |-------------|-------------------------------------------------------------------|
 | /clear      | Clears the queue.                                                 |
@@ -102,127 +84,85 @@ SuitBot uses slash commands to integrate itself into the server. You can easily 
 | /skip       | Skips the current track or to a specified point in the queue.     |
 | /stop       | Stops playback.                                                   |
 | /volume     | Sets the volume of the music player.                              |
-
-### Moderation
-| Command   | Description                                                   |
-|-----------|---------------------------------------------------------------|
-| /ban      | Bans a user.                                                  |
-| /kick     | Kicks a user.                                                 |
-| /move     | Moves the mentioned user to the specified channel.            |
-| /moveall  | Moves all users from the first channel to the second channel. |
-| /purge    | Clears a specified amount of messages.                        |
-| /slowmode | Sets the rate limit of the current channel.                   |
-
-### Feedback
-| Command     | Description                           |
-|-------------|---------------------------------------|
-| /bugreport  | Reports a bug to the developer.       |
-| /github     | Sends a link to the repo of this bot. |
-| /suggestion | Sends a suggestion to the developer.  |
 </details>
 
 ## Installation
-It is not recommended to try and install SuitBot yourself. \
-The bot is not designed to be easily installable and requires many complicated steps to set up.
-
-If you want a self-hostable bot, keep looking around GitHub for better alternatives!
-
-If you nevertheless decide to try and host a custom version of SuitBot yourself keep on reading.
-
-<details>
-<summary style="cursor: pointer"><b>Installation</b></summary>
-
-## Local Installation
 
 ### Prerequisites
-- Node.js v16.x
-- FFmpeg v4.4
-- Java v13.x
+- **[FFmpeg](https://ffmpeg.org/download.html)**
+- **[OpenJDK](https://openjdk.org/projects/jdk/)** (Java v11 or newer is required. Try the newest version, if you encounter issues use v13)
 
-### Installing
+### Getting started
+To install Kalliope, simply download the respective file for your operating system from **[releases](https://github.com/MeridianGH/Kalliope/releases)**.\
+On Linux and macOS you'll need to make the file explicitly executable using `chmod`.
+
+If you choose to install Kalliope manually, here's how to do so. Make sure you have **[Node.js](https://nodejs.org/en/download/)** installed.
 ```shell
-git clone https://github.com/MeridianGH/suitbot.git
-cd suitbot
+git clone https://github.com/MeridianGH/kalliope.git
+cd kalliope
 npm install
 ```
 
 ### Configuration
-Rename `config_example.json` to `config.json` and replace the placeholders inside with your info:
+Create a file `config.json` in the same directory as your executable and copy the file contents from [<u>`config_example.json`</u>](https://github.com/MeridianGH/Kalliope/blob/main/config_example.json). If you're installing manually, simply rename the file.
+
+Replace the placeholders inside with your info:
 - A Discord Bot Token (**[Guide](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot)**)
-- Your Application ID which you can find the the `General Information` tab in your Discord application.
-- Your Client Secret which is under `OAuth2` in your Discord application.
-- The Guild ID of the server in which you want to test the bot. To get this ID, activate `Developer Mode` in Discord's options and right-click your server.
-- Your User ID of your Discord account which will be your Admin-Account for the bot. Right-click yourself with `Developer Mode` activated.
-- Get your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**. Once you have `PAPISID` and `PSID` set them in the config.
-- Create a Genius API application **[here](https://docs.genius.com/)**, generate an access token and paste it here. Can be an empty string.
-  
-### Setting up
-#### Discord
-Go to your Discord Application, go to `OAuth2` and add `http://localhost/callback` to `Redirects`.
-  
-#### Domain
-Replace the domain in `dashboard.js` with your domain. \
-If you want to redirect from HTTP to HTTPS, make sure to replace the domains in the function `forceDomain()` as well.
+- Your Application ID which you can find in the `General Information` tab in your Discord application.
+- Get your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**. Once you have `PAPISID` and `PSID`, set them in the config.
+- Create a Genius API application **[here](https://docs.genius.com/)**, generate an access token and paste it in the config.
 
-#### Database
-Install PostgreSQL and create a database `suitbot`.
-If you choose to name it differently, set the database URL in `database.js`.
+### Run
+Start Kalliope by running the executable using double-click on Windows and `./<filename>` on Linux and macOS.
 
-Create a table using the following command:
-```
-CREATE TABLE servers (
-  id varchar(30) UNIQUE NOT NULL,
-  locale varchar(5) NOT NULL
-);
-```
-
-### Deploying
-Use `node deploy-commands.js` to update and add commands in the guild you specified and `node deploy-commands.js global` to update the commands globally.\
-Guild commands are refreshed instantly while global commands can take up to an hour.
-
-Start the bot with
+If you installed Kalliope manually, start the bot with the following command:
 ```shell
 node .
 ```
-\
-To start the bot for production use one of these specific for your platform
-```shell
-npm run start:win
-npm run start:unix
-```
+
+If you encounter any errors, make sure you have Java and FFmpeg properly installed.\
+Check your Java version using `java --version`.
+
 ---
-</details>
 
 ## Stats
 
 ### Size
-![Lines of code](https://img.shields.io/tokei/lines/github/MeridianGH/suitbot?style=for-the-badge)
-![GitHub repo size](https://img.shields.io/github/repo-size/MeridianGH/suitbot?style=for-the-badge)
+[![Total lines](https://img.shields.io/tokei/lines/github/MeridianGH/Kalliope?style=for-the-badge)]()
+[![Repo size](https://img.shields.io/github/repo-size/MeridianGH/Kalliope?style=for-the-badge)]()
 
 ### Code
-![GitHub top language](https://img.shields.io/github/languages/top/MeridianGH/suitbot?style=for-the-badge)
-![GitHub language count](https://img.shields.io/github/languages/count/MeridianGH/suitbot?style=for-the-badge)
+[![GitHub release](https://img.shields.io/github/v/release/MeridianGH/Kalliope?style=for-the-badge)]()
+[![Top language](https://img.shields.io/github/languages/top/MeridianGH/Kalliope?style=for-the-badge)]()
 \
-[![CodeFactor](https://img.shields.io/codefactor/grade/github/MeridianGH/suitbot?style=for-the-badge)](https://www.codefactor.io/repository/github/meridiangh/suitbot)
-[![Libraries.io](https://img.shields.io/librariesio/github/MeridianGH/suitbot?style=for-the-badge)](https://libraries.io/github/MeridianGH/suitbot)
+[![CodeFactor](https://img.shields.io/codefactor/grade/github/MeridianGH/Kalliope?style=for-the-badge)](https://www.codefactor.io/repository/github/meridiangh/kalliope)
+[![Libraries.io](https://img.shields.io/librariesio/github/MeridianGH/Kalliope?style=for-the-badge)](https://libraries.io/github/MeridianGH/Kalliope)
 \
-[![discord.js](https://img.shields.io/github/package-json/dependency-version/MeridianGH/suitbot/discord.js?color=44b868&logo=npm&style=for-the-badge)](https://www.npmjs.com/package/discord.js)
-[![erelajs](https://img.shields.io/github/package-json/dependency-version/MeridianGH/suitbot/erela.js?color=44b868&logo=npm&style=for-the-badge)](https://www.npmjs.com/package/play-dl)
+[![discord.js](https://img.shields.io/github/package-json/dependency-version/MeridianGH/Kalliope/discord.js?color=44b868&logo=npm&style=for-the-badge)](https://www.npmjs.com/package/discord.js)
+[![erela.js](https://img.shields.io/github/package-json/dependency-version/MeridianGH/Kalliope/erela.js?color=44b868&logo=npm&style=for-the-badge)](https://www.npmjs.com/package/erela.js)
 
 ### GitHub
-[![GitHub issues](https://img.shields.io/github/issues/MeridianGH/suitbot?style=for-the-badge)](https://github.com/MeridianGH/suitbot/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/MeridianGH/suitbot?style=for-the-badge)](https://github.com/MeridianGH/suitbot/pulls)
+[![GitHub issues](https://img.shields.io/github/issues/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/pulls)
 \
-[![GitHub last commit](https://img.shields.io/github/last-commit/MeridianGH/suitbot?style=for-the-badge)](https://github.com/MeridianGH/suitbot/commits)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/MeridianGH/suitbot?style=for-the-badge)](https://github.com/MeridianGH/suitbot/graphs/commit-activity)
+[![GitHub last commit](https://img.shields.io/github/last-commit/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/commits)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/graphs/commit-activity)
 \
-[![GitHub Repo stars](https://img.shields.io/github/stars/MeridianGH/suitbot?style=for-the-badge)](https://github.com/MeridianGH/suitbot/stargazers)
-[![GitHub watchers](https://img.shields.io/github/watchers/MeridianGH/suitbot?style=for-the-badge)](https://github.com/MeridianGH/suitbot/watchers)
+[![GitHub Repo stars](https://img.shields.io/github/stars/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/stargazers)
+[![GitHub watchers](https://img.shields.io/github/watchers/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/watchers)
 
-### Dashboard
-[![Website](https://img.shields.io/website?down_message=offline&label=dashboard&style=for-the-badge&up_message=online&url=https%3A%2F%2Fsuitbot.xyz)](https://suitbot.xyz)
+---
 
 ## Licensing
-If you want to host your own version of SuitBot, with or without modifications to the source code or plan to use any part of this source code, you must disclose the source and reference this repository/license.
+Make sure to disclose the source when redistributing any part of the source code in this repository.\
+For more information, please refer to the license.
 
-[![License](https://img.shields.io/github/license/MeridianGH/suitbot?logo=gnu&style=for-the-badge)](https://github.com/MeridianGH/suitbot/blob/main/LICENSE.md)
+[![License](https://img.shields.io/github/license/MeridianGH/Kalliope?logo=gnu&style=for-the-badge)](https://github.com/MeridianGH/Kalliope/blob/main/LICENSE.md)
+
+---
+
+<div align="center">
+
+[Back to top ↥](#readme)
+
+</div>
