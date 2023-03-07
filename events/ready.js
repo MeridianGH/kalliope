@@ -1,8 +1,7 @@
 import { logging } from '../utilities/logging.js'
 import { setupWebsocket } from '../utilities/websocket.js'
 
-let iconURL = null
-export { iconURL }
+export let iconURL
 export const { data, execute } = {
   data: { name: 'ready', once: true },
   async execute(client) {
