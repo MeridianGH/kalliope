@@ -4,7 +4,6 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'disc
 import fs from 'fs'
 import path from 'path'
 import { iconURL } from '../events/ready.js'
-import _ from 'lodash'
 import { logging } from './logging.js'
 
 export function simpleEmbed(content, ephemeral = false) {
@@ -32,13 +31,6 @@ export function errorEmbed(content, ephemeral = false) {
 
 export function sleep(seconds) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000))
-}
-
-export function objectDifference(oldObject, newObject) {
-  return {
-    old: _.pickBy(oldObject, (value, key) => !_.isEqual(value, newObject[key])),
-    new: _.pickBy(newObject, (value, key) => !_.isEqual(oldObject[key], value))
-  }
 }
 
 export function msToHMS(ms) {
