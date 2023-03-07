@@ -3,7 +3,7 @@ import { logging } from './logging.js'
 
 const file = new URL('../config.json', import.meta.url)
 if (!existsSync(file)) {
-  logging.error('Failed to locate config. Make sure a config.json is present in the root directory.')
+  logging.error('[Process]   Failed to locate config. Make sure a config.json is present in the root directory.')
   process.exit()
 }
 // noinspection JSCheckFunctionSignatures

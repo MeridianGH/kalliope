@@ -31,8 +31,8 @@ export class Lavalink {
         client.guilds.cache.get(id)?.shard.send(payload)
       }
     })
-      .on('nodeConnect', (node) => { logging.info(`Node ${node.options.identifier} connected`) })
-      .on('nodeError', (node, error) => { logging.error(`Node ${node.options.identifier} had an error: ${error.message}`) })
+      .on('nodeConnect', (node) => { logging.info(`[Lavalink]  Node ${node.options.identifier} connected`) })
+      .on('nodeError', (node, error) => { logging.error(`[Lavalink]  Node ${node.options.identifier} encountered an error: ${error.message}`) })
       .on('playerCreate', (player) => {
         player.previousTracks = []
       })
@@ -60,14 +60,14 @@ export class Lavalink {
     fs.writeFileSync('./music/lavalink/application.yml', yaml.dump(doc, {}))
 
     if (await this._portInUse(doc.server.port)) {
-      logging.warn(`A server (possibly Lavalink) is already active on port ${doc.server.port}.`)
-      logging.warn('Continuing, but expect errors if the server already running isn\'t Lavalink.')
+      logging.warn(`[Lavalink]  A server (possibly Lavalink) is already active on port ${doc.server.port}.`)
+      logging.warn('[Lavalink]  Continuing, but expect errors if the server already running isn\'t Lavalink.')
       return
     }
 
     return new Promise((resolve) => {
       const timeout = setTimeout(() => {
-        logging.error('Failed to start Lavalink within 30s.')
+        logging.error('[Lavalink]  Failed to start Lavalink within 30s.')
         process.exit()
       }, 30000)
 
@@ -75,12 +75,12 @@ export class Lavalink {
       const onData = (data) => {
         data = data.toString().trim()
         if (data.includes('Undertow started')) {
-          logging.success('Successfully started Lavalink.')
+          logging.success('[Lavalink]  Successfully started Lavalink.')
           lavalink.stdout.removeListener('data', onData)
           clearTimeout(timeout)
           resolve()
         } else if (data.toLowerCase().includes('failed')) {
-          logging.error('Failed to start Lavalink.')
+          logging.error('[Lavalink]  Failed to start Lavalink.')
           lavalink.stdout.removeListener('data', onData)
           clearTimeout(timeout)
           process.exit()
