@@ -33,7 +33,7 @@ export const { data, execute } = {
       if (!player.playing && !player.paused && player.queue.totalSize === result.tracks.length) { await player.play() }
       interaction.client.websocket?.updatePlayer(player)
 
-      // noinspection JSUnresolvedVariable
+      // noinspection JSUnresolvedVariable, JSCheckFunctionSignatures
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Added to queue.', iconURL: interaction.member.user.displayAvatarURL() })
         .setTitle(result.playlist.name)
@@ -61,6 +61,7 @@ export const { data, execute } = {
       if (!player.playing && !player.paused && !player.queue.length) { await player.play() }
       interaction.client.websocket?.updatePlayer(player)
 
+      // noinspection JSCheckFunctionSignatures
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Added to queue.', iconURL: interaction.member.user.displayAvatarURL() })
         .setTitle(track.title)

@@ -1,3 +1,5 @@
+// noinspection JSCheckFunctionSignatures
+
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { errorEmbed, msToHMS } from '../utilities/utilities.js'
 import { logging } from '../utilities/logging.js'

@@ -1,3 +1,5 @@
+// noinspection JSCheckFunctionSignatures
+
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { errorEmbed } from '../utilities/utilities.js'
 import ytdl from 'ytdl-core'

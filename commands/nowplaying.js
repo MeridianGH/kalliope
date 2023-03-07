@@ -15,6 +15,7 @@ export const { data, execute } = {
     const progress = Math.round(20 * player.position / player.queue.current.duration)
     const progressBar = '▬'.repeat(progress) + '🔘' + ' '.repeat(20 - progress) + '\n' + msToHMS(player.position) + '/' + msToHMS(player.queue.current.duration)
 
+    // noinspection JSCheckFunctionSignatures
     const embed = new EmbedBuilder()
       .setAuthor({ name: 'Now Playing...', iconURL: interaction.member.user.displayAvatarURL() })
       .setTitle(track.title)

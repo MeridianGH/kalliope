@@ -1,3 +1,5 @@
+// noinspection JSCheckFunctionSignatures
+
 import { ActionRowBuilder, EmbedBuilder, PermissionsBitField, SelectMenuBuilder, SlashCommandBuilder } from 'discord.js'
 import { addMusicControls, errorEmbed, msToHMS } from '../utilities/utilities.js'
 

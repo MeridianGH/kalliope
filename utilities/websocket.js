@@ -176,7 +176,6 @@ export function setupWebsocket(client) {
     }
 
     ws.updatePlayer = (player) => {
-      console.log('update' + player.position)
       ws.sendData('playerData', { guildId: player.guild, player: simplifyPlayer(player) })
     }
 

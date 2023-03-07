@@ -1,7 +1,7 @@
 {
-  "name": "suitbot",
-  "description": "A lightweight music and general purpose bot, that uses slash commands and buttons to be as user-friendly as possible!",
-  "homepage": "https://suitbot.xyz",
+  "name": "kalliope",
+  "description": "A Discord music bot that still supports most platforms.",
+  "homepage": "https://kalliope.xyz",
   "author": "Meridian",
   "license": "Apache-2.0",
   "main": "main.js",
@@ -9,16 +9,12 @@
   "engines": {
     "node": ">=16.0"
   },
-  "scripts": {
-    "start:win": "set NODE_ENV=production && node .",
-    "start:unix": "NODE_ENV=production node ."
-  },
   "dependencies": {
     "@discordjs/rest": "^1.1.0",
     "discord-api-types": "^0.37.10",
     "discord.js": "^14.3.0",
     "ejs": "^3.0.2",
-    "erela.js": "github:menudocs/erela.js#build",
+    "erela.js": "^2.4.0",
     "express": "^4.17.1",
     "express-minify": "^1.0.0",
     "express-session": "^1.17.2",

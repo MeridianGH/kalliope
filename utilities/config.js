@@ -6,6 +6,7 @@ if (!existsSync(file)) {
   logging.error('Failed to locate config. Make sure a config.json is present in the root directory.')
   process.exit()
 }
+// noinspection JSCheckFunctionSignatures
 const config = JSON.parse(readFileSync(file))
 
-export const { token, appId, clientSecret, guildId, adminId, papisid, psid, geniusClientToken } = config
+export const { token, appId, papisid, psid, geniusClientToken } = config
