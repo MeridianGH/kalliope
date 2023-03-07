@@ -102,9 +102,9 @@ Download the OpenJDK 13.0.2 installer either from the official **[Oracle Archive
 
 **OR**
 
-Download the binaries from the [Java Archives](https://jdk.java.net/archive) and unzip it to a location you can remember.
+Download the binaries from the **[Java Archives](https://jdk.java.net/archive)** and unzip it to a location you can remember.
 
-Regardless of your method, make sure to add the `/bin` folder to your path variable. If you don't know how to do that, a quick Google search will help you.\
+Regardless of your method, make sure to add the `/bin` folder to your path variable. If you don't know how to do that, a quick Google search will help you.
 
 ---
 
