@@ -114,6 +114,8 @@ Regardless of your method, make sure to add the `/bin` folder to your path varia
 
 Make sure Java is installed properly by running `java --version` in your terminal. If it displays the correct version, you are good to go!
 
+<br/>
+
 ### Getting started
 
 Download and install the latest version of Kalliope using git:
@@ -125,6 +127,8 @@ npm install
 
 Alternatively use **[GitHub Desktop](https://desktop.github.com/)** or download as **[.zip](https://github.com/MeridianGH/Kalliope/archive/refs/heads/main.zip)**.
 
+<br/>
+
 ### Configuration
 Rename `config_example.json` to `config.json` and replace the placeholders inside with your info:
 - A Discord Bot Token (**[Guide](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot)**)
@@ -134,6 +138,8 @@ Rename `config_example.json` to `config.json` and replace the placeholders insid
 
 Run `node .\deployCommands.js` _once_ to synchronize the bots commands with Discord.\
 You only need to run this during the initial setup or when you install a new update that changes some commands.
+
+<br/>
 
 ### Run
 Start the bot using:
