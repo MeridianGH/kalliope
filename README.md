@@ -9,9 +9,7 @@
 [![License](https://img.shields.io/github/license/MeridianGH/kalliope?logo=gnu&style=for-the-badge)](https://github.com/MeridianGH/Kalliope/blob/main/LICENSE.md)
 
 <div>
-  <ul>
     <summary><h1 style="display: inline-block;">Kalliope.</h1></summary>
-  </ul>
 </div>
 
 <b>A Discord music bot that still supports most platforms.</b>
