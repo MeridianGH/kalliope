@@ -45,6 +45,10 @@
   - It also supports playlists, livestreams and HTTP sources.
   - Spotify queries will be resolved on YouTube.
 
+- High quality
+  - Kalliope is using the well established **[Lavalink](https://github.com/freyacodes/Lavalink)** library.
+  - It allows for high quality playback by hosting its own audio server and streaming directly to Discord.
+
 
 - YouTube Search
   - Search up to five songs from YouTube and play one directly from Discord, without ever opening a browser!
