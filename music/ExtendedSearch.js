@@ -1,7 +1,8 @@
-import { Plugin } from 'erela.js'
 import spotifyUrlInfo from 'spotify-url-info'
 import fetch from 'isomorphic-unfetch'
 import ytpl from 'ytpl'
+import { Rest } from 'lavacord'
+import { Track } from './structures/Track.js'
 
 const spotify = spotifyUrlInfo(fetch)
 
@@ -12,20 +13,34 @@ const buildResult = (loadType, tracks, error, playlist) => ({
   exception: error ? { message: error, severity: 'COMMON' } : null
 })
 
-export class ExtendedSearch extends Plugin {
-  constructor() {
-    super()
+export class Search {
+  constructor(manager) {
+    this.manager = manager
+    // manager.search = this.search.bind(this)
   }
 
-  load(manager) {
-    this.manager = manager
-    this._search = manager.search.bind(manager)
-    manager.search = this.search.bind(this)
+  async searchTracks(query, requestedBy) {
+    const node = this.manager.idealNodes[0]
+
+    const res = await Rest.load(node, query).catch((err) => { console.error(err) })
+
+    const result = {
+      loadType: res.loadType,
+      tracks: res.tracks?.map((data) => new Track(data, requestedBy)) ?? []
+    }
+
+    if (result.loadType === 'PLAYLIST_LOADED') {
+      result.playlist = {
+        name: res.playlistInfo.name,
+        selectedTrack: res.playlistInfo.selectedTrack === -1 ? null : new Track(res.tracks[res.playlistInfo.selectedTrack], requestedBy),
+        duration: result.tracks.reduce((acc, cur) => acc + (cur.duration || 0), 0)
+      }
+    }
+
+    return result
   }
 
   async search(query, requestedBy) {
-    query = query.query ?? query
-
     // Split off query parameters
     if (query.startsWith('https://')) { query = query.split('&')[0] }
 
@@ -38,7 +53,8 @@ export class ExtendedSearch extends Plugin {
     if (query.match(playlistRegex)) {
       try {
         const data = ytpl.validateID(query) ? await ytpl(query) : null
-        const result = await this._search(query, requestedBy)
+        const result = await this.searchTracks(query)
+        console.log(result)
         result.playlist = Object.assign(result.playlist, { name: data.title, author: data.author.name, thumbnail: data.bestThumbnail.url, uri: data.url })
         return result
       } catch (e) {
@@ -69,8 +85,9 @@ export class ExtendedSearch extends Plugin {
     }
 
     // Use best thumbnail available
-    const search = await this._search(query, requestedBy)
-    for (const track of search.tracks) { track.thumbnail = await this.getBestThumbnail(track) }
+    const search = await this.searchTracks(query)
+    console.log(search)
+    for (const track of search) { track.thumbnail = await this.getBestThumbnail(track) }
 
     return search
   }
@@ -136,8 +153,7 @@ export class ExtendedSearch extends Plugin {
 
   async getBestThumbnail(track) {
     for (const size of ['maxresdefault', 'hqdefault', 'mqdefault', 'default']) {
-      const thumbnail = track.displayThumbnail(size)
-      if (!thumbnail) { continue }
+      const thumbnail = `https://i.ytimg.com/vi/${track.id}/${size}.jpg`
       if ((await fetch(thumbnail)).ok) { return thumbnail }
     }
     return track.thumbnail

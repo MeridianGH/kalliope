@@ -1,5 +1,6 @@
 import { EmbedBuilder, PermissionsBitField, SlashCommandBuilder } from 'discord.js'
 import { addMusicControls, errorEmbed, msToHMS } from '../utilities/utilities.js'
+import { Player } from '../music/structures/Player.js'
 
 export const { data, execute } = {
   data: new SlashCommandBuilder()
@@ -22,13 +23,12 @@ export const { data, execute } = {
     if (result.loadType === 'PLAYLIST_LOADED') {
       player.queue.add(result.tracks)
 
-      if (player.state !== 'CONNECTED') {
+      if (player.state !== Player.states.connected) {
         if (!interaction.member.voice.channel) {
-          player.destroy()
+          await player.destroy()
           return await interaction.editReply(errorEmbed('You need to be in a voice channel to use this command.'))
         }
-        player.setVoiceChannel(interaction.member.voice.channel.id)
-        await player.connect()
+        await player.setVoiceChannel(interaction.member.voice.channel)
       }
       if (!player.playing && !player.paused && player.queue.totalSize === result.tracks.length) { await player.play() }
       interaction.client.websocket?.updatePlayer(player)
@@ -50,13 +50,12 @@ export const { data, execute } = {
     } else {
       const track = result.tracks[0]
       player.queue.add(track)
-      if (player.state !== 'CONNECTED') {
+      if (player.state !== Player.states.connected) {
         if (!interaction.member.voice.channel) {
-          player.destroy()
+          await player.destroy()
           return await interaction.editReply(errorEmbed('You need to be in a voice channel to use this command.'))
         }
-        player.setVoiceChannel(interaction.member.voice.channel.id)
-        await player.connect()
+        await player.setVoiceChannel(interaction.member.voice.channel)
       }
       if (!player.playing && !player.paused && !player.queue.length) { await player.play() }
       interaction.client.websocket?.updatePlayer(player)

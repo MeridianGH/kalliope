@@ -1,10 +1,10 @@
 import { ActivityType, Client, Collection, EmbedBuilder, GatewayIntentBits } from 'discord.js'
-import { Lavalink } from './music/lavalink.js'
 import { getFilesRecursively } from './utilities/utilities.js'
 
 import { token } from './utilities/config.js'
 import { iconURL } from './events/ready.js'
 import { logging } from './utilities/logging.js'
+import { Lavalink } from './music/lavalink.js'
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates], presence: { status: 'online', activities: [{ name: '/help | kalliope.xyz', type: ActivityType.Playing }] } })
 client.lavalink = new Lavalink(client)
@@ -29,6 +29,7 @@ for (const file of getFilesRecursively('./events')) {
 process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)
 process.on('uncaughtException', async (error) => {
+  logging.error(error)
   logging.warn(`Ignoring uncaught exception: ${error} | ${error.stack.split(/\r?\n/)[1].split('\\').pop().slice(0, -1).trim()}`)
   logging.error(error.stack)
 })
@@ -39,7 +40,7 @@ async function shutdown() {
   for (const entry of client.lavalink.manager.players) {
     const player = entry[1]
     // noinspection JSUnresolvedFunction
-    await client.channels.cache.get(player.textChannel).send({
+    await player.textChannel.send({
       embeds: [
         new EmbedBuilder()
           .setTitle('Server shutdown.')

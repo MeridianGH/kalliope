@@ -13,8 +13,8 @@ export const { data, execute } = {
     if (player.previousTracks.length === 0) { return await interaction.reply(errorEmbed('You can\'t use the command `/previous` right now!', true)) }
 
     const track = player.previousTracks.pop()
-    player.queue.add(track, 0)
-    player.manager.once('trackEnd', (player) => { player.queue.add(player.previousTracks.pop(), 0) })
+    player.queue.add(track)
+    interaction.client.lavalink.once('trackEnd', (player) => { player.queue.add(player.previousTracks.pop()) })
     player.stop()
 
     await interaction.reply(simpleEmbed(`⏮ Playing previous track \`#0\`: **${track.title}**.`))

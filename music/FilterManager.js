@@ -1,8 +1,7 @@
 // noinspection JSCheckFunctionSignatures,JSUnresolvedVariable,JSUnusedGlobalSymbols
 
-import { Plugin, Structure } from 'erela.js'
-
-export class FilterManager extends Plugin {
+/*
+export class FilterManager {
   load() {
     Structure.extend('Player', (Player) => class extends Player {
       constructor() {
@@ -136,3 +135,4 @@ export class FilterManager extends Plugin {
     })
   }
 }
+*/

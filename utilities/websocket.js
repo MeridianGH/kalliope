@@ -173,7 +173,7 @@ export function setupWebsocket(client) {
       data.type = data.type ?? type
       data.clientId = client.user.id
       ws.sendUTF(JSON.stringify(data))
-      console.log('sent:', data)
+      // console.log('sent:', data)
     }
 
     ws.updatePlayer = (player) => {
@@ -183,7 +183,7 @@ export function setupWebsocket(client) {
     ws.on('message', (message) => {
       if (message.type !== 'utf8') { return }
       const data = JSON.parse(message.utf8Data)
-      console.log('received:', data)
+      // console.log('received:', data)
 
       const player = client.lavalink.getPlayer(data.guildId)
       if (data.type == 'requestPlayerData') {

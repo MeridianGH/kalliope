@@ -1,58 +1,50 @@
 // noinspection JSUnresolvedVariable
 
 import { spawn } from 'child_process'
-import { Manager } from 'erela.js'
-import { ExtendedSearch } from './ExtendedSearch.js'
+import { Manager } from './structures/Manager.js'
+import { Player } from './structures/Player.js'
 import { simpleEmbed } from '../utilities/utilities.js'
-import { FilterManager } from './FilterManager.js'
 import yaml from 'js-yaml'
 import fs from 'fs'
 import { papisid, psid } from '../utilities/config.js'
 import http from 'http'
 import { logging } from '../utilities/logging.js'
 
+/**
+ * The Lavalink manager. Handles the Lavalink subprocess and initializes the Lavacord manager.
+ */
 export class Lavalink {
+  /**
+   * Create a new Lavalink manager and attaches it to a discord.js client.
+   * @param client {import("discord.js").Client}
+   */
   constructor(client) {
     this.client = client
-    this.manager = new Manager({
-      nodes: [
-        {
-          host: 'localhost',
-          port: 2333,
-          password: 'youshallnotpass'
-        }
-      ],
-      plugins: [
-        new ExtendedSearch(),
-        new FilterManager()
-      ],
-      send(id, payload) {
-        // noinspection JSIgnoredPromiseFromCall
-        client.guilds.cache.get(id)?.shard.send(payload)
-      }
-    })
-      .on('nodeConnect', (node) => { logging.info(`[Lavalink]  Node ${node.options.identifier} connected`) })
-      .on('nodeError', (node, error) => { logging.error(`[Lavalink]  Node ${node.options.identifier} encountered an error: ${error.message}`) })
-      .on('playerCreate', (player) => {
-        player.previousTracks = []
-      })
+    this.manager = new Manager()
+      .on('nodeCreate', (node) => { logging.info(`[Lavalink]  Node ${node.id} connected.`) })
+      .on('nodeError', (node, error) => { logging.error(`[Lavalink]  Node ${node.id} encountered an error: ${error.message}`) })
       .on('trackStart', (player) => {
         setTimeout(() => { client.websocket?.updatePlayer(player) }, 500)
       })
       .on('trackEnd', (player, track) => {
+        if (!player.previousTracks) { player.previousTracks = [] }
         player.previousTracks.push(track)
         player.previousTracks = player.previousTracks.slice(-11)
       })
       .on('queueEnd', (player) => {
         client.websocket?.updatePlayer(player)
-        setTimeout(() => { if (!player.playing && !player.queue.current) { player.destroy() } }, 30000)
+        setTimeout(async () => { if (!player.playing && !player.queue.current) { await player.destroy() } }, 30000)
       })
 
-    this.client.once('ready', () => this.manager.init(this.client.user.id))
+    this.client.once('ready', () => { this.manager.init(client) })
+    // this.client.on('voiceStateUpdate', (oldState, newState) => this._voiceUpdate(oldState, newState))
     this.client.on('raw', (d) => this.manager.updateVoiceState(d))
-    this.client.on('voiceStateUpdate', (oldState, newState) => this._voiceUpdate(oldState, newState))
   }
 
+  /**
+   * Initializes a Lavalink server by creating a subprocess. Exits the process if Lavalink fails to start.
+   * @returns {Promise<undefined>}
+   */
   async initialize() {
     const doc = yaml.load(fs.readFileSync('./music/lavalink/template.yml'), {})
     doc.lavalink.server.youtubeConfig.PAPISID = papisid
@@ -93,6 +85,12 @@ export class Lavalink {
     })
   }
 
+  /**
+   * Checks if a port is already in use.
+   * @param port
+   * @returns {Promise<boolean>}
+   * @private
+   */
   _portInUse(port) {
     return new Promise((resolve) => {
       const server = http.createServer()
@@ -104,48 +102,72 @@ export class Lavalink {
     })
   }
 
-  _voiceUpdate(oldState, newState) {
-    const player = this.manager.get(newState.guild.id)
+  /**
+   * Handles voice state updates.
+   * @param oldState
+   * @param newState
+   * @returns {void}
+   * @private
+   */
+  async _voiceUpdate(oldState, newState) {
+    const player = this.getPlayer(newState.guild.id)
     if (!player) { return }
 
     // Client events
     if (newState.guild.members.me.id === newState.member.id) {
       // Disconnect
-
-      if (!newState.channelId) { return player.destroy() }
+      if (!newState.channelId) {
+        await player.destroy()
+        return
+      }
 
       // Muted
-      if (oldState.serverMute !== newState.serverMute) { player.pause(newState.serverMute) }
+      if (oldState.serverMute !== newState.serverMute) {
+        await player.pause(newState.serverMute)
+      }
 
       // Stage Channel
       if (newState.channel.type === 'GUILD_STAGE_VOICE') {
         // Join
         if (!oldState.channel) {
-          return newState.guild.members.me.voice.setSuppressed(false).catch(async () => {
-            player.pause(true)
+          newState.guild.members.me.voice.setSuppressed(false).catch(async () => {
+            await player.pause(true)
             await newState.guild.members.me.voice.setRequestToSpeak(true)
           })
+          return
         }
         // Suppressed
         if (oldState.suppress !== newState.suppress) {
-          return player.pause(newState.suppress)
+          await player.pause(newState.suppress)
+          return
         }
       }
       return
     }
 
     // Channel empty
-    if (oldState?.guild.channels.cache.get(player.voiceChannel).members.size === 1) {
-      oldState?.guild.channels.cache.get(player.textChannel).send(simpleEmbed('Left the voice channel because it was empty.'))
-      return player.destroy()
+    if (newState.channel.members.size === 1) {
+      player.textChannel.send(simpleEmbed('Left the voice channel because it was empty.'))
+      await player.destroy()
     }
   }
 
+  /**
+   * Gets a player using a guild ID.
+   * @param guildId
+   * @returns {Player | undefined}
+   */
   getPlayer(guildId) {
-    return this.manager.get(guildId)
+    // noinspection JSValidateTypes
+    return this.manager.players.get(guildId)
   }
 
+  /**
+   * Creates a player from a discord.js interaction.
+   * @param interaction
+   * @returns {Player}
+   */
   createPlayer(interaction) {
-    return this.manager.create({ guild: interaction.guild.id, voiceChannel: interaction.member.voice.channel?.id, textChannel: interaction.channel.id, volume: 50 })
+    return this.manager.createPlayer({ guild: interaction.guild, voiceChannel: interaction.member.voice.channel, textChannel: interaction.channel })
   }
 }
