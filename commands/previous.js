@@ -1,4 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js'
+import { genericChecks } from '../utilities/checks.js'
 import { errorEmbed, simpleEmbed } from '../utilities/utilities.js'
 
 export const { data, execute } = {
@@ -6,18 +7,17 @@ export const { data, execute } = {
     .setName('previous')
     .setDescription('Plays the previous track.'),
   async execute(interaction) {
+    await genericChecks(interaction)
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
-    if (!player || !player.queue.current) { return await interaction.reply(errorEmbed('Nothing currently playing.\nStart playback with `/play`!', true)) }
-    if (interaction.member.voice.channel?.id !== player.voiceChannel) { return await interaction.reply(errorEmbed('You need to be in the same voice channel as the bot to use this command!', true)) }
 
-    if (player.previousTracks.length === 0) { return await interaction.reply(errorEmbed('You can\'t use the command `/previous` right now!', true)) }
+    if (player.queue.previous.length === 0) { return await interaction.reply(errorEmbed('You can\'t use the command `/previous` right now!', true)) }
 
     const track = player.previousTracks.pop()
-    player.queue.add(track)
+    await player.queue.add(track)
     interaction.client.lavalink.once('trackEnd', (player) => { player.queue.add(player.previousTracks.pop()) })
-    player.stop()
+    player.skip()
 
     await interaction.reply(simpleEmbed(`⏮ Playing previous track \`#0\`: **${track.title}**.`))
-    interaction.client.websocket?.updatePlayer(player)
+    interaction.client.websocket.updatePlayer(player)
   }
 }

@@ -6,6 +6,12 @@ import path from 'path'
 import { iconURL } from '../events/ready.js'
 import { logging } from './logging.js'
 
+/**
+ * Builds a simple embed object with default settings used as a parameter in message functions.
+ * @param content {string}
+ * @param ephemeral {boolean}
+ * @returns {{ephemeral: boolean, embeds: EmbedBuilder[]}}
+ */
 export function simpleEmbed(content, ephemeral = false) {
   return {
     embeds: [
@@ -17,6 +23,12 @@ export function simpleEmbed(content, ephemeral = false) {
   }
 }
 
+/**
+ * Builds a simple embed object with error settings used as a parameter in message functions.
+ * @param content {string}
+ * @param ephemeral {boolean}
+ * @returns {{ephemeral: boolean, embeds: EmbedBuilder[]}}
+ */
 export function errorEmbed(content, ephemeral = false) {
   return {
     embeds: [
@@ -29,10 +41,20 @@ export function errorEmbed(content, ephemeral = false) {
   }
 }
 
+/**
+ * Returns a promise that resolves after the specified amount of seconds.
+ * @param seconds {number}
+ * @returns {Promise<void>}
+ */
 export function sleep(seconds) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000))
 }
 
+/**
+ * Converts milliseconds to a formatted time string.
+ * @param ms {number} The milliseconds to convert.
+ * @returns {string} A string in HH:MM:SS format.
+ */
 export function msToHMS(ms) {
   let totalSeconds = ms / 1000
   const hours = Math.floor(totalSeconds / 3600).toString()
@@ -42,6 +64,11 @@ export function msToHMS(ms) {
   return hours === '0' ? `${minutes}:${seconds.padStart(2, '0')}` : `${hours}:${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}`
 }
 
+/**
+ * Converts a formatted time string to milliseconds.
+ * @param time {string} A string in HH:MM:SS format.
+ * @returns {number} Amount of milliseconds.
+ */
 export function timeToMs(time) {
   const times = time.split(':')
   let seconds = 0; let secondsInUnit = 1
@@ -52,20 +79,32 @@ export function timeToMs(time) {
   return seconds * 1000
 }
 
-export function getFilesRecursively(directory, files) {
+/**
+ * Recursively searches a directory for all contained files.
+ * @param directory {string} Specifies the path of the directory to search.
+ * @param [_files] {string[]} Contains the array of found files.
+ * @returns {string[]} Array of all files in a directory.
+ */
+export function getFilesRecursively(directory, _files) {
   const contents = fs.readdirSync(directory)
-  files = files ?? []
+  _files = _files ?? []
   for (const file of contents) {
     const absolute = path.join(directory, file)
     if (fs.statSync(absolute).isDirectory()) {
-      getFilesRecursively(absolute, files)
+      getFilesRecursively(absolute, _files)
     } else {
-      files.push(absolute)
+      _files.push(absolute)
     }
   }
-  return files
+  return _files
 }
 
+/**
+ * Adds music control buttons to a discord.js message.
+ * @param message {any} The message object.
+ * @param player {any} The player of the corresponding guild.
+ * @returns {Promise<void>}
+ */
 export async function addMusicControls(message, player) {
   const previousButton = new ButtonBuilder()
     .setCustomId('previous')
@@ -88,11 +127,11 @@ export async function addMusicControls(message, player) {
     .setLabel('Dashboard')
     .setStyle(ButtonStyle.Link)
 
-  message.edit({ components: [new ActionRowBuilder().setComponents([previousButton, pauseButton, skipButton, stopButton, dashboardButton])] })
+  await message.edit({ components: [new ActionRowBuilder().setComponents([previousButton, pauseButton, skipButton, stopButton, dashboardButton])] })
 
   const collector = message.createMessageComponentCollector({ idle: 300000 })
   collector.on('collect', async (buttonInteraction) => {
-    if (buttonInteraction.member.voice.channel?.id !== player.voiceChannel) { return await buttonInteraction.reply(errorEmbed('You need to be in the same voice channel as the bot to use this command!', true)) }
+    if (buttonInteraction.member.voice.channel?.id !== player.voiceChannelId) { return await buttonInteraction.reply(errorEmbed('You need to be in the same voice channel as the bot to use this command!', true)) }
 
     switch (buttonInteraction.customId) {
       case 'previous': {
@@ -104,9 +143,9 @@ export async function addMusicControls(message, player) {
         try {
           if (player.previousTracks.length === 0) { return await buttonInteraction.reply(errorEmbed('You can\'t use the command `/previous` right now!', true)) }
           const track = player.previousTracks.pop()
-          player.queue.add(track, 0)
-          player.manager.once('trackEnd', (player) => { player.queue.add(player.previousTracks.pop(), 0) })
-          player.stop()
+          await player.queue.add(track, 0)
+          message.client.lavalink.manager.once('trackEnd', (player) => { player.queue.add(player.previousTracks.pop(), 0) })
+          await player.stop()
           await buttonInteraction.reply(simpleEmbed(`⏮ Playing previous track \`#0\`: **${track.title}**.`, true))
         } catch (e) {
           await player.seek(0)
@@ -115,17 +154,17 @@ export async function addMusicControls(message, player) {
         break
       }
       case 'pause': {
-        player.pause(!player.paused)
+        player.paused ? await player.resume() : await player.pause()
         await buttonInteraction.reply(simpleEmbed(player.paused ? '⏸ Paused.' : '▶ Resumed.', true))
         break
       }
       case 'skip': {
-        if (player.queue.length === 0) {
+        if (player.queue.tracks.length === 0) {
           player.destroy()
           await buttonInteraction.reply(simpleEmbed('⏹ Stopped', true))
           break
         }
-        player.stop()
+        player.skip()
         await buttonInteraction.reply(simpleEmbed('⏭ Skipped', true))
         break
       }

@@ -1,49 +1,70 @@
-// noinspection JSUnresolvedVariable
+// noinspection JSUnresolvedVariable, NpmUsedModulesInstalled
 
 import { spawn } from 'child_process'
-import { Manager } from './structures/Manager.js'
-import { Player } from './structures/Player.js'
-import { simpleEmbed } from '../utilities/utilities.js'
-import yaml from 'js-yaml'
 import fs from 'fs'
-import { papisid, psid } from '../utilities/config.js'
 import http from 'http'
+import yaml from 'js-yaml'
+import { LavalinkManager } from 'lavalink-client'
+import { papisid, psid } from '../utilities/config.js'
 import { logging } from '../utilities/logging.js'
+import { errorEmbed, simpleEmbed } from '../utilities/utilities.js'
+import { CustomFilters } from './customFilters.js'
+import { ExtendedSearch } from './extendedSearch.js'
 
 /**
- * The Lavalink manager. Handles the Lavalink subprocess and initializes the Lavacord manager.
+ * A Lavalink manager that handles the Lavalink subprocess and initializes the lavalink-client manager.
  */
 export class Lavalink {
   /**
    * Create a new Lavalink manager and attaches it to a discord.js client.
-   * @param client {import("discord.js").Client}
+   * @param client {any} The discord.js client.
    */
   constructor(client) {
     this.client = client
-    this.manager = new Manager()
-      .on('nodeCreate', (node) => { logging.info(`[Lavalink]  Node ${node.id} connected.`) })
-      .on('nodeError', (node, error) => { logging.error(`[Lavalink]  Node ${node.id} encountered an error: ${error.message}`) })
+    // noinspection JSUnusedGlobalSymbols
+    this.manager = new LavalinkManager({
+      nodes: [
+        {
+          host: 'localhost',
+          port: 2333,
+          authorization: 'youshallnotpass'
+        }
+      ],
+      sendToShard: (guildId, payload) => client.guilds.cache.get(guildId)?.shard?.send(payload),
+      queueOptions: { maxPreviousTracks: 10 }
+    })
+
+    this.manager
       .on('trackStart', (player) => {
         setTimeout(() => { client.websocket?.updatePlayer(player) }, 500)
       })
-      .on('trackEnd', (player, track) => {
+      /*.on('trackEnd', (player, track) => {
         if (!player.previousTracks) { player.previousTracks = [] }
         player.previousTracks.push(track)
         player.previousTracks = player.previousTracks.slice(-11)
-      })
+      })*/
       .on('queueEnd', (player) => {
         client.websocket?.updatePlayer(player)
         setTimeout(async () => { if (!player.playing && !player.queue.current) { await player.destroy() } }, 30000)
       })
+      .on('trackStuck', (player) => {
+        client.channels.cache.get(player.textChannelId)?.send(errorEmbed(`⏭ Track **${player.current.info.title}** got stuck, skipping...`))
+        player.skip()
+      })
 
-    this.client.once('ready', () => { this.manager.init(client) })
-    // this.client.on('voiceStateUpdate', (oldState, newState) => this._voiceUpdate(oldState, newState))
-    this.client.on('raw', (d) => this.manager.updateVoiceState(d))
+    this.manager.nodeManager
+      .on('connect', (node) => { logging.info(`[Lavalink]  Node ${node.id} connected.`) })
+      .on('error', (node, error) => { logging.error(`[Lavalink]  Node ${node.id} encountered an error: ${error.message}`) })
+
+    this.client
+      .once('ready', () => { this.manager.init(client.user) })
+      .on('voiceStateUpdate', (oldState, newState) => this._voiceUpdate(oldState, newState))
+      .on('raw', (d) => this.manager.sendRawData(d))
   }
 
   /**
    * Initializes a Lavalink server by creating a subprocess. Exits the process if Lavalink fails to start.
-   * @returns {Promise<undefined>}
+   * @returns {Promise<void>}
    */
   async initialize() {
     const doc = yaml.load(fs.readFileSync('./music/lavalink/template.yml'), {})
@@ -121,9 +142,11 @@ export class Lavalink {
         return
       }
 
-      // Muted
+      // Mute / Unmute
       if (oldState.serverMute !== newState.serverMute) {
-        await player.pause(newState.serverMute)
+        try {
+          newState.serverMute ? await player.pause() : await player.resume()
+        } catch { /* Ignore play/pause error */ }
       }
 
       // Stage Channel
@@ -131,14 +154,16 @@ export class Lavalink {
         // Join
         if (!oldState.channel) {
           newState.guild.members.me.voice.setSuppressed(false).catch(async () => {
-            await player.pause(true)
+            if (!player.paused) { await player.pause() }
             await newState.guild.members.me.voice.setRequestToSpeak(true)
           })
           return
         }
         // Suppressed
         if (oldState.suppress !== newState.suppress) {
-          await player.pause(newState.suppress)
+          try {
+            newState.suppress ? await player.pause() : await player.resume()
+          } catch { /* Ignore play/pause error */ }
           return
         }
       }
@@ -155,19 +180,54 @@ export class Lavalink {
   /**
    * Gets a player using a guild ID.
    * @param guildId
-   * @returns {Player | undefined}
+   * @returns {import('lavalink-client/dist/cjs/structures/Player.d.ts').Player | undefined}
+   * @see LavalinkManager.getPlayer
    */
   getPlayer(guildId) {
     // noinspection JSValidateTypes
-    return this.manager.players.get(guildId)
+    return this.manager.getPlayer(guildId)
   }
 
   /**
    * Creates a player from a discord.js interaction.
    * @param interaction
-   * @returns {Player}
+   * @returns {import('lavalink-client/dist/cjs/structures/Player.d.ts').Player}
+   * @see LavalinkManager.createPlayer
    */
   createPlayer(interaction) {
-    return this.manager.createPlayer({ guild: interaction.guild, voiceChannel: interaction.member.voice.channel, textChannel: interaction.channel })
+    const player = this.manager.createPlayer({
+      guildId: interaction.guild.id,
+      voiceChannelId: interaction.member.voice.channel.id,
+      textChannelId: interaction.channel.id,
+      selfDeaf: false,
+      volume: 50
+    })
+    if (!player.get('plugins')?.extendedSearch) { new ExtendedSearch(player) }
+    if (!player.get('plugins')?.customFilters) { new CustomFilters(player) }
+    return player
   }
+}
+
+/**
+ * Enumeration for Lavalink load types.
+ * @type {{search: string, playlist: string, track: string, error: string, empty: string}}
+ */
+export const LoadTypes = {
+  track: 'track',
+  playlist: 'playlist',
+  search: 'search',
+  error: 'error',
+  empty: 'empty'
+}
+
+/**
+ * Enumeration for Lavalink player states.
+ * @type {{connected: string, disconnected: string, disconnecting: string, connecting: string, destroying: string}}
+ */
+export const PlayerStates = {
+  connecting: 'CONNECTING',
+  connected: 'CONNECTED',
+  disconnecting: 'DISCONNECTING',
+  disconnected: 'DISCONNECTED',
+  destroying: 'DESTROYING'
 }

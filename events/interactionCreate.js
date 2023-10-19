@@ -1,5 +1,5 @@
-import { errorEmbed } from '../utilities/utilities.js'
 import { logging } from '../utilities/logging.js'
+import { errorEmbed } from '../utilities/utilities.js'
 
 export const { data, execute } = {
   data: { name: 'interactionCreate' },

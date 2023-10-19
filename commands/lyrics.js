@@ -1,10 +1,10 @@
 // noinspection JSCheckFunctionSignatures
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
-import { errorEmbed } from '../utilities/utilities.js'
-import ytdl from 'ytdl-core'
-import { geniusClientToken } from '../utilities/config.js'
 import genius from 'genius-lyrics'
+import ytdl from 'ytdl-core'
+import { genericChecks } from '../utilities/checks.js'
+import { geniusClientToken } from '../utilities/config.js'
 import { logging } from '../utilities/logging.js'
 
 const Genius = new genius.Client(geniusClientToken)
@@ -14,16 +14,19 @@ export const { data, execute } = {
     .setName('lyrics')
     .setDescription('Shows the lyrics of the currently playing song.'),
   async execute(interaction) {
+    await genericChecks(interaction)
+
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
-    if (!player || !player.queue.current) { return await interaction.reply(errorEmbed('Nothing currently playing.\nStart playback with `/play`!', true)) }
-    if (interaction.member.voice.channel?.id !== player.voiceChannel) { return await interaction.reply(errorEmbed('You need to be in the same voice channel as the bot to use this command!', true)) }
     await interaction.deferReply()
 
-    const info = await ytdl.getInfo(player.queue.current.uri)
-    const title = info.videoDetails.media.category === 'Music' ? info.videoDetails.media.artist + ' ' + info.videoDetails.media.song : player.queue.current.title
+    const trackInfo = player.queue.current.info
+    const info = await ytdl.getInfo(trackInfo.uri)
+    const title = info.videoDetails.media.category === 'Music' ? info.videoDetails.media.artist + ' ' + info.videoDetails.media.song : trackInfo.title
 
     try {
-      const song = (await Genius.songs.search(title))[0]
+      const search = await Genius.songs.search(title)
+      console.log(search)
+      const song = search[0]
       const lyrics = await song.lyrics()
 
       const lines = lyrics.split('\n')
@@ -50,11 +53,11 @@ export const { data, execute } = {
 
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Lyrics.', iconURL: interaction.member.user.displayAvatarURL() })
-        .setTitle(player.queue.current.title)
+        .setTitle(trackInfo.title)
         .setURL(song.url)
-        .setThumbnail(player.queue.current.thumbnail)
+        .setThumbnail(trackInfo.artworkUrl)
         .setDescription(pages[0])
-        .setFooter({ text: `Kalliope | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
+        .setFooter({ text: `Kalliope | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
 
       const message = await interaction.editReply({ embeds: [embed], components: isOnePage ? [] : [new ActionRowBuilder().setComponents([previous.setDisabled(true), next.setDisabled(false)])], fetchReply: true })
 
@@ -68,11 +71,11 @@ export const { data, execute } = {
             embeds: [
               new EmbedBuilder()
                 .setAuthor({ name: 'Lyrics.', iconURL: interaction.member.user.displayAvatarURL() })
-                .setTitle(player.queue.current.title)
+                .setTitle(trackInfo.title)
                 .setURL(song.url)
-                .setThumbnail(player.queue.current.thumbnail)
+                .setThumbnail(trackInfo.artworkUrl)
                 .setDescription(pages[currentIndex])
-                .setFooter({ text: `Kalliope | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
+                .setFooter({ text: `Kalliope | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
             ],
             components: [new ActionRowBuilder().setComponents([previous.setDisabled(currentIndex === 0), next.setDisabled(currentIndex === pages.length - 1)])]
           })
@@ -87,11 +90,11 @@ export const { data, execute } = {
         embeds: [
           new EmbedBuilder()
             .setAuthor({ name: 'Lyrics.', iconURL: interaction.member.user.displayAvatarURL() })
-            .setTitle(player.queue.current.title)
-            .setURL(player.queue.current.uri)
-            .setThumbnail(player.queue.current.thumbnail)
+            .setTitle(trackInfo.title)
+            .setURL(trackInfo.uri)
+            .setThumbnail(trackInfo.artworkUrl)
             .setDescription('No results found!')
-            .setFooter({ text: `Kalliope | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
+            .setFooter({ text: `Kalliope | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
         ]
       })
     }

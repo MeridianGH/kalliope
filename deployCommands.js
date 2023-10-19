@@ -1,8 +1,8 @@
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v10'
-import { getFilesRecursively } from './utilities/utilities.js'
 import { appId, token } from './utilities/config.js'
 import { logging } from './utilities/logging.js'
+import { getFilesRecursively } from './utilities/utilities.js'
 
 const commands = []
 

@@ -1,12 +1,11 @@
-import { ActivityType, Client, Collection, EmbedBuilder, GatewayIntentBits } from 'discord.js'
-import { getFilesRecursively } from './utilities/utilities.js'
-
-import { token } from './utilities/config.js'
-import { iconURL } from './events/ready.js'
-import { logging } from './utilities/logging.js'
+import { ActivityType, Client, Collection, GatewayIntentBits } from 'discord.js'
 import { Lavalink } from './music/lavalink.js'
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates], presence: { status: 'online', activities: [{ name: '/help | kalliope.xyz', type: ActivityType.Playing }] } })
+import { token } from './utilities/config.js'
+import { logging } from './utilities/logging.js'
+import { getFilesRecursively } from './utilities/utilities.js'
+
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates], presence: { status: 'online', activities: [{ name: '/help | kalliope.cc', type: ActivityType.Playing }] } })
 client.lavalink = new Lavalink(client)
 await client.lavalink.initialize()
 
@@ -28,19 +27,23 @@ for (const file of getFilesRecursively('./events')) {
 }
 process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)
-process.on('uncaughtException', async (error) => {
-  logging.error(error)
+process.on('uncaughtException', (error) => {
   logging.warn(`Ignoring uncaught exception: ${error} | ${error.stack.split(/\r?\n/)[1].split('\\').pop().slice(0, -1).trim()}`)
   logging.error(error.stack)
+})
+process.on('unhandledRejection', (error) => {
+  logging.warn(`Unhandled promise rejection: ${error}`)
+  logging.error(error)
 })
 
 // Shutdown Handling
 async function shutdown() {
+  logging.info('[Process]   Received SIGTERM, shutting down.')
   logging.info(`[Lavalink]  Closing ${client.lavalink.manager.players.size} queues.`)
   for (const entry of client.lavalink.manager.players) {
     const player = entry[1]
     // noinspection JSUnresolvedFunction
-    await player.textChannel.send({
+    /*    await player.textChannel.send({
       embeds: [
         new EmbedBuilder()
           .setTitle('Server shutdown.')
@@ -48,11 +51,10 @@ async function shutdown() {
           .setFooter({ text: 'Kalliope', iconURL: iconURL })
           .setColor([255, 0, 0])
       ]
-    })
+    })*/
     player.destroy()
   }
-  client.destroy()
-  logging.info('[Process]   Received SIGTERM, shutting down.')
+  await client.destroy()
   process.exit(0)
 }
 

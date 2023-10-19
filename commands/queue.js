@@ -1,58 +1,59 @@
 // noinspection JSCheckFunctionSignatures
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
-import { errorEmbed, msToHMS } from '../utilities/utilities.js'
+import { genericChecks } from '../utilities/checks.js'
 import { logging } from '../utilities/logging.js'
+import { msToHMS } from '../utilities/utilities.js'
 
 export const { data, execute } = {
   data: new SlashCommandBuilder()
     .setName('queue')
     .setDescription('Displays the queue.'),
   async execute(interaction) {
+    await genericChecks(interaction)
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
-    if (!player || !player.queue.current) { return await interaction.reply(errorEmbed('Nothing currently playing.\nStart playback with `/play`!', true)) }
-    if (interaction.member.voice.channel?.id !== player.voiceChannel) { return await interaction.reply(errorEmbed('You need to be in the same voice channel as the bot to use this command!', true)) }
 
     const queue = player.queue
+    const trackInfo = queue.current.info
     const pages = []
 
-    if (queue.length === 0) {
+    if (queue.tracks.length === 0) {
       // Format single page with no upcoming songs.
       let description = 'Still using old and boring commands? Use the new [web dashboard](http://localhost) instead!\n\n'
-      description += `Now Playing:\n[${queue.current.title}](${queue.current.uri}) | \`${queue.current.isStream ? '🔴 Live' : msToHMS(queue.current.duration)}\`\n\n`
+      description += `Now Playing:\n[${trackInfo.title}](${trackInfo.uri}) | \`${trackInfo.isStream ? '🔴 Live' : msToHMS(trackInfo.duration)}\`\n\n`
       description += 'No upcoming songs.\nAdd songs with `/play`!\n' + '\u2015'.repeat(34)
 
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Queue.', iconURL: interaction.member.user.displayAvatarURL() })
         .setDescription(description)
-        .setFooter({ text: `Kalliope | Page 1/1 | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
+        .setFooter({ text: `Kalliope | Page 1/1 | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
       pages.push(embed)
-    } else if (queue.length > 0 && queue.length <= 10) {
+    } else if (queue.tracks.length > 0 && queue.tracks.length <= 10) {
       // Format single page.
       let description = 'Still using old and boring commands? Use the new [web dashboard](http://localhost) instead!\n\n'
-      description += `Now Playing:\n[${queue.current.title}](${queue.current.uri}) | \`${queue.current.isStream ? '🔴 Live' : msToHMS(queue.current.duration)}\`\n\n`
-      for (const track of queue) { description += `\`${queue.indexOf(track) + 1}.\` [${track.title}](${track.uri}) | \`${track.isStream ? '🔴 Live' : msToHMS(track.duration)}\`\n\n` }
-      description += `**${queue.length} songs in queue | ${msToHMS(queue.duration)} total duration**\n${'\u2015'.repeat(34)}`
+      description += `Now Playing:\n[${trackInfo.title}](${trackInfo.uri}) | \`${trackInfo.isStream ? '🔴 Live' : msToHMS(trackInfo.duration)}\`\n\n`
+      for (const track of queue) { description += `\`${queue.tracks.indexOf(track) + 1}.\` [${track.info.title}](${track.info.uri}) | \`${track.info.isStream ? '🔴 Live' : msToHMS(track.info.duration)}\`\n\n` }
+      description += `**${queue.tracks.length} songs in queue | ${msToHMS(queue.utils.totalDuration())} total duration**\n${'\u2015'.repeat(34)}`
 
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Queue.', iconURL: interaction.member.user.displayAvatarURL() })
         .setDescription(description)
-        .setFooter({ text: `Kalliope | Page 1/1 | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
+        .setFooter({ text: `Kalliope | Page 1/1 | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
       pages.push(embed)
     } else {
       // Format all pages.
-      for (let i = 0; i < queue.length; i += 10) {
-        const tracks = queue.slice(i, i + 10)
+      for (let i = 0; i < queue.tracks.length; i += 10) {
+        const tracks = queue.tracks.slice(i, i + 10)
 
         let description = 'Still using old and boring commands? Use the new [web dashboard](http://localhost) instead!\n\n'
-        description += `Now Playing:\n[${queue.current.title}](${queue.current.uri}) | \`${queue.current.isStream ? '🔴 Live' : msToHMS(queue.current.duration)}\`\n\n`
-        for (const track of tracks) { description += `\`${queue.indexOf(track) + 1}.\` [${track.title}](${track.uri}) | \`${track.isStream ? '🔴 Live' : msToHMS(track.duration)}\`\n\n` }
-        description += `**${queue.length} songs in queue | ${msToHMS(queue.duration)} total duration**\n${'\u2015'.repeat(34)}`
+        description += `Now Playing:\n[${trackInfo.title}](${trackInfo.uri}) | \`${trackInfo.isStream ? '🔴 Live' : msToHMS(trackInfo.duration)}\`\n\n`
+        for (const track of tracks) { description += `\`${queue.tracks.indexOf(track) + 1}.\` [${track.info.title}](${track.info.uri}) | \`${track.info.isStream ? '🔴 Live' : msToHMS(track.info.duration)}\`\n\n` }
+        description += `**${queue.tracks.length} songs in queue | ${msToHMS(queue.utils.totalDuration())} total duration**\n${'\u2015'.repeat(34)}`
 
         const embed = new EmbedBuilder()
           .setAuthor({ name: 'Queue.', iconURL: interaction.member.user.displayAvatarURL() })
           .setDescription(description)
-          .setFooter({ text: `Kalliope | 'Page ${pages.length + 1}/${Math.ceil(queue.length / 10)} | Repeat: ${player.queueRepeat ? '🔁 Queue' : player.trackRepeat ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
+          .setFooter({ text: `Kalliope | Page ${pages.length + 1}/${Math.ceil(queue.tracks.length / 10)} | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
         pages.push(embed)
       }
     }
