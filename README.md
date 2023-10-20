@@ -26,7 +26,6 @@
   - [Configuration](#configuration)
   - [Run](#run)
 - [Stats](#stats)
-  - [Size](#size)
   - [Code](#code)
   - [GitHub](#github)
 - [Licensing](#licensing)
@@ -155,17 +154,14 @@ node .
 
 ## Stats
 
-### Size
-![Total lines](https://img.shields.io/tokei/lines/github/MeridianGH/Kalliope?style=for-the-badge)
-![Repo size](https://img.shields.io/github/repo-size/MeridianGH/Kalliope?style=for-the-badge)
-
 ### Code
+![Repo size](https://img.shields.io/github/repo-size/MeridianGH/Kalliope?style=for-the-badge)
 [![Version](https://img.shields.io/github/package-json/v/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/blob/main/package.json#L2)
+\
 [![Top language](https://img.shields.io/github/languages/top/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/search?l=javascript)
-\
 [![CodeFactor](https://img.shields.io/codefactor/grade/github/MeridianGH/Kalliope?style=for-the-badge)](https://www.codefactor.io/repository/github/meridiangh/kalliope)
-[![Libraries.io](https://img.shields.io/librariesio/github/MeridianGH/Kalliope?style=for-the-badge)](https://libraries.io/github/MeridianGH/Kalliope)
 \
+[![Libraries.io](https://img.shields.io/librariesio/github/MeridianGH/Kalliope?style=for-the-badge)](https://libraries.io/github/MeridianGH/Kalliope)
 [![discord.js](https://img.shields.io/github/package-json/dependency-version/MeridianGH/Kalliope/discord.js?color=44b868&logo=npm&style=for-the-badge)](https://www.npmjs.com/package/discord.js)
 
 ### GitHub
