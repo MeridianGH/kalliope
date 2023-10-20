@@ -108,7 +108,7 @@ export function getFilesRecursively(directory, _files) {
 export async function addMusicControls(message, player) {
   const previousButton = new ButtonBuilder()
     .setCustomId('previous')
-    .setEmoji('⏮')
+    .setEmoji('⏮️')
     .setStyle(ButtonStyle.Secondary)
   const pauseButton = new ButtonBuilder()
     .setCustomId('pause')
@@ -116,11 +116,11 @@ export async function addMusicControls(message, player) {
     .setStyle(ButtonStyle.Secondary)
   const skipButton = new ButtonBuilder()
     .setCustomId('skip')
-    .setEmoji('⏭')
+    .setEmoji('⏭️')
     .setStyle(ButtonStyle.Secondary)
   const stopButton = new ButtonBuilder()
     .setCustomId('stop')
-    .setEmoji('⏹')
+    .setEmoji('⏹️')
     .setStyle(ButtonStyle.Secondary)
   const dashboardButton = new ButtonBuilder()
     .setURL(`https://test.xyz/dashboard/${message.guildId}`)
@@ -146,7 +146,7 @@ export async function addMusicControls(message, player) {
           await player.queue.add(track, 0)
           message.client.lavalink.manager.once('trackEnd', (player) => { player.queue.add(player.previousTracks.pop(), 0) })
           await player.stop()
-          await buttonInteraction.reply(simpleEmbed(`⏮ Playing previous track \`#0\`: **${track.title}**.`, true))
+          await buttonInteraction.reply(simpleEmbed(`⏮️ Playing previous track \`#0\`: **${track.title}**.`, true))
         } catch (e) {
           await player.seek(0)
           await buttonInteraction.deferUpdate()
@@ -155,22 +155,22 @@ export async function addMusicControls(message, player) {
       }
       case 'pause': {
         player.paused ? await player.resume() : await player.pause()
-        await buttonInteraction.reply(simpleEmbed(player.paused ? '⏸ Paused.' : '▶ Resumed.', true))
+        await buttonInteraction.reply(simpleEmbed(player.paused ? '⏸️ Paused.' : '▶️ Resumed.', true))
         break
       }
       case 'skip': {
         if (player.queue.tracks.length === 0) {
           player.destroy()
-          await buttonInteraction.reply(simpleEmbed('⏹ Stopped', true))
+          await buttonInteraction.reply(simpleEmbed('⏹️ Stopped', true))
           break
         }
         player.skip()
-        await buttonInteraction.reply(simpleEmbed('⏭ Skipped', true))
+        await buttonInteraction.reply(simpleEmbed('⏭️ Skipped', true))
         break
       }
       case 'stop': {
         player.destroy()
-        await buttonInteraction.reply(simpleEmbed('⏹ Stopped', true))
+        await buttonInteraction.reply(simpleEmbed('⏹️ Stopped', true))
         break
       }
     }

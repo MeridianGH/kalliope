@@ -17,7 +17,7 @@ export const { data, execute } = {
     interaction.client.lavalink.once('trackEnd', (player) => { player.queue.add(player.previousTracks.pop()) })
     player.skip()
 
-    await interaction.reply(simpleEmbed(`⏮ Playing previous track \`#0\`: **${track.title}**.`))
+    await interaction.reply(simpleEmbed(`⏮️ Playing previous track \`#0\`: **${track.title}**.`))
     interaction.client.websocket.updatePlayer(player)
   }
 }

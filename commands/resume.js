@@ -13,7 +13,7 @@ export const { data, execute } = {
     if (!player.paused) { return await interaction.reply(errorEmbed('The queue is not paused!', true)) }
 
     player.pause(false)
-    await interaction.reply(simpleEmbed('▶ Resumed'))
+    await interaction.reply(simpleEmbed('▶️ Resumed'))
     interaction.client.websocket.updatePlayer(player)
   }
 }

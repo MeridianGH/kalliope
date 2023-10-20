@@ -48,7 +48,7 @@ export class Lavalink {
         setTimeout(async () => { if (!player.playing && !player.queue.current) { await player.destroy() } }, 30000)
       })
       .on('trackStuck', (player) => {
-        client.channels.cache.get(player.textChannelId)?.send(errorEmbed(`⏭ Track **${player.current.info.title}** got stuck, skipping...`))
+        client.channels.cache.get(player.textChannelId)?.send(errorEmbed(`⏭️ Track **${player.current.info.title}** got stuck, skipping...`))
         player.skip()
       })
 

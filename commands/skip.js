@@ -16,7 +16,7 @@ export const { data, execute } = {
 
     if (player.queue.tracks.length === 0) {
       player.destroy()
-      await interaction.reply(simpleEmbed('⏹ Stopped.'))
+      await interaction.reply(simpleEmbed('⏹️ Stopped.'))
       interaction.client.websocket.updatePlayer(player)
       return
     }
@@ -24,10 +24,10 @@ export const { data, execute } = {
     if (index) {
       const track = player.queue[index - 1]
       player.skip(index)
-      await interaction.reply(simpleEmbed(`⏭ Skipped to \`#${index}\`: **${track.info.title}**.`))
+      await interaction.reply(simpleEmbed(`⏭️ Skipped to \`#${index}\`: **${track.info.title}**.`))
     } else {
       player.skip()
-      await interaction.reply(simpleEmbed('⏭ Skipped.'))
+      await interaction.reply(simpleEmbed('⏭️ Skipped.'))
     }
     interaction.client.websocket.updatePlayer(player)
   }

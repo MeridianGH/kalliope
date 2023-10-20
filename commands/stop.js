@@ -11,7 +11,7 @@ export const { data, execute } = {
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     player.destroy()
-    await interaction.reply(simpleEmbed('⏹ Stopped.'))
+    await interaction.reply(simpleEmbed('⏹️ Stopped.'))
     interaction.client.websocket.updatePlayer(player)
   }
 }

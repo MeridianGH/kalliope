@@ -70,7 +70,7 @@ export class WebSocket {
     switch (data.type) {
       case 'pause': {
         player.paused ? await player.resume() : await player.pause()
-        await textChannel.send(simpleEmbed(player.paused ? '⏸ Paused.' : '▶ Resumed.'))
+        await textChannel.send(simpleEmbed(player.paused ? '⏸️ Paused.' : '▶️ Resumed.'))
         break
       }
       case 'skip': {
@@ -80,7 +80,7 @@ export class WebSocket {
           await textChannel.send(simpleEmbed(`⏭ Skipped to \`#${data.index}\`: **${track.title}**.`))
         } else {
           await player.skip()
-          await textChannel.send(simpleEmbed('⏭ Skipped.'))
+          await textChannel.send(simpleEmbed('⏭️ Skipped.'))
         }
         break
       }
@@ -90,7 +90,7 @@ export class WebSocket {
         await player.queue.add(track, 0)
         player.manager.once('trackEnd', (player) => { player.queue.add(player.previousTracks.pop(), 0) })
         player.stop()
-        await textChannel.send(simpleEmbed(`⏮ Playing previous track \`#0\`: **${track.title}**.`))
+        await textChannel.send(simpleEmbed(`⏮️ Playing previous track \`#0\`: **${track.title}**.`))
         */
         break
       }
