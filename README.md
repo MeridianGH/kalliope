@@ -1,10 +1,10 @@
 <!--suppress HtmlDeprecatedAttribute -->
 
-![logo](https://repository-images.githubusercontent.com/556876246/97fc51e6-1179-4eb8-8401-0fc20a25636e)
+![logo](https://repository-images.githubusercontent.com/556876246/7ba0c1ee-1f69-4c1b-ba41-11279caf1ccb)
 
 <div align="center">
 
-[![Dashboard](https://img.shields.io/static/v1?style=for-the-badge&logo=google%20chrome&label=Dashboard&message=kalliope.xyz&color=121212)](http://kalliope.xyz)
+[![Dashboard](https://img.shields.io/static/v1?style=for-the-badge&logo=google%20chrome&label=Dashboard&message=kalliope.cc&color=121212)](http://kalliope.cc)
 [![Discord](https://shields.io/discord/610498937874546699?style=for-the-badge&logo=discord&label=discord)](https://discord.gg/qX2CBrrUpf)
 [![License](https://img.shields.io/github/license/MeridianGH/kalliope?logo=gnu&style=for-the-badge)](https://github.com/MeridianGH/Kalliope/blob/main/LICENSE.md)
 
@@ -134,10 +134,10 @@ Alternatively use **[GitHub Desktop](https://desktop.github.com/)** or download 
 <br/>
 
 ### Configuration
-Rename `config_example.json` to `config.json` and replace the placeholders inside with your info:
+Rename or copy `config_example.json` to `config.json` and replace the placeholders inside with your info:
 - A Discord Bot Token (**[Guide](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot)**)
-- Your Application ID which you can find in the `General Information` tab in your Discord application.
-- Get your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**. Once you have `PAPISID` and `PSID`, set them in the config.
+- Your Application ID found in the `General Information` tab in your Discord application.
+- Your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**. Set `PAPISID` and `PSID` in the config once acquired.
 - Create a Genius API application **[here](https://docs.genius.com/)**, generate an access token and paste it in the config.
 
 Run `node .\deployCommands.js` _once_ to synchronize the bots commands with Discord.\
