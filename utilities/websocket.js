@@ -77,7 +77,10 @@ export class WebSocket {
         if (data.index) {
           const track = player.queue[data.index - 1]
           await player.skip(data.index)
-          await textChannel.send(simpleEmbed(`⏭ Skipped to \`#${data.index}\`: **${track.title}**.`))
+          await textChannel.send(simpleEmbed(`⏭️ Skipped to \`#${data.index}\`: **${track.title}**.`))
+        } else if (player.queue.tracks.length === 0) {
+          player.destroy()
+          await textChannel.send(simpleEmbed('⏹️ Stopped.'))
         } else {
           await player.skip()
           await textChannel.send(simpleEmbed('⏭️ Skipped.'))
@@ -186,7 +189,7 @@ export class WebSocket {
     const randomDelay = Math.floor(Math.random() * 1000)
     logging.info(`[WebSocket] Trying to reconnect in ${this.reconnectDelay / 1000}s (+${randomDelay / 1000}s variation).`)
     setTimeout(async () => {
-      await this.wsClient.connect('ws://clients.kalliope.cc:8080')
+      await this.wsClient.connect('wss://clients.kalliope.cc')
     }, this.reconnectDelay + randomDelay)
     if (this.reconnectDelay < maxDelay) {
       this.reconnectDelay *= 2
@@ -198,7 +201,7 @@ export class WebSocket {
    * @return void
    */
   initialize() {
-    this.wsClient.connect('ws://clients.kalliope.cc:8080')
+    this.wsClient.connect('wss://clients.kalliope.cc')
 
     // noinspection JSUnresolvedFunction
     this.wsClient.on('connectFailed', (reason) => {
@@ -227,7 +230,7 @@ export class WebSocket {
         }
 
         this.executePlayerAction(player, data).then(() => {
-          ws.updatePlayer(player)
+          this.updatePlayer(player)
         })
       })
 
