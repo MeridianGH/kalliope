@@ -6,7 +6,7 @@
 
 [![Dashboard](https://img.shields.io/static/v1?style=for-the-badge&logo=google%20chrome&label=Dashboard&message=kalliope.cc&color=121212)](http://kalliope.cc)
 [![Discord](https://shields.io/discord/610498937874546699?style=for-the-badge&logo=discord&label=discord)](https://discord.gg/qX2CBrrUpf)
-[![License](https://img.shields.io/github/license/MeridianGH/kalliope?logo=gnu&style=for-the-badge)](https://github.com/MeridianGH/Kalliope/blob/main/LICENSE.md)
+[![License](https://img.shields.io/github/license/MeridianGH/Kalliope?logo=gnu&style=for-the-badge)](https://github.com/MeridianGH/Kalliope/blob/main/LICENSE.md)
 
 <h1>Kalliope.</h1>
 
@@ -167,7 +167,6 @@ node .
 [![Libraries.io](https://img.shields.io/librariesio/github/MeridianGH/Kalliope?style=for-the-badge)](https://libraries.io/github/MeridianGH/Kalliope)
 \
 [![discord.js](https://img.shields.io/github/package-json/dependency-version/MeridianGH/Kalliope/discord.js?color=44b868&logo=npm&style=for-the-badge)](https://www.npmjs.com/package/discord.js)
-[![erela.js](https://img.shields.io/github/package-json/dependency-version/MeridianGH/Kalliope/erela.js?color=44b868&logo=npm&style=for-the-badge)](https://www.npmjs.com/package/erela.js)
 
 ### GitHub
 [![GitHub issues](https://img.shields.io/github/issues/MeridianGH/Kalliope?style=for-the-badge)](https://github.com/MeridianGH/Kalliope/issues)
