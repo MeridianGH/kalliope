@@ -25,7 +25,6 @@ export const { data, execute } = {
 
     try {
       const search = await Genius.songs.search(title)
-      console.log(search)
       const song = search[0]
       const lyrics = await song.lyrics()
 

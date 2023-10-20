@@ -27,7 +27,6 @@ export class ExtendedSearch {
         const result = await this._search(query, requestedBy)
         const data = ytpl.validateID(query) ? await ytpl(query) : null
         result.playlist = Object.assign(result.playlist, { name: data.title, author: data.author.name, artworkUrl: data.bestThumbnail.url, uri: data.url })
-        // console.log(result)
         return result
       } catch (e) {
         return { loadType: LoadTypes.error, tracks: null, playlist: null, exception: { message: e.message, severity: 'common' }, pluginInfo: null }

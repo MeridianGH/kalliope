@@ -44,13 +44,13 @@ export class WebSocket {
             displayAvatarURL: track.requester.displayAvatarURL
           }
         })),
-        current: {
+        current: player.queue.current ? {
           info: player.queue.current.info,
           requester: {
             displayName: player.queue.current.requester.displayName,
             displayAvatarURL: player.queue.current.requester.displayAvatarURL
           }
-        }
+        } : null
       },
       filters: {
         current: player.filters.current,
@@ -153,13 +153,13 @@ export class WebSocket {
         break
       }
       case 'clear': {
-        player.queue.splice(0, player.queue.tracks.length)
+        await player.queue.splice(0, player.queue.tracks.length)
         await textChannel.send(simpleEmbed('🗑️ Cleared the queue.'))
         break
       }
       case 'remove': {
-        const track = player.queue.splice(data.index - 1, 1)[0]
-        await textChannel.send(simpleEmbed(`🗑️ Removed track \`#${data.index}\`: **${track.title}**`))
+        const track = await player.queue.splice(data.index - 1, 1)
+        await textChannel.send(simpleEmbed(`🗑️ Removed track \`#${data.index}\`: **${track.info.title}**`))
         break
       }
     }
@@ -174,7 +174,7 @@ export class WebSocket {
     data.type = data.type ?? type
     data.clientId = this.client.user.id
     this.ws?.sendUTF(JSON.stringify(data))
-    console.log('bot sent:', data)
+    // console.log('bot sent:', data)
   }
 
   updatePlayer(player) {
@@ -218,7 +218,7 @@ export class WebSocket {
           return
         }
         const data = JSON.parse(message.utf8Data)
-        console.log('bot received:', data)
+        // console.log('bot received:', data)
 
         const player = this.client.lavalink.getPlayer(data.guildId)
         if (data.type === 'requestPlayerData') {
