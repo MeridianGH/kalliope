@@ -160,21 +160,21 @@ export async function addMusicControls(message, player) {
       }
       case 'skip': {
         if (player.queue.tracks.length === 0) {
-          player.destroy()
+          await player.destroy()
           await buttonInteraction.reply(simpleEmbed('⏹️ Stopped', true))
           break
         }
-        player.skip()
+        await player.skip()
         await buttonInteraction.reply(simpleEmbed('⏭️ Skipped', true))
         break
       }
       case 'stop': {
-        player.destroy()
+        await player.destroy()
         await buttonInteraction.reply(simpleEmbed('⏹️ Stopped', true))
         break
       }
     }
-    message.client.websocket?.updatePlayer(player)
+    message.client.websocket.updatePlayer(player)
   })
   collector.on('end', async () => {
     const fetchedMessage = await message.fetch(true).catch((e) => { logging.warn(`Failed to edit message components: ${e}`) })

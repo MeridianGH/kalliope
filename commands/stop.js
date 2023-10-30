@@ -12,6 +12,5 @@ export const { data, execute } = {
 
     player.destroy()
     await interaction.reply(simpleEmbed('⏹️ Stopped.'))
-    interaction.client.websocket.updatePlayer(player)
   }
 }

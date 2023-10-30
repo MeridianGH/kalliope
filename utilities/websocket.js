@@ -24,10 +24,9 @@ export class WebSocket {
   /**
    * Simplifies a player object to an object that supports transfer as JSON.
    * @param player {any} The player to convert.
-   * @return {Object | null}
+   * @return {Object}
    */
   simplifyPlayer(player) {
-    // noinspection JSUnresolvedVariable, JSUnresolvedFunction
     return player ? {
       guildId: player.guildId,
       voiceChannelId: player.voiceChannelId,
@@ -37,14 +36,14 @@ export class WebSocket {
       position: player.position,
       repeatMode: player.repeatMode,
       queue: {
-        tracks: player.queue.tracks.map((track) => ({
+        tracks: player.queue?.tracks?.map((track) => ({
           info: track.info,
           requester: {
             displayName: track.requester.displayName,
             displayAvatarURL: track.requester.displayAvatarURL
           }
         })),
-        current: player.queue.current ? {
+        current: player.queue?.current ? {
           info: player.queue.current.info,
           requester: {
             displayName: player.queue.current.requester.displayName,
@@ -53,8 +52,8 @@ export class WebSocket {
         } : null
       },
       filters: {
-        current: player.filters.current,
-        timescale: player.filters.timescale
+        current: player.filters?.current,
+        timescale: player.filters?.timescale
       }
     } : null
   }
@@ -174,7 +173,7 @@ export class WebSocket {
     data.type = data.type ?? type
     data.clientId = this.client.user.id
     this.ws?.sendUTF(JSON.stringify(data))
-    // console.log('bot sent:', data)
+    console.log('bot sent:', data)
   }
 
   updatePlayer(player) {
@@ -218,7 +217,7 @@ export class WebSocket {
           return
         }
         const data = JSON.parse(message.utf8Data)
-        // console.log('bot received:', data)
+        console.log('bot received:', data)
 
         const player = this.client.lavalink.getPlayer(data.guildId)
         if (data.type === 'requestPlayerData') {
@@ -235,6 +234,7 @@ export class WebSocket {
       })
 
       ws.on('close', (reason, description) => {
+        if (reason === 1000) { return }
         logging.error(`[WebSocket] Socket closed with reason: ${reason} | ${description}`)
         this.reconnect()
       })
@@ -247,5 +247,10 @@ export class WebSocket {
         users: this.client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
       })
     })
+  }
+
+  close() {
+    logging.info('[WebSocket] Closing WebSocket connection.')
+    this.ws?.close(1000, 'Socket closed by client.')
   }
 }

@@ -17,7 +17,6 @@ export const { data, execute } = {
     if (player.queue.tracks.length === 0) {
       player.destroy()
       await interaction.reply(simpleEmbed('⏹️ Stopped.'))
-      interaction.client.websocket.updatePlayer(player)
       return
     }
 

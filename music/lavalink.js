@@ -51,6 +51,9 @@ export class Lavalink {
         client.channels.cache.get(player.textChannelId)?.send(errorEmbed(`⏭️ Track **${player.current.info.title}** got stuck, skipping...`))
         player.skip()
       })
+      .on('playerDestroy', (player) => {
+        client.websocket.sendData('playerData', { guildId: player.guildId, player: null })
+      })
 
     this.manager.nodeManager
       .on('connect', (node) => { logging.info(`[Lavalink]  Node ${node.id} connected.`) })
