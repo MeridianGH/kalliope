@@ -95,27 +95,8 @@ Kalliope uses slash commands to integrate itself into the server. You can easily
 
 ### Prerequisites
 - **[Node.js](https://nodejs.org/en/download/)**
-- **[Java](https://www.oracle.com/java/technologies/downloads/)**
 
-Install the latest versions available.\
-If you encounter any issues with playback, try installing OpenJDK 13.0.2 instead of the latest Java version:
-
-<details>
-<summary style="cursor: pointer"><b>OpenJDK 13.0.2</b></summary>
-
-Download the OpenJDK 13.0.2 installer either from the official **[Oracle Archive website](https://www.oracle.com/java/technologies/javase/jdk13-archive-downloads.html)** (Account creation required)
-
-**OR**
-
-Download the binaries from the **[Java Archives](https://jdk.java.net/archive)** and unzip it to a location you can remember.
-
-Regardless of your method, make sure to add the `/bin` folder to your path variable. If you don't know how to do that, a quick Google search will help you.
-
----
-
-</details>
-
-Make sure Java is installed properly by running `java --version` in your terminal. If it displays the correct version, you are good to go!
+Install the latest version available.
 
 <br/>
 
@@ -136,11 +117,50 @@ Alternatively use **[GitHub Desktop](https://desktop.github.com/)** or download 
 Rename or copy `config_example.json` to `config.json` and replace the placeholders inside with your info:
 - A Discord Bot Token (**[Guide](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot)**)
 - Your Application ID found in the `General Information` tab in your Discord application.
-- Your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**. Set `PAPISID` and `PSID` in the config once acquired.
 - Create a Genius API application **[here](https://docs.genius.com/)**, generate an access token and paste it in the config.
 
 Run `node .\deployCommands.js` _once_ to synchronize the bots commands with Discord.\
 You only need to run this during the initial setup or when you install a new update that changes some commands.
+
+
+<details>
+<summary style="cursor: pointer"><b>Optional: Lavalink</b></summary>
+
+Install the latest version of **[Java](https://www.oracle.com/java/technologies/downloads/)** available.
+
+If you encounter any issues with playback later, try installing OpenJDK 13.0.2 instead of the latest Java version:
+
+<details>
+<summary style="cursor: pointer">OpenJDK 13.0.2</summary>
+
+> Download the OpenJDK 13.0.2 installer either from the official **[Oracle Archive website](https://www.oracle.com/java/technologies/javase/jdk13-archive-downloads.html)** (Account creation required)\
+**OR**\
+download the binaries from the **[Java Archives](https://jdk.java.net/archive)** and unzip it to a location you can remember.\
+\
+Regardless of your method, make sure to add the `/bin` folder to your path variable. If you don't know how to do that, a quick Google search will help you.
+
+</details>
+
+Make sure Java is installed properly by running `java --version` in your terminal. If it displays the correct version, you are good to go!
+
+Get your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**.\
+Once acquired, set `PAPISID` and `PSID` in your `config.json` as follows:
+
+```json
+{
+  "...": "...",
+  "papisid": "yourPAPISID",
+  "psid": "yourPSID"
+}
+```
+
+\
+Uncomment the `localhost` node in `lavalink.js` to make sure your bot actually connects to your Lavalink instance.
+
+
+---
+
+</details>
 
 <br/>
 
@@ -186,6 +206,6 @@ For more information, please refer to the license.
 
 <div align="center">
 
-[Back to top ↥](#readme)
+[Back to top 🡅](#readme)
 
 </div>

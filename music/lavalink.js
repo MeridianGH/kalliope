@@ -24,10 +24,16 @@ export class Lavalink {
     // noinspection JSUnusedGlobalSymbols
     this.manager = new LavalinkManager({
       nodes: [
-        {
+        /*{
           host: 'localhost',
           port: 2333,
           authorization: 'youshallnotpass'
+        },*/
+        {
+          host: 'lavalink.kalliope.cc',
+          port: 443,
+          authorization: 'lavalink!Kalliope',
+          secure: true
         }
       ],
       sendToShard: (guildId, payload) => client.guilds.cache.get(guildId)?.shard?.send(payload),
@@ -70,6 +76,10 @@ export class Lavalink {
    * @returns {Promise<void>}
    */
   async initialize() {
+    if (!this.manager.options.nodes.find((node) => node.host === 'localhost')) {
+      return logging.info('[Lavalink]  No nodes with host \'localhost\' in LavalinkManagerOptions, skipping local Lavalink setup.')
+    }
+
     const doc = yaml.load(fs.readFileSync('./music/lavalink/template.yml'), {})
     doc.lavalink.server.youtubeConfig.PAPISID = papisid
     doc.lavalink.server.youtubeConfig.PSID = psid

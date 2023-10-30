@@ -1,6 +1,7 @@
 server:
   port: 2333
   address: 0.0.0.0
+
 lavalink:
   server:
     password: "youshallnotpass"
@@ -37,7 +38,6 @@ logging:
     max-history: 30
     max-size: 1GB
   path: ./logs/
-
   level:
     root: INFO
     lavalink: INFO
