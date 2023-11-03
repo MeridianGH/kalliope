@@ -24,7 +24,7 @@ export class WebSocket {
   /**
    * Simplifies a player object to an object that supports transfer as JSON.
    * @param player {any} The player to convert.
-   * @return {Object}
+   * @return {Object} A JSON compatible player object.
    */
   simplifyPlayer(player) {
     return player ? {
@@ -62,7 +62,7 @@ export class WebSocket {
    * Executes an action specified in `data` on the player.
    * @param player {any} The player to run the action on.
    * @param data {{type: string, guildId: string, userId: string, index?: number, volume?: number, query?: string, filter?: string}} The data object containing the action information.
-   * @return {Promise<any>}
+   * @return {Promise<void>}
    */
   async executePlayerAction(player, data) {
     const textChannel = this.client.channels.cache.get(player.textChannelId)
@@ -148,6 +148,7 @@ export class WebSocket {
    * Sends data using the WebSocket connection.
    * @param [type] {string} The data type. Is added to `data`.
    * @param [data] {Object} The data to send.
+   * @return void
    */
   sendData(type = 'none', data = {}) {
     data.type = data.type ?? type
@@ -156,6 +157,11 @@ export class WebSocket {
     // console.log('bot sent:', data)
   }
 
+  /**
+   * Sends a player update.
+   * @param player {Player | null} The player to update.
+   * @return void
+   */
   updatePlayer(player) {
     this.sendData('playerData', {
       guildId: player.guildId,
@@ -163,6 +169,11 @@ export class WebSocket {
     })
   }
 
+  /**
+   * Handles a WebSocket reconnect.
+   * @return void
+   * @private
+   */
   reconnect() {
     const maxDelay = 128000
     const randomDelay = Math.floor(Math.random() * 1000)
@@ -229,6 +240,10 @@ export class WebSocket {
     })
   }
 
+  /**
+   * Gracefully closes the WebSocket connection.
+   * @return void
+   */
   close() {
     logging.info('[WebSocket] Closing WebSocket connection.')
     this.ws?.close(1000, 'Socket closed by client.')

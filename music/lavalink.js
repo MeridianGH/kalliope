@@ -1,13 +1,14 @@
 // noinspection NpmUsedModulesInstalled
 
 import { spawn } from 'child_process'
+import { EmbedBuilder } from 'discord.js'
 import fs from 'fs'
 import http from 'http'
 import yaml from 'js-yaml'
 import { LavalinkManager } from 'lavalink-client'
 import { papisid, psid } from '../utilities/config.js'
 import { logging } from '../utilities/logging.js'
-import { errorEmbed, simpleEmbed } from '../utilities/utilities.js'
+import { errorEmbed, msToHMS, simpleEmbed } from '../utilities/utilities.js'
 import { CustomFilters } from './customFilters.js'
 import { ExtendedSearch } from './extendedSearch.js'
 
@@ -115,8 +116,8 @@ export class Lavalink {
 
   /**
    * Checks if a port is already in use.
-   * @param port
-   * @returns {Promise<boolean>}
+   * @param port The port to check.
+   * @returns {Promise<boolean>} If the port is currently in use.
    * @private
    */
   _portInUse(port) {
@@ -132,9 +133,9 @@ export class Lavalink {
 
   /**
    * Handles voice state updates.
-   * @param oldState
-   * @param newState
-   * @returns {void}
+   * @param oldState The old voice state. Usually provided by discord.js.
+   * @param newState The new voice state. Usually provided by discord.js.
+   * @returns void
    * @private
    */
   async _voiceUpdate(oldState, newState) {
@@ -186,8 +187,8 @@ export class Lavalink {
 
   /**
    * Gets a player using a guild ID.
-   * @param guildId
-   * @returns {import('lavalink-client/dist/cjs/structures/Player.d.ts').Player | undefined}
+   * @param guildId The guild ID to retrieve the player from.
+   * @returns The Lavalink player.
    * @see LavalinkManager.getPlayer
    */
   getPlayer(guildId) {
@@ -197,8 +198,8 @@ export class Lavalink {
 
   /**
    * Creates a player from a discord.js interaction.
-   * @param interaction
-   * @returns {import('lavalink-client/dist/cjs/structures/Player.d.ts').Player}
+   * @param interaction The interaction that requested a player to be created.
+   * @returns The created Lavalink player.
    * @see LavalinkManager.createPlayer
    */
   createPlayer(interaction) {

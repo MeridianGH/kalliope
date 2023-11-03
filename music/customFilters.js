@@ -1,7 +1,18 @@
+/**
+ * A utility class that extends the Player with filter functionality.
+ */
 export class CustomFilters {
+  /**
+   * Attaches this plugin to the player.
+   * @param player The player to attach to.
+   */
   constructor(player) {
     this.player = player
     this.current = 'none'
+
+    player.set('plugins', { ...player.get('plugins'), customFilters: true })
+    player.filters = this
+
     this.filterData = {
       none: {},
       bassboost: {
@@ -88,20 +99,26 @@ export class CustomFilters {
         }
       }
     }
-    player.set('plugins', { ...player.get('plugins'), customFilters: true })
-    player.filters = this
   }
 
+  /**
+   * Sets and applies the current filter. Sets to `none` if not provided or available.
+   * @param filter The filter to set.
+   * @return {Promise<void>}
+   */
   async setFilter(filter) {
     this.current = filter
     if (!this.filterData[filter]) { this.current = 'none' }
-    // this.player.node.send(this.filterData[filter])
     await this.player.node.updatePlayer({
       guildId: this.player.guildId,
       playerOptions: { filters: this.filterData[this.current] }
     })
   }
 
+  /**
+   * The current playback timescale.
+   * @return {number}
+   */
   get timescale() {
     return this.filterData[this.current].timescale?.speed ?? 1.0
   }

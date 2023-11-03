@@ -5,13 +5,29 @@ import { LoadTypes } from './lavalink.js'
 
 const spotify = spotifyUrlInfo(fetch)
 
+/**
+ * A utility class replacing the standard `Player.search` function
+ * with one that provides more functionality.
+ */
 export class ExtendedSearch {
+  /**
+   * Attaches this plugin to the player.
+   * @param player The player to attach to.
+   */
   constructor(player) {
     this._search = player.search.bind(player)
     player.search = this.search.bind(this)
     player.set('plugins', { ...player.get('plugins'), extendedSearch: true })
   }
 
+  /**
+   * The improved version of `Player.search`.
+   * Takes the same parameters and returns the same structure.
+   * @param query {string} The query to search for.
+   * @param requestedBy The member (or user) that requested this search.
+   * @return {Promise<{Object}>} The search result.
+   * @see Player.search
+   */
   async search(query, requestedBy) {
     // Split off query parameters
     if (query.startsWith('https://')) { query = query.split('&')[0] }
@@ -62,6 +78,12 @@ export class ExtendedSearch {
     return search
   }
 
+  /**
+   * Resolves a single track on Spotify.
+   * @param The Spotify URL to resolve.
+   * @param requestedBy The member (or user) that requested this search.
+   * @return {Promise<{tracks: (any)[]}>} The track result.
+   */
   async getTrack(query, requestedBy) {
     const data = await spotify.getData(query, {})
     // noinspection JSUnresolvedVariable
@@ -75,6 +97,12 @@ export class ExtendedSearch {
     return { tracks: [ await this.findClosestTrack(track, requestedBy) ] }
   }
 
+  /**
+   * Resolves a playlist on Spotify.
+   * @param query The Spotify URL to resolve.
+   * @param requestedBy The member (or user) that requested this search.
+   * @return {Promise<{playlist: {author: string, artworkUrl: string, name: string, uri: string}, tracks: any[]}>} The playlist result.
+   */
   async getPlaylist(query, requestedBy) {
     const data = await spotify.getData(query, {})
     // noinspection JSUnresolvedVariable
@@ -91,6 +119,12 @@ export class ExtendedSearch {
     return { tracks, playlist: { name: data.name, author: data.owner.display_name, artworkUrl: data.images[0]?.url, uri: data.external_urls.spotify } }
   }
 
+  /**
+   * Resolves tracks of an album on Spotify.
+   * @param query The Spotify URL to resolve.
+   * @param requestedBy The member (or user) that requested this search.
+   * @return {Promise<{playlist: {thumbnail: string, author: string, name: string, uri: string}, tracks: any[]}>} The album result.
+   */
   async getAlbumTracks(query, requestedBy) {
     const data = await spotify.getData(query, {})
     // noinspection JSUnresolvedVariable
@@ -107,6 +141,13 @@ export class ExtendedSearch {
     return { tracks, playlist: { name: data.name, author: data.artists[0].name, thumbnail: data.images[0]?.url, uri: data.external_urls.spotify } }
   }
 
+  /**
+   * Finds the closest matching track on YouTube based on a Spotify track.
+   * @param data The Spotify track data.
+   * @param requestedBy The member (or user) that requested this search.
+   * @param [retries=5] {number} How often to retry.
+   * @return {Promise<any>} The most closely matching track.
+   */
   async findClosestTrack(data, requestedBy, retries = 5) {
     if (retries <= 0) { return }
     const tracks = (await this.search(data.title, requestedBy)).tracks.slice(0, 5)
@@ -121,6 +162,11 @@ export class ExtendedSearch {
     return track
   }
 
+  /**
+   * Finds the best available thumbnail of a track on YouTube.
+   * @param track The track of which to get the thumbnail.
+   * @return {Promise<string>} The URL of the thumbnail image.
+   */
   async getBestThumbnail(track) {
     for (const size of ['maxresdefault', 'hqdefault', 'mqdefault', 'default']) {
       const thumbnail = `https://i.ytimg.com/vi/${track.id}/${size}.jpg`

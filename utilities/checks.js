@@ -4,7 +4,7 @@ import { errorEmbed } from './utilities.js'
 
 /**
  * Executes generic music checks on an interaction and replies based on possible errors.
- * @param interaction
+ * @param interaction The interaction that called this check.
  * @returns {Promise<any>}
  */
 export async function genericChecks(interaction) {
@@ -15,7 +15,7 @@ export async function genericChecks(interaction) {
 
 /**
  * Executes playback checks and replies based on possible errors.
- * @param interaction
+ * @param interaction The interaction that called this check.
  * @returns {Promise<any>}
  */
 export async function playChecks(interaction) {
@@ -27,8 +27,8 @@ export async function playChecks(interaction) {
 
 /**
  * Executes Lavalink load type checks and replies based on possible errors.
- * @param interaction
- * @param result
+ * @param interaction The interaction that called this check.
+ * @param result The result to check.
  * @returns {Promise<any>}
  */
 export async function loadChecks(interaction, result) {

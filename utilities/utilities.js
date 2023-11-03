@@ -8,9 +8,9 @@ import { logging } from './logging.js'
 
 /**
  * Builds a simple embed object with default settings used as a parameter in message functions.
- * @param content {string}
- * @param ephemeral {boolean}
- * @returns {{ephemeral: boolean, embeds: EmbedBuilder[]}}
+ * @param content {string} The content the embed should contain.
+ * @param ephemeral {boolean} If the embed should be ephemeral.
+ * @returns {{ephemeral: boolean, embeds: EmbedBuilder[]}} An object compatible with most discord.js send functions.
  */
 export function simpleEmbed(content, ephemeral = false) {
   return {
@@ -25,9 +25,9 @@ export function simpleEmbed(content, ephemeral = false) {
 
 /**
  * Builds a simple embed object with error settings used as a parameter in message functions.
- * @param content {string}
- * @param ephemeral {boolean}
- * @returns {{ephemeral: boolean, embeds: EmbedBuilder[]}}
+ * @param content {string} The content the embed should contain.
+ * @param ephemeral {boolean} If the embed should be ephemeral.
+ * @returns {{ephemeral: boolean, embeds: EmbedBuilder[]}} An object compatible with most discord.js send functions.
  */
 export function errorEmbed(content, ephemeral = false) {
   return {
@@ -43,8 +43,8 @@ export function errorEmbed(content, ephemeral = false) {
 
 /**
  * Returns a promise that resolves after the specified amount of seconds.
- * @param seconds {number}
- * @returns {Promise<void>}
+ * @param seconds {number} The time to wait until promise resolution.
+ * @returns {Promise<void>} The promise to await.
  */
 export function sleep(seconds) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000))
@@ -103,7 +103,7 @@ export function getFilesRecursively(directory, _files) {
  * Adds music control buttons to a discord.js message.
  * @param message {any} The message object.
  * @param player {any} The player of the corresponding guild.
- * @returns {Promise<void>}
+ * @returns {Promise<any>}
  */
 export async function addMusicControls(message, player) {
   const previousButton = new ButtonBuilder()
