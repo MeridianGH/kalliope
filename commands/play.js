@@ -25,30 +25,9 @@ export const { data, execute } = {
       await player.connect()
     }
 
-    const isTrack = result.loadType === LoadTypes.track || result.loadType === LoadTypes.search
-    const info = isTrack ? result.tracks[0].info : result.playlist
+    const embed = this.client.lavalink.processPlayResult(player, result)
 
-    await player.queue.add(isTrack ? result.tracks[0] : result.tracks)
-    if (!player.playing && !player.paused) { await player.play() }
     interaction.client.websocket.updatePlayer(player)
-
-    // noinspection JSUnresolvedVariable, JSCheckFunctionSignatures
-    const embed = new EmbedBuilder()
-      .setAuthor({ name: 'Added to queue.', iconURL: interaction.member.user.displayAvatarURL() })
-      .setTitle(info.title)
-      .setURL(info.uri)
-      .setThumbnail(info.artworkUrl)
-      .addFields(isTrack ? [
-        { name: 'Duration', value: info.isStream ? '🔴 Live' : msToHMS(info.duration), inline: true },
-        { name: 'Author', value: info.author, inline: true },
-        { name: 'Position', value: player.queue.tracks.length.toString(), inline: true }
-      ] : [
-        { name: 'Amount', value: result.tracks.length + ' songs', inline: true },
-        { name: 'Author', value: info.author, inline: true },
-        { name: 'Position', value: `${player.queue.tracks.length - result.tracks.length + 1}-${player.queue.tracks.length}`, inline: true }
-      ])
-      .setFooter({ text: 'Kalliope', iconURL: interaction.client.user.displayAvatarURL() })
-
     const message = await interaction.editReply({ embeds: [embed] })
     await addMusicControls(message, player)
   }

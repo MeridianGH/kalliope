@@ -117,31 +117,10 @@ export class WebSocket {
       case 'play': {
         const member = await (await this.client.guilds.fetch(player.guildId)).members.fetch(data.userId)
         const result = await player.search(data.query, member)
-        if (result.loadType === LoadTypes.error) { return }
-        if (result.loadType === LoadTypes.empty) { return }
+        if (result.loadType === LoadTypes.error) { break }
+        if (result.loadType === LoadTypes.empty) { break }
 
-        const isTrack = result.loadType === LoadTypes.track || result.loadType === LoadTypes.search
-        const info = isTrack ? result.tracks[0].info : result.playlist
-
-        await player.queue.add(isTrack ? result.tracks[0] : result.tracks)
-        if (!player.playing && !player.paused) { await player.play() }
-
-        // noinspection JSUnresolvedVariable, JSCheckFunctionSignatures
-        const embed = new EmbedBuilder()
-          .setAuthor({ name: 'Added to queue.', iconURL: member.user.displayAvatarURL() })
-          .setTitle(info.title)
-          .setURL(info.uri)
-          .setThumbnail(info.artworkUrl)
-          .addFields(isTrack ? [
-            { name: 'Duration', value: info.isStream ? '🔴 Live' : msToHMS(info.duration), inline: true },
-            { name: 'Author', value: info.author, inline: true },
-            { name: 'Position', value: player.queue.tracks.length.toString(), inline: true }
-          ] : [
-            { name: 'Amount', value: result.tracks.length + ' songs', inline: true },
-            { name: 'Author', value: info.author, inline: true },
-            { name: 'Position', value: `${player.queue.tracks.length - result.tracks.length + 1}-${player.queue.tracks.length}`, inline: true }
-          ])
-          .setFooter({ text: 'Kalliope', iconURL: this.client.user.displayAvatarURL() })
+        const embed = this.client.lavalink.processPlayResult(player, result)
 
         const message = await textChannel.send({ embeds: [embed] })
         await addMusicControls(message, player)
