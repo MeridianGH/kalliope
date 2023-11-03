@@ -1,8 +1,10 @@
+// noinspection NpmUsedModulesInstalled
+
 import { spawn } from 'child_process'
 import fs from 'fs'
 import http from 'http'
 import yaml from 'js-yaml'
-import { LavalinkManager } from '/lavalink-client/dist/index.js'
+import { LavalinkManager } from 'lavalink-client'
 import { papisid, psid } from '../utilities/config.js'
 import { logging } from '../utilities/logging.js'
 import { errorEmbed, simpleEmbed } from '../utilities/utilities.js'
