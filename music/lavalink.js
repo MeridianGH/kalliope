@@ -44,11 +44,6 @@ export class Lavalink {
       .on('trackStart', (player) => {
         setTimeout(() => { client.websocket?.updatePlayer(player) }, 500)
       })
-      /*.on('trackEnd', (player, track) => {
-        if (!player.previousTracks) { player.previousTracks = [] }
-        player.previousTracks.push(track)
-        player.previousTracks = player.previousTracks.slice(-11)
-      })*/
       .on('queueEnd', (player) => {
         client.websocket?.updatePlayer(player)
         setTimeout(async () => { if (!player.playing && !player.queue.current) { await player.destroy() } }, 30000)

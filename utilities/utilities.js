@@ -141,12 +141,11 @@ export async function addMusicControls(message, player) {
           break
         }
         try {
-          if (player.previousTracks.length === 0) { return await buttonInteraction.reply(errorEmbed('You can\'t use the command `/previous` right now!', true)) }
-          const track = player.previousTracks.pop()
-          await player.queue.add(track, 0)
-          message.client.lavalink.manager.once('trackEnd', (player) => { player.queue.add(player.previousTracks.pop(), 0) })
-          await player.stop()
-          await buttonInteraction.reply(simpleEmbed(`⏮️ Playing previous track \`#0\`: **${track.title}**.`, true))
+          if (player.queue.previous.length === 0) { return await buttonInteraction.reply(errorEmbed('You can\'t use the command `/previous` right now!', true)) }
+          const track = player.queue.previous.shift()
+          await player.play({ track: track })
+          await player.queue.add(player.queue.previous.shift(), 0)
+          await buttonInteraction.reply(simpleEmbed(`⏮️ Playing previous track \`#0\`: **${track.info.title}**.`, true))
         } catch (e) {
           await player.seek(0)
           await buttonInteraction.deferUpdate()

@@ -87,13 +87,14 @@ export class WebSocket {
         break
       }
       case 'previous': {
-        /*if (player.previousTracks.length === 0) { return }
-        const track = player.previousTracks.pop()
-        await player.queue.add(track, 0)
-        player.manager.once('trackEnd', (player) => { player.queue.add(player.previousTracks.pop(), 0) })
-        player.stop()
-        await textChannel.send(simpleEmbed(`⏮️ Playing previous track \`#0\`: **${track.title}**.`))
-        */
+        if (player.position > 5000) {
+          await player.seek(0)
+          break
+        }
+        const track = player.queue.previous.shift()
+        await player.play({ track: track })
+        await player.queue.add(player.queue.previous.shift(), 0)
+        await textChannel.send(simpleEmbed(`⏮️ Playing previous track \`#0\`: **${track.info.title}**.`))
         break
       }
       case 'shuffle': {
@@ -173,7 +174,7 @@ export class WebSocket {
     data.type = data.type ?? type
     data.clientId = this.client.user.id
     this.ws?.sendUTF(JSON.stringify(data))
-    console.log('bot sent:', data)
+    // console.log('bot sent:', data)
   }
 
   updatePlayer(player) {
@@ -217,7 +218,7 @@ export class WebSocket {
           return
         }
         const data = JSON.parse(message.utf8Data)
-        console.log('bot received:', data)
+        // console.log('bot received:', data)
 
         const player = this.client.lavalink.getPlayer(data.guildId)
         if (data.type === 'requestPlayerData') {
