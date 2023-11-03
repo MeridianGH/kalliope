@@ -24,7 +24,7 @@ export const { data, execute } = {
     // TODO: Fix reimplement filters
     const filter = interaction.options.getString('filter')
     // noinspection JSUnresolvedFunction
-    player.setFilter(filter)
+    await player.setFilter(filter)
     await interaction.reply(simpleEmbed(`Set filter to ${filter}.`))
     interaction.client.websocket.updatePlayer(player)
   }

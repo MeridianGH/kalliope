@@ -185,7 +185,7 @@ export class Lavalink {
 
     // Channel empty
     if (newState.channel.members.size === 1) {
-      player.textChannel.send(simpleEmbed('Left the voice channel because it was empty.'))
+      await this.client.channels.cache.get(player.textChannelId)?.send(simpleEmbed('Left the voice channel because it was empty.'))
       await player.destroy()
     }
   }

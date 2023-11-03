@@ -33,6 +33,6 @@ export class logging {
    */
   static time() {
     const now = new Date()
-    return `[${now.toLocaleTimeString()}]`
+    return `[${now.toLocaleString()}]`
   }
 }

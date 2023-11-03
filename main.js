@@ -1,4 +1,5 @@
-import { ActivityType, Client, Collection, GatewayIntentBits } from 'discord.js'
+import { ActivityType, Client, Collection, EmbedBuilder, GatewayIntentBits } from 'discord.js'
+import { iconURL } from './events/ready.js'
 import { Lavalink } from './music/lavalink.js'
 
 import { token } from './utilities/config.js'
@@ -42,8 +43,7 @@ async function shutdown() {
   logging.info(`[Lavalink]  Closing ${client.lavalink.manager.players.size} queues.`)
   for (const entry of client.lavalink.manager.players) {
     const player = entry[1]
-    // noinspection JSUnresolvedFunction
-    /*    await player.textChannel.send({
+    await client.channels.cache.get(player.textChannelId)?.send({
       embeds: [
         new EmbedBuilder()
           .setTitle('Server shutdown.')
@@ -51,9 +51,10 @@ async function shutdown() {
           .setFooter({ text: 'Kalliope', iconURL: iconURL })
           .setColor([255, 0, 0])
       ]
-    })*/
+    })
     player.destroy()
   }
+  client.websocket.close()
   await client.destroy()
   process.exit(0)
 }
