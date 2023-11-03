@@ -1,10 +1,8 @@
-// noinspection JSUnresolvedVariable, NpmUsedModulesInstalled
-
 import { spawn } from 'child_process'
 import fs from 'fs'
 import http from 'http'
 import yaml from 'js-yaml'
-import { LavalinkManager } from 'lavalink-client'
+import { LavalinkManager } from '/lavalink-client/dist/index.js'
 import { papisid, psid } from '../utilities/config.js'
 import { logging } from '../utilities/logging.js'
 import { errorEmbed, simpleEmbed } from '../utilities/utilities.js'
@@ -81,8 +79,7 @@ export class Lavalink {
     }
 
     const doc = yaml.load(fs.readFileSync('./music/lavalink/template.yml'), {})
-    doc.lavalink.server.youtubeConfig.PAPISID = papisid
-    doc.lavalink.server.youtubeConfig.PSID = psid
+    doc.lavalink.server.youtubeConfig = { PAPISID: papisid, PSID: psid }
     fs.writeFileSync('./music/lavalink/application.yml', yaml.dump(doc, {}))
 
     if (await this._portInUse(doc.server.port)) {

@@ -20,9 +20,6 @@ lavalink:
     youtubeSearchEnabled: true
     soundcloudSearchEnabled: true
     gc-warnings: true
-    youtubeConfig:
-      PAPISID: ""
-      PSID: ""
 
 metrics:
   prometheus:
