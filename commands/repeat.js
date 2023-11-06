@@ -17,7 +17,7 @@ export const { data, execute } = {
 
     const mode = interaction.options.getString('mode')
     player.setRepeatMode(mode)
-    await interaction.reply(simpleEmbed(`Set repeat mode to ${player.repeatMode === 'queue' ? 'Queue 🔁' : player.repeatMode === 'track' ? 'Track 🔂' : 'Off ▶'}`))
+    await interaction.reply(simpleEmbed(`Set repeat mode to ${player.repeatMode === 'queue' ? 'Queue 🔁' : player.repeatMode === 'track' ? 'Track 🔂' : 'Off ▶️'}`))
     interaction.client.websocket.updatePlayer(player)
   }
 }

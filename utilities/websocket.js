@@ -64,7 +64,8 @@ export class WebSocket {
    * @return {Promise<void>}
    */
   async executePlayerAction(player, data) {
-    const textChannel = this.client.channels.cache.get(player.textChannelId)
+    const textChannel = this.client.channels.cache.get(player?.textChannelId)
+    if (!textChannel) { return }
     switch (data.type) {
       case 'pause': {
         player.paused ? await player.resume() : await player.pause()
@@ -105,7 +106,7 @@ export class WebSocket {
         player.repeatMode === 'off' ? player.setRepeatMode('track') :
           player.repeatMode === 'track' ? player.setRepeatMode('queue') :
             player.setRepeatMode('off')
-        await textChannel.send(simpleEmbed(`Set repeat mode to ${player.repeatMode === 'queue' ? 'Queue 🔁' : player.repeatMode === 'track' ? 'Track 🔂' : 'Off ▶'}`))
+        await textChannel.send(simpleEmbed(`Set repeat mode to ${player.repeatMode === 'queue' ? 'Queue 🔁' : player.repeatMode === 'track' ? 'Track 🔂' : 'Off ▶️'}`))
         break
       }
       case 'volume': {

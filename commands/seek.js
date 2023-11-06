@@ -14,7 +14,7 @@ export const { data, execute } = {
     const time = timeToMs(interaction.options.getString('time'))
     if (player.queue.current.info.isStream) { return await interaction.reply(errorEmbed('You can\'t seek in a livestream!', true)) }
     if (!player.queue.current.info.isSeekable) { return await interaction.reply(errorEmbed('You can\'t seek in this track!', true)) }
-    if (time < 0 || time > player.queue.current.info.duration) { return await interaction.reply(errorEmbed(`You can only seek between 0:00-${player.queue.current.info.duration}!`, true)) }
+    if (time < 0 || time > player.queue.current.info.duration) { return await interaction.reply(errorEmbed(`You can only seek between 0:00-${msToHMS(player.queue.current.info.duration)}!`, true)) }
 
     await player.seek(time)
     await interaction.reply(simpleEmbed(`⏩ Skipped to ${msToHMS(time)}`))

@@ -133,7 +133,6 @@ export class ExtendedSearch {
       tracks.find((track) => track.info.author.endsWith('- Topic') || track.info.author === data.author) ??
       tracks[0]
     if (!track) { return await this.findClosestTrack(data, requestedBy, retries - 1) }
-    console.log(track)
     const { author, title, artworkUrl, uri } = data
     Object.assign(track.info, { author, title, artworkUrl, uri, youtubeUri: track.info.uri })
     return track
