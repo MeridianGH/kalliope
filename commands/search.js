@@ -28,7 +28,7 @@ export const { data, execute } = {
     const embedMessage = await interaction.editReply({
       embeds: [
         new EmbedBuilder()
-          .setAuthor({ name: 'Search Results.', iconURL: interaction.member.user.displayAvatarURL() })
+          .setAuthor({ name: 'Search Results.', iconURL: interaction.member.displayAvatarURL() })
           .setTitle(`Here are the search results for your search\n"${query}":`)
           .setThumbnail(result.tracks[0].info.artworkUrl)
           .setFooter({ text: 'Kalliope | This embed expires after one minute.', iconURL: interaction.client.user.displayAvatarURL() })
@@ -52,8 +52,8 @@ export const { data, execute } = {
 
       // noinspection JSCheckFunctionSignatures
       const embed = new EmbedBuilder()
-        .setAuthor({ name: 'Added to queue.', iconURL: interaction.member.user.displayAvatarURL() })
-        .setTitle(track.title)
+        .setAuthor({ name: 'Added to queue.', iconURL: interaction.member.displayAvatarURL() })
+        .setTitle(track.info.title)
         .setURL(track.uri)
         .setThumbnail(track.artworkUrl)
         .addFields([

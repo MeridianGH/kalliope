@@ -24,7 +24,7 @@ export const { data, execute } = {
       description += 'No upcoming songs.\nAdd songs with `/play`!\n' + '\u2015'.repeat(34)
 
       const embed = new EmbedBuilder()
-        .setAuthor({ name: 'Queue.', iconURL: interaction.member.user.displayAvatarURL() })
+        .setAuthor({ name: 'Queue.', iconURL: interaction.member.displayAvatarURL() })
         .setDescription(description)
         .setFooter({ text: `Kalliope | Page 1/1 | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
       pages.push(embed)
@@ -36,7 +36,7 @@ export const { data, execute } = {
       description += `**${queue.tracks.length} songs in queue | ${msToHMS(queue.utils.totalDuration())} total duration**\n${'\u2015'.repeat(34)}`
 
       const embed = new EmbedBuilder()
-        .setAuthor({ name: 'Queue.', iconURL: interaction.member.user.displayAvatarURL() })
+        .setAuthor({ name: 'Queue.', iconURL: interaction.member.displayAvatarURL() })
         .setDescription(description)
         .setFooter({ text: `Kalliope | Page 1/1 | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
       pages.push(embed)
@@ -51,7 +51,7 @@ export const { data, execute } = {
         description += `**${queue.tracks.length} songs in queue | ${msToHMS(queue.utils.totalDuration())} total duration**\n${'\u2015'.repeat(34)}`
 
         const embed = new EmbedBuilder()
-          .setAuthor({ name: 'Queue.', iconURL: interaction.member.user.displayAvatarURL() })
+          .setAuthor({ name: 'Queue.', iconURL: interaction.member.displayAvatarURL() })
           .setDescription(description)
           .setFooter({ text: `Kalliope | Page ${pages.length + 1}/${Math.ceil(queue.tracks.length / 10)} | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
         pages.push(embed)

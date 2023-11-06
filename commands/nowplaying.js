@@ -17,7 +17,7 @@ export const { data, execute } = {
 
     // noinspection JSCheckFunctionSignatures
     const embed = new EmbedBuilder()
-      .setAuthor({ name: 'Now Playing...', iconURL: interaction.member.user.displayAvatarURL() })
+      .setAuthor({ name: 'Now Playing...', iconURL: interaction.member.displayAvatarURL() })
       .setTitle(trackInfo.title)
       .setURL(trackInfo.uri)
       .setThumbnail(trackInfo.artworkUrl)

@@ -51,7 +51,7 @@ export const { data, execute } = {
         .setStyle(ButtonStyle.Primary)
 
       const embed = new EmbedBuilder()
-        .setAuthor({ name: 'Lyrics.', iconURL: interaction.member.user.displayAvatarURL() })
+        .setAuthor({ name: 'Lyrics.', iconURL: interaction.member.displayAvatarURL() })
         .setTitle(trackInfo.title)
         .setURL(song.url)
         .setThumbnail(trackInfo.artworkUrl)
@@ -69,7 +69,7 @@ export const { data, execute } = {
           await buttonInteraction.update({
             embeds: [
               new EmbedBuilder()
-                .setAuthor({ name: 'Lyrics.', iconURL: interaction.member.user.displayAvatarURL() })
+                .setAuthor({ name: 'Lyrics.', iconURL: interaction.member.displayAvatarURL() })
                 .setTitle(trackInfo.title)
                 .setURL(song.url)
                 .setThumbnail(trackInfo.artworkUrl)
@@ -88,7 +88,7 @@ export const { data, execute } = {
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
-            .setAuthor({ name: 'Lyrics.', iconURL: interaction.member.user.displayAvatarURL() })
+            .setAuthor({ name: 'Lyrics.', iconURL: interaction.member.displayAvatarURL() })
             .setTitle(trackInfo.title)
             .setURL(trackInfo.uri)
             .setThumbnail(trackInfo.artworkUrl)

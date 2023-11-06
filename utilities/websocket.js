@@ -75,7 +75,7 @@ export class WebSocket {
         if (data.index) {
           const track = player.queue[data.index - 1]
           await player.skip(data.index)
-          await textChannel.send(simpleEmbed(`⏭️ Skipped to \`#${data.index}\`: **${track.title}**.`))
+          await textChannel.send(simpleEmbed(`⏭️ Skipped to \`#${data.index}\`: **${track.info.title}**.`))
         } else if (player.queue.tracks.length === 0) {
           player.destroy()
           await textChannel.send(simpleEmbed('⏹️ Stopped.'))
