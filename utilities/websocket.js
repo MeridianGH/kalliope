@@ -1,8 +1,7 @@
-import { EmbedBuilder } from 'discord.js'
 import ws from 'websocket'
 import { LoadTypes } from '../music/lavalink.js'
 import { logging } from './logging.js'
-import { addMusicControls, msToHMS, simpleEmbed } from './utilities.js'
+import { addMusicControls, simpleEmbed } from './utilities.js'
 
 const { client: WebSocketClient } = ws
 
@@ -120,7 +119,7 @@ export class WebSocket {
         if (result.loadType === LoadTypes.error) { break }
         if (result.loadType === LoadTypes.empty) { break }
 
-        const embed = this.client.lavalink.processPlayResult(player, result)
+        const embed = await this.client.lavalink.processPlayResult(player, result)
 
         const message = await textChannel.send({ embeds: [embed] })
         await addMusicControls(message, player)
@@ -159,7 +158,7 @@ export class WebSocket {
 
   /**
    * Sends a player update.
-   * @param player {Player | null} The player to update.
+   * @param player {any | null} The player to update.
    * @return void
    */
   updatePlayer(player) {

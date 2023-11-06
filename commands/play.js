@@ -25,7 +25,7 @@ export const { data, execute } = {
       await player.connect()
     }
 
-    const embed = this.client.lavalink.processPlayResult(player, result)
+    const embed = await interaction.client.lavalink.processPlayResult(player, result)
 
     interaction.client.websocket.updatePlayer(player)
     const message = await interaction.editReply({ embeds: [embed] })
