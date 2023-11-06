@@ -13,7 +13,7 @@ export const { data, execute } = {
     const trackInfo = player.queue.current.info
 
     const progress = Math.round(20 * player.position / trackInfo.duration)
-    const progressBar = '▬'.repeat(progress) + '🔘' + ' '.repeat(20 - progress) + '\n' + ' ' + msToHMS(player.position) + '/' + msToHMS(trackInfo.duration) + ' '
+    const progressBar = '▬'.repeat(progress) + '🔘' + ' '.repeat(20 - progress)
 
     // noinspection JSCheckFunctionSignatures
     const embed = new EmbedBuilder()
@@ -22,12 +22,13 @@ export const { data, execute } = {
       .setURL(trackInfo.uri)
       .setThumbnail(trackInfo.artworkUrl)
       .addFields([
-        { name: 'Duration', value: trackInfo.isStream ? '🔴 Live' : `\`${progressBar}\``, inline: true },
+        { name: 'Duration', value: trackInfo.isStream ? '🔴 Live' : `\`${progressBar}\`\n\`${msToHMS(player.position)}/${msToHMS(trackInfo.duration)}\``, inline: true },
         { name: 'Author', value: trackInfo.author, inline: true },
         { name: 'Requested By', value: player.queue.current.requester.toString(), inline: true }
       ])
       .setFooter({ text: `Kalliope | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
 
+    // noinspection JSUnresolvedReference
     if (trackInfo.youtubeUri) { embed.setDescription(`This track has been resolved on [YouTube](${trackInfo.youtubeUri}).`) }
 
     const message = await interaction.reply({ embeds: [embed], fetchReply: true })
