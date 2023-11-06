@@ -10,7 +10,7 @@ export const { data, execute } = {
     .setName('queue')
     .setDescription('Displays the queue.'),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     const queue = player.queue

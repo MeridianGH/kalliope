@@ -8,7 +8,7 @@ export const { data, execute } = {
     .setDescription('Skips to the specified point in the current track.')
     .addStringOption((option) => option.setName('time').setDescription('The time to skip to. Can be seconds or HH:MM:SS.').setRequired(true)),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     const time = timeToMs(interaction.options.getString('time'))

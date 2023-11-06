@@ -8,7 +8,7 @@ export const { data, execute } = {
     .setDescription('Skips the current track or to a specified point in the queue.')
     .addIntegerOption((option) => option.setName('track').setDescription('The track to skip to.')),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     const index = interaction.options.getInteger('track')

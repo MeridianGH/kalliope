@@ -14,7 +14,7 @@ export const { data, execute } = {
     .setName('lyrics')
     .setDescription('Shows the lyrics of the currently playing song.'),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
 
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
     await interaction.deferReply()

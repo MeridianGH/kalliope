@@ -8,7 +8,7 @@ export const { data, execute } = {
     .setDescription('Sets the volume of the music player.')
     .addIntegerOption((option) => option.setName('volume').setDescription('The volume to set the player to.').setRequired(true)),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     const volume = Math.min(Math.max(interaction.options.getInteger('volume'), 0), 100)

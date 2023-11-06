@@ -7,7 +7,7 @@ export const { data, execute } = {
     .setName('shuffle')
     .setDescription('Shuffles the queue.'),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     await player.queue.shuffle()

@@ -8,7 +8,7 @@ export const { data, execute } = {
     .setDescription('Removes the specified track from the queue.')
     .addIntegerOption((option) => option.setName('track').setDescription('The track to remove.').setRequired(true)),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     const index = interaction.options.getInteger('track')

@@ -7,7 +7,7 @@ export const { data, execute } = {
     .setName('clear')
     .setDescription('Clears the queue.'),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     player.queue.splice(0, player.queue.tracks.length)

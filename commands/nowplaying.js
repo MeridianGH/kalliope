@@ -7,7 +7,7 @@ export const { data, execute } = {
     .setName('nowplaying')
     .setDescription('Shows the currently playing song.'),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
 
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
     const trackInfo = player.queue.current.info

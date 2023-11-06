@@ -12,7 +12,7 @@ export const { data, execute } = {
       { name: 'Queue', value: 'queue' }
     )),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     const mode = interaction.options.getString('mode')

@@ -7,7 +7,7 @@ export const { data, execute } = {
     .setName('previous')
     .setDescription('Plays the previous track.'),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     if (player.queue.previous.length === 0) { return await interaction.reply(errorEmbed('You can\'t use the command `/previous` right now!', true)) }

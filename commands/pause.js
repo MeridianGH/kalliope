@@ -7,7 +7,7 @@ export const { data, execute } = {
     .setName('pause')
     .setDescription('Pauses or resumes playback.'),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     player.paused ? await player.resume() : await player.pause()

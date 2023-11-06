@@ -9,13 +9,13 @@ export const { data, execute } = {
     .setDescription('Plays a song or playlist from YouTube.')
     .addStringOption((option) => option.setName('query').setDescription('The query to search for.').setRequired(true)),
   async execute(interaction) {
-    await playChecks(interaction)
+    if (!playChecks(interaction)) { return }
     await interaction.deferReply()
 
     const player = interaction.client.lavalink.createPlayer(interaction)
     const query = interaction.options.getString('query')
     const result = await player.search(query, interaction.member)
-    await loadChecks(interaction, result)
+    if (!loadChecks(interaction, result)) { return }
 
     if (!player.connected) {
       if (!interaction.member.voice.channel) {

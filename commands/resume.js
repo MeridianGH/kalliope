@@ -7,7 +7,7 @@ export const { data, execute } = {
     .setName('resume')
     .setDescription('Resumes playback.'),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     if (!player.paused) { return await interaction.reply(errorEmbed('The queue is not paused!', true)) }

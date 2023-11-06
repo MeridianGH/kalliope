@@ -7,7 +7,7 @@ export const { data, execute } = {
     .setName('stop')
     .setDescription('Stops playback.'),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     player.destroy()

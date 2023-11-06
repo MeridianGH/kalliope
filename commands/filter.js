@@ -18,7 +18,7 @@ export const { data, execute } = {
       { name: 'Vaporwave', value: 'vaporwave' }
     )),
   async execute(interaction) {
-    await genericChecks(interaction)
+    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     const filter = interaction.options.getString('filter')
