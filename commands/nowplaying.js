@@ -28,6 +28,8 @@ export const { data, execute } = {
       ])
       .setFooter({ text: `Kalliope | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
 
+    if (trackInfo.youtubeUri) { embed.setDescription(`This track has been resolved on [YouTube](${trackInfo.youtubeUri}).`) }
+
     const message = await interaction.reply({ embeds: [embed], fetchReply: true })
     await addMusicControls(message, player)
   }

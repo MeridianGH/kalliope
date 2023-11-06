@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedReference
+
 import fetch from 'isomorphic-unfetch'
 import spotifyUrlInfo from 'spotify-url-info'
 import ytpl from 'ytpl'
@@ -50,21 +52,28 @@ export class ExtendedSearch {
     }
 
     // Spotify
-    const spotifyRegex = /(?:https:\/\/open\.spotify\.com\/|spotify:)(?:.+)?(track|playlist|album)[/:]([A-Za-z0-9]+)/
-    const type = query.match(spotifyRegex)?.[1]
+    const spotifyRegex = /(?:https:\/\/open\.spotify\.com\/|spotify:)(.+)?(track|playlist|album)[/:]([A-Za-z0-9]+)/
+    const type = query.match(spotifyRegex)?.[2]
+    const locale = query.match(spotifyRegex)?.[1]
+    if (locale) { query = query.replace(locale, '') }
     try {
-      switch (type) {
-        case 'track': {
-          const data = await this.getTrack(query, requestedBy)
-          return { loadType: LoadTypes.track, tracks: data.tracks, playlist: null, exception: null, pluginInfo: null }
+      if (type === 'track') {
+        const data = await this.getTrack(query, requestedBy)
+        return {
+          loadType: LoadTypes.track,
+          tracks: data.tracks,
+          playlist: null,
+          exception: null,
+          pluginInfo: null
         }
-        case 'playlist': {
-          const data = await this.getPlaylist(query, requestedBy)
-          return { loadType: LoadTypes.playlist, tracks: data.tracks, playlist: data.playlist, exception: null, pluginInfo: null }
-        }
-        case 'album': {
-          const data = await this.getAlbumTracks(query, requestedBy)
-          return { loadType: LoadTypes.playlist, tracks: data.tracks, playlist: data.playlist, exception: null, pluginInfo: null }
+      } else if (type === 'playlist' || type === 'album') {
+        const data = await this.getPlaylist(query, requestedBy)
+        return {
+          loadType: LoadTypes.playlist,
+          tracks: data.tracks,
+          playlist: data.playlist,
+          exception: null,
+          pluginInfo: null
         }
       }
     } catch (e) {
@@ -80,65 +89,32 @@ export class ExtendedSearch {
 
   /**
    * Resolves a single track on Spotify.
-   * @param The Spotify URL to resolve.
+   * @param query {string} The Spotify URL to resolve.
    * @param requestedBy The member (or user) that requested this search.
    * @return {Promise<{tracks: (any)[]}>} The track result.
    */
   async getTrack(query, requestedBy) {
     const data = await spotify.getData(query, {})
-    // noinspection JSUnresolvedVariable
-    const track = {
+    const trackData = {
       author: data.artists[0].name,
-      duration: data.duration_ms,
+      duration: data.duration,
       artworkUrl: data.coverArt?.sources[0]?.url,
       title: data.artists[0].name + ' - ' + data.name,
-      uri: data.external_urls.spotify
+      uri: this.spotifyURIToLink(data.uri)
     }
-    return { tracks: [ await this.findClosestTrack(track, requestedBy) ] }
+    return { tracks: [ await this.findClosestTrack(trackData, requestedBy) ] }
   }
 
   /**
    * Resolves a playlist on Spotify.
    * @param query The Spotify URL to resolve.
    * @param requestedBy The member (or user) that requested this search.
-   * @return {Promise<{playlist: {author: string, artworkUrl: string, name: string, uri: string}, tracks: any[]}>} The playlist result.
+   * @return {Promise<{playlist: {author: string, artworkUrl: string, title: string, uri: string}, tracks: any[]}>} The playlist result.
    */
   async getPlaylist(query, requestedBy) {
     const data = await spotify.getData(query, {})
-    // noinspection JSUnresolvedVariable
-    const tracks = await Promise.all(data.tracks.items.map(
-      async (playlistTrack) => await this.findClosestTrack({
-        author: playlistTrack.track.artists[0].name,
-        duration: playlistTrack.track.duration_ms,
-        artworkUrl: playlistTrack.track.album?.images[0]?.url,
-        title: playlistTrack.track.artists[0].name + ' - ' + playlistTrack.track.name,
-        uri: playlistTrack.track.external_urls.spotify
-      }, requestedBy))
-    )
-    // noinspection JSUnresolvedVariable
-    return { tracks, playlist: { name: data.name, author: data.owner.display_name, artworkUrl: data.images[0]?.url, uri: data.external_urls.spotify } }
-  }
-
-  /**
-   * Resolves tracks of an album on Spotify.
-   * @param query The Spotify URL to resolve.
-   * @param requestedBy The member (or user) that requested this search.
-   * @return {Promise<{playlist: {thumbnail: string, author: string, name: string, uri: string}, tracks: any[]}>} The album result.
-   */
-  async getAlbumTracks(query, requestedBy) {
-    const data = await spotify.getData(query, {})
-    // noinspection JSUnresolvedVariable
-    const tracks = await Promise.all(data.tracks.items.map(
-      async (track) => await this.findClosestTrack({
-        author: track.artists[0].name,
-        duration: track.duration_ms,
-        artworkUrl: data.images[0]?.url,
-        title: track.artists[0].name + ' - ' + track.name,
-        uri: track.external_urls.spotify
-      }, requestedBy))
-    )
-    // noinspection JSUnresolvedVariable
-    return { tracks, playlist: { name: data.name, author: data.artists[0].name, thumbnail: data.images[0]?.url, uri: data.external_urls.spotify } }
+    const tracks = await Promise.all(data.trackList.map(async (trackData) => (await this.getTrack(trackData.uri, requestedBy)).tracks[0]))
+    return { tracks, playlist: { title: data.title, author: data.subtitle, artworkUrl: data.coverArt?.sources[0]?.url, uri: this.spotifyURIToLink(data.uri) } }
   }
 
   /**
@@ -152,14 +128,24 @@ export class ExtendedSearch {
     if (retries <= 0) { return }
     const tracks = (await this.search(data.title, requestedBy)).tracks.slice(0, 5)
     const track =
-      tracks.find((track) => track.title.toLowerCase().includes('official audio')) ??
-      tracks.find((track) => track.duration >= data.duration - 1500 && track.duration <= data.duration + 1500) ??
-      tracks.find((track) => track.author.endsWith('- Topic') || track.author === data.author) ??
+      tracks.find((track) => track.info.title.toLowerCase().includes('official audio')) ??
+      tracks.find((track) => track.info.duration >= data.duration - 1500 && track.info.duration <= data.duration + 1500) ??
+      tracks.find((track) => track.info.author.endsWith('- Topic') || track.info.author === data.author) ??
       tracks[0]
     if (!track) { return await this.findClosestTrack(data, requestedBy, retries - 1) }
-    const { author, title, thumbnail, uri } = data
-    Object.assign(track, { author, title, thumbnail, uri })
+    console.log(track)
+    const { author, title, artworkUrl, uri } = data
+    Object.assign(track.info, { author, title, artworkUrl, uri, youtubeUri: track.info.uri })
     return track
+  }
+
+  /**
+   * Converts a Spotify URI to a valid link.
+   * @param uri {string}
+   * @return {string}
+   */
+  spotifyURIToLink(uri) {
+    return uri.replaceAll(':', '/').replace('spotify', 'https://open.spotify.com')
   }
 
   /**
@@ -169,7 +155,7 @@ export class ExtendedSearch {
    */
   async getBestThumbnail(track) {
     for (const size of ['maxresdefault', 'hqdefault', 'mqdefault', 'default']) {
-      const thumbnail = `https://i.ytimg.com/vi/${track.id}/${size}.jpg`
+      const thumbnail = `https://i.ytimg.com/vi/${track.info.id}/${size}.jpg`
       if ((await fetch(thumbnail)).ok) { return thumbnail }
     }
     return track.info.artworkUrl

@@ -34,5 +34,5 @@ export async function playChecks(interaction) {
 export async function loadChecks(interaction, result) {
   if (result.loadType === LoadTypes.error) { return await interaction.editReply(errorEmbed('There was an error while adding your song to the queue.')) }
   if (result.loadType === LoadTypes.empty) { return await interaction.editReply(errorEmbed('There were no tracks found using your query.')) }
-
+  // TODO: Make checks actually stop command execution
 }
