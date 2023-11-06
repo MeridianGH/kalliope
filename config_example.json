@@ -1,8 +1,7 @@
 {
 	"token": "yourToken",
 	"appId": "yourApplicationID",
-	"clientSecret": "yourClientSecret",
-	"guildId": "yourGuildID",
-	"adminId": "yourUserID",
-	"geniusClientToken": "yourGeniusClientAccessToken"
+	"geniusClientToken": "yourGeniusClientAccessToken",
+	"papisid": "yourPAPISID",
+	"psid": "yourPSID"
 }
