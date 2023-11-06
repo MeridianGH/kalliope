@@ -32,7 +32,7 @@ export const { data, execute } = {
       // Format single page.
       let description = 'Still using old and boring commands? Use the new [web dashboard](http://localhost) instead!\n\n'
       description += `Now Playing:\n[${trackInfo.title}](${trackInfo.uri}) | \`${trackInfo.isStream ? '🔴 Live' : msToHMS(trackInfo.duration)}\`\n\n`
-      for (const track of queue) { description += `\`${queue.tracks.indexOf(track) + 1}.\` [${track.info.title}](${track.info.uri}) | \`${track.info.isStream ? '🔴 Live' : msToHMS(track.info.duration)}\`\n\n` }
+      for (const track of queue.tracks) { description += `\`${queue.tracks.indexOf(track) + 1}.\` [${track.info.title}](${track.info.uri}) | \`${track.info.isStream ? '🔴 Live' : msToHMS(track.info.duration)}\`\n\n` }
       description += `**${queue.tracks.length} songs in queue | ${msToHMS(queue.utils.totalDuration())} total duration**\n${'\u2015'.repeat(34)}`
 
       const embed = new EmbedBuilder()

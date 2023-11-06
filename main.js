@@ -6,7 +6,7 @@ import { token } from './utilities/config.js'
 import { logging } from './utilities/logging.js'
 import { getFilesRecursively } from './utilities/utilities.js'
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates], presence: { status: 'online', activities: [{ name: 'kalliope.cc', type: ActivityType.Watching }] } })
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates], presence: { status: 'online', activities: [{ name: 'kalliope.cc', type: ActivityType.Listening }] } })
 client.lavalink = new Lavalink(client)
 await client.lavalink.initialize()
 

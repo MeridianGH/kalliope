@@ -38,7 +38,7 @@ export const { data, execute } = {
 
     const collector = embedMessage.createMessageComponentCollector({ time: 60000, filter: async (c) => { await c.deferUpdate(); return c.user.id === interaction.user.id } })
     collector.on('collect', async (menuInteraction) => {
-      const track = result.tracks[Number(menuInteraction.values[0])].info
+      const track = result.tracks[Number(menuInteraction.values[0])]
       player.queue.add(track)
       if (player.state !== PlayerStates.connected) {
         if (!interaction.member.voice.channel) {
@@ -54,11 +54,11 @@ export const { data, execute } = {
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Added to queue.', iconURL: interaction.member.displayAvatarURL() })
         .setTitle(track.info.title)
-        .setURL(track.uri)
-        .setThumbnail(track.artworkUrl)
+        .setURL(track.info.uri)
+        .setThumbnail(track.info.artworkUrl)
         .addFields([
-          { name: 'Duration', value: track.isStream ? '🔴 Live' : msToHMS(track.duration), inline: true },
-          { name: 'Author', value: track.author, inline: true },
+          { name: 'Duration', value: track.info.isStream ? '🔴 Live' : msToHMS(track.info.duration), inline: true },
+          { name: 'Author', value: track.info.author, inline: true },
           { name: 'Position', value: player.queue.tracks.length.toString(), inline: true }
         ])
         .setFooter({ text: 'Kalliope', iconURL: interaction.client.user.displayAvatarURL() })
