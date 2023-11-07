@@ -158,6 +158,17 @@ export class WebSocket {
   }
 
   /**
+   * Sends an update containing information about this client.
+   * @return {void}
+   */
+  updateClientData() {
+    this.sendData('clientData', {
+      guilds: this.client.guilds.cache.map((guild) => guild.id),
+      users: this.client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
+    })
+  }
+
+  /**
    * Sends a player update.
    * @param player {any | null} The player to update.
    * @return void
@@ -233,10 +244,7 @@ export class WebSocket {
       logging.success('[WebSocket] Opened WebSocket connection.')
       this.ws = ws
 
-      this.sendData('clientData', {
-        guilds: this.client.guilds.cache.map((guild) => guild.id),
-        users: this.client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
-      })
+      this.updateClientData()
     })
   }
 
