@@ -4,14 +4,14 @@
 export class CustomFilters {
   /**
    * Attaches this plugin to the player.
-   * @param player The player to attach to.
+   * @param {import('lavalink-client/dist/types').Player} player The player to attach to.
    */
   constructor(player) {
     this.player = player
     this.current = 'none'
 
     player.set('plugins', { ...player.get('plugins'), customFilters: true })
-    player.filters = this
+    Object.assign(player, { filters: this })
 
     this.filterData = {
       none: {},
@@ -103,8 +103,8 @@ export class CustomFilters {
 
   /**
    * Sets and applies the current filter. Sets to `none` if not provided or available.
-   * @param filter The filter to set.
-   * @return {Promise<void>}
+   * @param {keyof this.filterData} filter The filter to set.
+   * @returns {Promise<void>}
    */
   async setFilter(filter) {
     this.current = filter
@@ -117,7 +117,7 @@ export class CustomFilters {
 
   /**
    * The current playback timescale.
-   * @return {number}
+   * @returns {number} The timescale percentage as float.
    */
   get timescale() {
     return this.filterData[this.current].timescale?.speed ?? 1.0

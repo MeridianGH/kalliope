@@ -1,7 +1,7 @@
 // noinspection NpmUsedModulesInstalled
 
 import { spawn } from 'child_process'
-import { EmbedBuilder } from 'discord.js'
+import { ChannelType, EmbedBuilder } from 'discord.js'
 import fs from 'fs'
 import http from 'http'
 import yaml from 'js-yaml'
@@ -12,17 +12,17 @@ import { errorEmbed, msToHMS, simpleEmbed } from '../utilities/utilities.js'
 import { CustomFilters } from './customFilters.js'
 import { ExtendedSearch } from './extendedSearch.js'
 
-/**
- * A Lavalink manager that handles the Lavalink subprocess and initializes the lavalink-client manager.
- */
 export class Lavalink {
   /**
    * Create a new Lavalink manager and attaches it to a discord.js client.
-   * @param client {any} The discord.js client.
+   * @param {import('discord.js').Client} client The discord.js client.
    */
   constructor(client) {
     this.client = client
     // noinspection JSUnusedGlobalSymbols
+    /**
+     * @type {import('lavalink-client/dist/types').LavalinkManager}
+     */
     this.manager = new LavalinkManager({
       nodes: [
         /*{
@@ -45,13 +45,13 @@ export class Lavalink {
       .on('trackStart', (player) => {
         setTimeout(() => { client.websocket?.updatePlayer(player) }, 500)
       })
+      .on('trackStuck', async (player) => {
+        client.channels.cache.get(player.textChannelId)?.send(errorEmbed(`⏭️ Track **${player.queue.current.info.title}** got stuck, skipping...`))
+        await player.skip()
+      })
       .on('queueEnd', (player) => {
         client.websocket?.updatePlayer(player)
         setTimeout(async () => { if (!player.playing && !player.queue.current) { await player.destroy() } }, 30000)
-      })
-      .on('trackStuck', (player) => {
-        client.channels.cache.get(player.textChannelId)?.send(errorEmbed(`⏭️ Track **${player.current.info.title}** got stuck, skipping...`))
-        player.skip()
       })
       .on('playerDestroy', (player) => {
         client.websocket.sendData('playerData', { guildId: player.guildId, player: null })
@@ -62,7 +62,7 @@ export class Lavalink {
       .on('error', (node, error) => { logging.error(`[Lavalink]  Node ${node.id} encountered an error: ${error.message}`) })
 
     this.client
-      .once('ready', () => { this.manager.init(client.user) })
+      .once('ready', async () => { await this.manager.init(client.user) })
       .on('voiceStateUpdate', (oldState, newState) => this._voiceUpdate(oldState, newState))
       .on('raw', (d) => this.manager.sendRawData(d))
   }
@@ -116,7 +116,7 @@ export class Lavalink {
 
   /**
    * Checks if a port is already in use.
-   * @param port The port to check.
+   * @param {number} port The port to check.
    * @returns {Promise<boolean>} If the port is currently in use.
    * @private
    */
@@ -133,9 +133,9 @@ export class Lavalink {
 
   /**
    * Handles voice state updates.
-   * @param oldState The old voice state. Usually provided by discord.js.
-   * @param newState The new voice state. Usually provided by discord.js.
-   * @returns void
+   * @param {import('discord.js').VoiceState} oldState The old voice state. Usually provided by discord.js.
+   * @param {import('discord.js').VoiceState} newState The new voice state. Usually provided by discord.js.
+   * @returns {void}
    * @private
    */
   async _voiceUpdate(oldState, newState) {
@@ -158,7 +158,7 @@ export class Lavalink {
       }
 
       // Stage Channel
-      if (newState.channel.type === 'GUILD_STAGE_VOICE') {
+      if (newState.channel.type === ChannelType.GuildStageVoice) {
         // Join
         if (!oldState.channel) {
           newState.guild.members.me.voice.setSuppressed(false).catch(async () => {
@@ -187,19 +187,19 @@ export class Lavalink {
 
   /**
    * Gets a player using a guild ID.
-   * @param guildId The guild ID to retrieve the player from.
-   * @returns The Lavalink player.
+   * @param {string} guildId The guild ID to retrieve the player from.
+   * @returns {import('lavalink-client/dist/types').Player} The Lavalink player.
    * @see LavalinkManager.getPlayer
    */
   getPlayer(guildId) {
-    // noinspection JSValidateTypes
     return this.manager.getPlayer(guildId)
   }
 
   /**
    * Creates a player from a discord.js interaction.
-   * @param interaction The interaction that requested a player to be created.
-   * @returns The created Lavalink player.
+   * @param {import('discord.js').Interaction} interaction The interaction that requested a player to be created.
+   * @param {import('discord.js').GuildMember} interaction.member The member that instantiated the interaction.
+   * @returns {import('lavalink-client/dist/types').Player} The created Lavalink player.
    * @see LavalinkManager.createPlayer
    */
   createPlayer(interaction) {
@@ -218,9 +218,9 @@ export class Lavalink {
   /**
    * Processes and plays a search result.
    * Does no validity checks, make sure the provided data is a valid Player and SearchResult object.
-   * @param player The player which processes this request.
-   * @param result The previously acquired search result.
-   * @return {Promise<EmbedBuilder>} The response embed used in the reply message.
+   * @param {import('lavalink-client/dist/types').Player} player The player which processes this request.
+   * @param {object} result The previously acquired search result.
+   * @returns {Promise<EmbedBuilder>} The response embed used in the reply message.
    */
   async processPlayResult(player, result) {
     const isTrack = result.loadType === LoadTypes.track || result.loadType === LoadTypes.search

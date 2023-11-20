@@ -14,7 +14,7 @@ const spotify = spotifyUrlInfo(fetch)
 export class ExtendedSearch {
   /**
    * Attaches this plugin to the player.
-   * @param player The player to attach to.
+   * @param {import('lavalink-client/dist/types').Player} player The player to attach to.
    */
   constructor(player) {
     this._search = player.search.bind(player)
@@ -25,9 +25,9 @@ export class ExtendedSearch {
   /**
    * The improved version of `Player.search`.
    * Takes the same parameters and returns the same structure.
-   * @param query {string} The query to search for.
-   * @param requestedBy The member (or user) that requested this search.
-   * @return {Promise<{Object}>} The search result.
+   * @param {string} query The query to search for.
+   * @param {import('discord.js').GuildMember | import('discord.js').User} requestedBy The member (or user) that requested this search.
+   * @returns {Promise<{Object}>} The search result.
    * @see Player.search
    */
   async search(query, requestedBy) {
@@ -89,9 +89,9 @@ export class ExtendedSearch {
 
   /**
    * Resolves a single track on Spotify.
-   * @param query {string} The Spotify URL to resolve.
-   * @param requestedBy The member (or user) that requested this search.
-   * @return {Promise<{tracks: (any)[]}>} The track result.
+   * @param {string} query The Spotify URL to resolve.
+   * @param {import('discord.js').GuildMember | import('discord.js').User} requestedBy The member (or user) that requested this search.
+   * @returns {Promise<{tracks: (any)[]}>} The track result.
    */
   async getTrack(query, requestedBy) {
     const data = await spotify.getData(query, {})
@@ -107,9 +107,9 @@ export class ExtendedSearch {
 
   /**
    * Resolves a playlist on Spotify.
-   * @param query The Spotify URL to resolve.
-   * @param requestedBy The member (or user) that requested this search.
-   * @return {Promise<{playlist: {author: string, artworkUrl: string, title: string, uri: string}, tracks: any[]}>} The playlist result.
+   * @param {string} query The Spotify URL to resolve.
+   * @param {import('discord.js').GuildMember | import('discord.js').User} requestedBy The member (or user) that requested this search.
+   * @returns {Promise<{playlist: {author: string, artworkUrl: string, title: string, uri: string}, tracks: any[]}>} The playlist result.
    */
   async getPlaylist(query, requestedBy) {
     const data = await spotify.getData(query, {})
@@ -119,10 +119,10 @@ export class ExtendedSearch {
 
   /**
    * Finds the closest matching track on YouTube based on a Spotify track.
-   * @param data The Spotify track data.
-   * @param requestedBy The member (or user) that requested this search.
-   * @param [retries=5] {number} How often to retry.
-   * @return {Promise<any>} The most closely matching track.
+   * @param {object} data The Spotify track data.
+   * @param {import('discord.js').GuildMember | import('discord.js').User} requestedBy The member (or user) that requested this search.
+   * @param {number} [retries] How often to retry.
+   * @returns {Promise<any>} The most closely matching track.
    */
   async findClosestTrack(data, requestedBy, retries = 5) {
     if (retries <= 0) { return }
@@ -140,8 +140,8 @@ export class ExtendedSearch {
 
   /**
    * Converts a Spotify URI to a valid link.
-   * @param uri {string}
-   * @return {string}
+   * @param {string} uri The spotify URI.
+   * @returns {string} The valid https link.
    */
   spotifyURIToLink(uri) {
     return uri.replaceAll(':', '/').replace('spotify', 'https://open.spotify.com')
@@ -149,8 +149,8 @@ export class ExtendedSearch {
 
   /**
    * Finds the best available thumbnail of a track on YouTube.
-   * @param track The track of which to get the thumbnail.
-   * @return {Promise<string>} The URL of the thumbnail image.
+   * @param {import('lavalink-client/dist/types').Track} track The track of which to get the thumbnail.
+   * @returns {Promise<string>} The URL of the thumbnail image.
    */
   async getBestThumbnail(track) {
     for (const size of ['maxresdefault', 'hqdefault', 'mqdefault', 'default']) {

@@ -11,7 +11,7 @@ const { client: WebSocketClient } = ws
 export class WebSocket {
   /**
    * Creates a new websocket client and attaches it to a discord.js client.
-   * @param client {any} The discord.js client.
+   * @param {any} client The discord.js client.
    */
   constructor(client) {
     this.client = client
@@ -22,8 +22,8 @@ export class WebSocket {
 
   /**
    * Simplifies a player object to an object that supports transfer as JSON.
-   * @param player {any} The player to convert.
-   * @return {Object} A JSON compatible player object.
+   * @param {any} player The player to convert.
+   * @returns {object} A JSON compatible player object.
    */
   simplifyPlayer(player) {
     return player ? {
@@ -59,9 +59,9 @@ export class WebSocket {
 
   /**
    * Executes an action specified in `data` on the player.
-   * @param player {any} The player to run the action on.
-   * @param data {{type: string, guildId: string, userId: string, index?: number, volume?: number, query?: string, filter?: string}} The data object containing the action information.
-   * @return {Promise<void>}
+   * @param {any} player The player to run the action on.
+   * @param {{type: string, guildId: string, userId: string, index?: number, volume?: number, query?: string, filter?: string}} data The data object containing the action information.
+   * @returns {Promise<void>}
    */
   async executePlayerAction(player, data) {
     const textChannel = this.client.channels.cache.get(player?.textChannelId)
@@ -146,9 +146,9 @@ export class WebSocket {
 
   /**
    * Sends data using the WebSocket connection.
-   * @param [type] {string} The data type. Is added to `data`.
-   * @param [data] {Object} The data to send.
-   * @return void
+   * @param {string} [type] The data type. Is added to `data`.
+   * @param {object} [data] The data to send.
+   * @returns {void}
    */
   sendData(type = 'none', data = {}) {
     data.type = data.type ?? type
@@ -159,7 +159,7 @@ export class WebSocket {
 
   /**
    * Sends an update containing information about this client.
-   * @return {void}
+   * @returns {void}
    */
   updateClientData() {
     this.sendData('clientData', {
@@ -170,8 +170,8 @@ export class WebSocket {
 
   /**
    * Sends a player update.
-   * @param player {any | null} The player to update.
-   * @return void
+   * @param {any | null} player The player to update.
+   * @returns {void}
    */
   updatePlayer(player) {
     this.sendData('playerData', {
@@ -182,7 +182,7 @@ export class WebSocket {
 
   /**
    * Handles a WebSocket reconnect.
-   * @return void
+   * @returns {void}
    * @private
    */
   reconnect() {
@@ -199,7 +199,7 @@ export class WebSocket {
 
   /**
    * Initializes a websocket and adds the necessary listeners.
-   * @return void
+   * @returns {void}
    */
   initialize() {
     this.wsClient.connect('wss://clients.kalliope.cc')
@@ -250,7 +250,7 @@ export class WebSocket {
 
   /**
    * Gracefully closes the WebSocket connection.
-   * @return void
+   * @returns {void}
    */
   close() {
     logging.info('[WebSocket] Closing WebSocket connection.')

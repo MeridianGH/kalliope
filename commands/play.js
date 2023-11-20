@@ -1,7 +1,6 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
-import { LoadTypes } from '../music/lavalink.js'
+import { SlashCommandBuilder } from 'discord.js'
 import { loadChecks, playChecks } from '../utilities/checks.js'
-import { addMusicControls, errorEmbed, msToHMS } from '../utilities/utilities.js'
+import { addMusicControls, errorEmbed } from '../utilities/utilities.js'
 
 export const { data, execute } = {
   data: new SlashCommandBuilder()

@@ -4,16 +4,20 @@ import { errorEmbed } from './utilities.js'
 
 /**
  * Executes generic music checks on an interaction and replies based on possible errors.
- * @param interaction The interaction that called this check.
+ * @param {import('discord.js').Interaction} interaction The interaction that called this check.
+ * @param {import('discord.js').GuildMember} interaction.member The member that instantiated the interaction.
+ * @param {import('../music/lavalink').Lavalink} interaction.client.lavalink The lavalink client.
  * @returns {boolean} If the checks succeeded or not.
  */
 export function genericChecks(interaction) {
   const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
   if (!player || !player.queue.current) {
+    // noinspection JSIgnoredPromiseFromCall
     interaction.reply(errorEmbed('Nothing currently playing.\nStart playback with `/play`!', true))
     return false
   }
   if (interaction.member.voice.channel?.id !== player.voiceChannelId) {
+    // noinspection JSIgnoredPromiseFromCall
     interaction.reply(errorEmbed('You need to be in the same voice channel as the bot to use this command!', true))
     return false
   }
@@ -22,24 +26,29 @@ export function genericChecks(interaction) {
 
 /**
  * Executes playback checks and replies based on possible errors.
- * @param interaction The interaction that called this check.
+ * @param {import('discord.js').Interaction} interaction The interaction that called this check.
+ * @param {import('discord.js').GuildMember} interaction.member The member that instantiated the interaction.
  * @returns {boolean} If the checks succeeded or not.
  */
 export function playChecks(interaction) {
   const channel = interaction.member.voice.channel
   if (!channel) {
+    // noinspection JSIgnoredPromiseFromCall
     interaction.reply(errorEmbed('You need to be in a voice channel to use this command.', true))
     return false
   }
   if (interaction.guild.members.me.voice.channel && channel !== interaction.guild.members.me.voice.channel) {
+    // noinspection JSIgnoredPromiseFromCall
     interaction.reply(errorEmbed('You need to be in the same voice channel as the bot to use this command!', true))
     return false
   }
   if (!interaction.guild.members.me.permissionsIn(channel).has([PermissionsBitField.Flags.Connect, PermissionsBitField.Flags.Speak])) {
+    // noinspection JSIgnoredPromiseFromCall
     interaction.reply(errorEmbed('The bot does not have the correct permissions to play in your voice channel!\nMake sure it is able to connect to and speak in your channel.', true))
     return false
   }
   if (!interaction.guild.members.me.permissionsIn(interaction.channel).has([PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.AddReactions])) {
+    // noinspection JSIgnoredPromiseFromCall
     interaction.reply(errorEmbed('The bot does not have the correct permissions for this text channel!\nMake sure it can send and react to messages in this channel.', true))
     return false
   }
@@ -48,8 +57,8 @@ export function playChecks(interaction) {
 
 /**
  * Executes Lavalink load type checks and replies based on possible errors.
- * @param interaction The interaction that called this check.
- * @param result The result to check.
+ * @param {import('discord.js').Interaction} interaction The interaction that called this check.
+ * @param {object} result The search result to check.
  * @returns {boolean} If the checks succeeded or not.
  */
 export function loadChecks(interaction, result) {
