@@ -19,7 +19,7 @@ export const { data, execute } = {
 
     if (queue.tracks.length === 0) {
       // Format single page with no upcoming songs.
-      let description = 'Still using old and boring commands? Use the new [web dashboard](http://localhost) instead!\n\n'
+      let description = 'Still using old and boring commands? Use the new [web dashboard](https://kalliope.cc) instead!\n\n'
       description += `Now Playing:\n[${trackInfo.title}](${trackInfo.uri}) | \`${trackInfo.isStream ? '🔴 Live' : msToHMS(trackInfo.duration)}\`\n\n`
       description += 'No upcoming songs.\nAdd songs with `/play`!\n' + '\u2015'.repeat(34)
 
@@ -30,7 +30,7 @@ export const { data, execute } = {
       pages.push(embed)
     } else if (queue.tracks.length > 0 && queue.tracks.length <= 10) {
       // Format single page.
-      let description = 'Still using old and boring commands? Use the new [web dashboard](http://localhost) instead!\n\n'
+      let description = 'Still using old and boring commands? Use the new [web dashboard](https://kalliope.cc) instead!\n\n'
       description += `Now Playing:\n[${trackInfo.title}](${trackInfo.uri}) | \`${trackInfo.isStream ? '🔴 Live' : msToHMS(trackInfo.duration)}\`\n\n`
       for (const track of queue.tracks) { description += `\`${queue.tracks.indexOf(track) + 1}.\` [${track.info.title}](${track.info.uri}) | \`${track.info.isStream ? '🔴 Live' : msToHMS(track.info.duration)}\`\n\n` }
       description += `**${queue.tracks.length} songs in queue | ${msToHMS(queue.utils.totalDuration())} total duration**\n${'\u2015'.repeat(34)}`
@@ -45,7 +45,7 @@ export const { data, execute } = {
       for (let i = 0; i < queue.tracks.length; i += 10) {
         const tracks = queue.tracks.slice(i, i + 10)
 
-        let description = 'Still using old and boring commands? Use the new [web dashboard](http://localhost) instead!\n\n'
+        let description = 'Still using old and boring commands? Use the new [web dashboard](https://kalliope.cc) instead!\n\n'
         description += `Now Playing:\n[${trackInfo.title}](${trackInfo.uri}) | \`${trackInfo.isStream ? '🔴 Live' : msToHMS(trackInfo.duration)}\`\n\n`
         for (const track of tracks) { description += `\`${queue.tracks.indexOf(track) + 1}.\` [${track.info.title}](${track.info.uri}) | \`${track.info.isStream ? '🔴 Live' : msToHMS(track.info.duration)}\`\n\n` }
         description += `**${queue.tracks.length} songs in queue | ${msToHMS(queue.utils.totalDuration())} total duration**\n${'\u2015'.repeat(34)}`
