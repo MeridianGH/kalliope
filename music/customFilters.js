@@ -103,7 +103,7 @@ export class CustomFilters {
 
   /**
    * Sets and applies the current filter. Sets to `none` if not provided or available.
-   * @param {keyof this.filterData} filter The filter to set.
+   * @param {string} filter The filter to set.
    * @returns {Promise<void>}
    */
   async setFilter(filter) {
