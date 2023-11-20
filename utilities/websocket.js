@@ -5,6 +5,9 @@ import { addMusicControls, simpleEmbed } from './utilities.js'
 
 const { client: WebSocketClient } = ws
 
+const production = process.argv[2] !== 'development'
+const socketURL = production ? 'wss://clients.kalliope.cc' : 'ws://clients.localhost'
+
 /**
  * Websocket client that manages and maintains a connection.
  */
@@ -154,7 +157,7 @@ export class WebSocket {
     data.type = data.type ?? type
     data.clientId = this.client.user.id
     this.ws?.sendUTF(JSON.stringify(data))
-    // console.log('bot sent:', data)
+    if (!production) { console.log('bot sent:', data) }
   }
 
   /**
@@ -190,7 +193,7 @@ export class WebSocket {
     const randomDelay = Math.floor(Math.random() * 1000)
     logging.info(`[WebSocket] Trying to reconnect in ${this.reconnectDelay / 1000}s (+${randomDelay / 1000}s variation).`)
     setTimeout(async () => {
-      await this.wsClient.connect('wss://clients.kalliope.cc')
+      await this.wsClient.connect(socketURL)
     }, this.reconnectDelay + randomDelay)
     if (this.reconnectDelay < maxDelay) {
       this.reconnectDelay *= 2
@@ -202,7 +205,7 @@ export class WebSocket {
    * @returns {void}
    */
   initialize() {
-    this.wsClient.connect('wss://clients.kalliope.cc')
+    this.wsClient.connect(socketURL)
 
     // noinspection JSUnresolvedFunction
     this.wsClient.on('connectFailed', (reason) => {
@@ -219,7 +222,7 @@ export class WebSocket {
           return
         }
         const data = JSON.parse(message.utf8Data)
-        // console.log('bot received:', data)
+        if (!production) { console.log('bot received:', data) }
 
         const player = this.client.lavalink.getPlayer(data.guildId)
         if (data.type === 'requestPlayerData') {
