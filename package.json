@@ -6,8 +6,9 @@
   "author": "Meridian",
   "license": "GPL-3.0-only",
   "scripts": {
-    "start": "tsc && node .",
-    "deploy": "tsc --build --verbose && node dist/utilities/deployCommands.js"
+    "build": "tsc --build --verbose",
+    "start": "npm run build && node .",
+    "deploy": "npm run build && node dist/utilities/deployCommands.js"
   },
   "main": "dist/main.js",
   "type": "module",
