@@ -140,7 +140,6 @@ export async function addMusicControls(message: Message, player: Player): Promis
     ]
   })
 
-  // TODO: Fix types, see queue.ts
   const collector = message.createMessageComponentCollector({ idle: 300000 })
   collector.on('collect', async (buttonInteraction: ButtonInteraction<'cached'>) => {
     if (buttonInteraction.member.voice.channel?.id !== player.voiceChannelId) {

@@ -16,6 +16,7 @@ export class Lavalink {
   manager: LavalinkManager
   constructor(client: Client) {
     this.client = client
+    // noinspection JSUnusedGlobalSymbols
     this.manager = new LavalinkManager({
       nodes: [
         /*{
