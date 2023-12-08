@@ -114,14 +114,33 @@ Alternatively use **[GitHub Desktop](https://desktop.github.com/)** or download 
 <br/>
 
 ### Configuration
-Rename or copy `config_example.json` to `config.json` and replace the placeholders inside with your info:
+Rename or copy `.env.example` to `.env` and replace the placeholders inside with your info:
 - A Discord Bot Token (**[Guide](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot)**)
 - Your Application ID found in the `General Information` tab in your Discord application.
 - Create a Genius API application **[here](https://docs.genius.com/)**, generate an access token and paste it in the config.
 
-Run `node .\deployCommands.js` _once_ to synchronize the bots commands with Discord.\
+Run `npm run deploy` _**once**_ to synchronize the commands with Discord.\
 You only need to run this during the initial setup or when you install a new update that changes some commands.
 
+
+<details>
+<summary style="cursor: pointer"><b>Advanced: Guild Commands</b></summary>
+
+If only want to deploy the commands as guild commands (i.e. to test command changes), run this command instead:
+```
+npm run deploy -- guild [guildId]
+```
+
+Use the following command to clear all global commands or only guild commands, if you provide a guild ID:
+```
+npm run deploy -- clear [guildId]
+```
+
+---
+
+</details>
+
+<br/>
 
 <details>
 <summary style="cursor: pointer"><b>Optional: Lavalink</b></summary>
@@ -143,20 +162,11 @@ Regardless of your method, make sure to add the `/bin` folder to your path varia
 
 Make sure Java is installed properly by running `java --version` in your terminal. If it displays the correct version, you are good to go!
 
-Get your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**.\
-Once acquired, set `PAPISID` and `PSID` in your `config.json` as follows:
+If you are experiencing issues with age- or region-restricted videos, get your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**.\
+Once acquired, set these tokens to `YOUTUBE_PAPISID` and `YOUTUBE_PSID` in your `.env`.
 
-```json
-{
-  "...": "...",
-  "papisid": "yourPAPISID",
-  "psid": "yourPSID"
-}
-```
-
-\
-Uncomment the `localhost` node in `lavalink.js` to make sure your bot actually connects to your Lavalink instance.
-
+Uncomment the `localhost` node in `lavalink.ts` to make sure your bot actually connects to your Lavalink instance.\
+You can use the hosted lavalink in parallel to your local instance as a redundant fallback.
 
 ---
 
