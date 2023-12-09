@@ -4,10 +4,7 @@ import { logging } from './logging.js'
 import { addMusicControls, simpleEmbed } from './utilities.js'
 import { Client, GuildTextBasedChannel } from 'discord.js'
 import { Player, SearchResult } from 'lavalink-client'
-import { Requester } from '../types/types'
-
-
-type WSData = { type: string, guildId: string, userId: string, index?: number, volume?: number, query?: string, filter?: string }
+import { Requester, WSData } from '../types/types'
 
 const { client: WebSocketClient } = ws
 

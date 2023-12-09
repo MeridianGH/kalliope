@@ -14,3 +14,5 @@ interface EventStructure<E extends keyof ClientEvents> {
 }
 
 type Requester = GuildMember | User
+
+type WSData = { type: string, guildId: string, userId: string, index?: number, volume?: number, query?: string, filter?: string }
