@@ -8,7 +8,7 @@
 [![Discord](https://shields.io/discord/610498937874546699?style=for-the-badge&logo=discord&label=discord)](https://discord.gg/qX2CBrrUpf)
 [![License](https://img.shields.io/github/license/MeridianGH/Kalliope?logo=gnu&style=for-the-badge)](https://github.com/MeridianGH/Kalliope/blob/main/LICENSE.md)
 
-<h1>Kalliope.</h1>
+# Kalliope.
 
 <b>A Discord music bot that still supports most platforms.</b>
 
@@ -216,6 +216,6 @@ For more information, please refer to the license.
 
 <div align="center">
 
-[Back to top 🡅](#readme)
+[Back to top 🡅](#kalliope)
 
 </div>
