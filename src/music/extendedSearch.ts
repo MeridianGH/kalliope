@@ -4,6 +4,7 @@ import ytpl from 'ytpl'
 import { LoadTypes } from './lavalink.js'
 import { Player, SearchResult, Track, TrackInfo } from 'lavalink-client'
 import { Requester } from '../types/types'
+import { logging } from '../utilities/logging.js'
 
 const spotify = spotifyUrlInfo(fetch)
 
@@ -92,7 +93,7 @@ export class ExtendedSearch {
    */
   async getTrack(query: string, requestedBy: Requester): Promise<Track> {
     const data = await spotify.getData(query, {})
-    // console.log('track', data)
+    logging.debug('track', data)
     const trackData: TrackInfo = {
       author: data.artists[0].name,
       duration: data.duration,
@@ -117,7 +118,7 @@ export class ExtendedSearch {
    */
   async getPlaylist(query: string, requestedBy: Requester): Promise<SearchResult> {
     const data = await spotify.getData(query, {})
-    // console.log('playlist', data)
+    logging.debug('playlist', data)
     const tracks = await Promise.all(
       data.trackList.map((trackData) => this.getTrack(trackData.uri, requestedBy))
     )

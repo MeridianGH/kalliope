@@ -3,6 +3,7 @@ import { Lavalink } from '../music/lavalink.js'
 import { WebSocketConnector } from '../utilities/websocket.js'
 import { CustomFilters } from '../music/customFilters.js'
 import { CommandStructure } from './types.js'
+import { levels } from '../utilities/logging.js'
 
 declare global {
   namespace NodeJS {
@@ -13,7 +14,8 @@ declare global {
       DISCORD_APP_ID: string,
       GENIUS_CLIENT_TOKEN: string,
       YOUTUBE_PAPISID: string,
-      YOUTUBE_PSID: string
+      YOUTUBE_PSID: string,
+      LOGGING_LEVEL: keyof typeof levels
     }
   }
 }

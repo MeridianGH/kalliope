@@ -166,7 +166,7 @@ export class WebSocketConnector {
     data.type = data.type ?? type
     data.clientId = this.client.user.id
     this.ws?.sendUTF(JSON.stringify(data))
-    if (!production) { console.log('bot sent:', data) }
+    logging.debug('bot sent:', data)
   }
 
   /**
@@ -226,7 +226,7 @@ export class WebSocketConnector {
           return
         }
         const data = JSON.parse(message.utf8Data)
-        if (!production) { console.log('bot received:', data) }
+        logging.debug('bot received:', data)
 
         const player = this.client.lavalink.getPlayer(data.guildId)
         if (data.type === 'requestPlayerData') {

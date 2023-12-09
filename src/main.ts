@@ -28,12 +28,12 @@ for (const file of getFilesRecursively('events')) {
 process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)
 process.on('uncaughtException', (error) => {
-  logging.warn(`Ignoring uncaught exception: ${error} | ${error.stack.split(/\r?\n/)[1].split('\\').pop().slice(0, -1).trim()}`)
+  logging.warn(`Ignoring uncaught exception: ${error.message}`)
   logging.error(error.stack)
 })
-process.on('unhandledRejection', (error: string) => {
-  logging.warn(`Unhandled promise rejection: ${error}`)
-  logging.error(error)
+process.on('unhandledRejection', (reason) => {
+  logging.warn(`Unhandled promise rejection: ${reason}`)
+  logging.error(reason.toString())
 })
 
 /**
