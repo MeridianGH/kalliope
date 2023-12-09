@@ -8,6 +8,7 @@
   "scripts": {
     "build": "tsc --build --verbose",
     "start": "npm run build && node .",
+    "dev": "npm run build && node . development",
     "deploy": "npm run build && node dist/utilities/deployCommands.js"
   },
   "main": "dist/main.js",
