@@ -5,10 +5,10 @@ import http from 'http'
 import yaml from 'js-yaml'
 import { LavalinkManager, Player, PlaylistInfo, SearchResult, TrackInfo } from 'lavalink-client'
 import { logging } from '../utilities/logging.js'
-import { errorEmbed, msToHMS, simpleEmbed } from '../utilities/utilities.js'
+import { durationOrLive, errorEmbed, msToHMS, simpleEmbed } from '../utilities/utilities.js'
 import { CustomFilters } from './customFilters.js'
 import { ExtendedSearch } from './extendedSearch.js'
-import { Requester } from '../types/types'
+import { LavalinkYML, Requester } from '../types/types'
 import path from 'path'
 
 export class Lavalink {
@@ -67,9 +67,7 @@ export class Lavalink {
       return logging.info('[Lavalink]  No nodes with host \'localhost\' in LavalinkManagerOptions, skipping local Lavalink setup.')
     }
 
-    // TODO: Define explicit type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const doc = yaml.load(fs.readFileSync(path.join(process.cwd(), '/lavalink/template.yml')).toString(), {}) as any
+    const doc = yaml.load(fs.readFileSync(path.join(process.cwd(), '/lavalink/template.yml')).toString(), {}) as LavalinkYML
     doc.lavalink.server.youtubeConfig = { PAPISID: process.env.YOUTUBE_PAPISID, PSID: process.env.YOUTUBE_PSID }
     fs.writeFileSync(path.join(process.cwd(), '/lavalink/application.yml'), yaml.dump(doc, {}))
 
@@ -214,26 +212,18 @@ export class Lavalink {
    */
   async processPlayResult(player: Player, result: SearchResult): Promise<EmbedBuilder> {
     const info = result.playlist ?? result.tracks[0].info
+    const isTrack = result.loadType === LoadTypes.track || result.loadType === LoadTypes.search
 
-    /**
-     * Type check
-     * @param _info The value to check.
-     * @returns Value is of the specified type.
-     */
-    function isTrack(_info?: TrackInfo | PlaylistInfo): _info is TrackInfo {
-      return result.loadType === LoadTypes.track || result.loadType === LoadTypes.search
-    }
-
-    await player.queue.add(isTrack(info) ? result.tracks[0] : result.tracks)
+    await player.queue.add(isTrack ? result.tracks[0] : result.tracks)
     if (!player.playing && !player.paused) { await player.play() }
 
     return new EmbedBuilder()
       .setAuthor({ name: 'Added to queue.', iconURL: (result.tracks[0].requester as Requester).displayAvatarURL() })
       .setTitle(info.title)
       .setURL(info.uri)
-      .setThumbnail(isTrack() ? result.tracks[0].pluginInfo.artworkUrl : result.pluginInfo.artworkUrl)
-      .addFields(isTrack(info) ? [
-        { name: 'Duration', value: info.isStream ? '🔴 Live' : msToHMS(info.duration), inline: true },
+      .setThumbnail(isTrack ? result.tracks[0].info.artworkUrl : result.playlist.thumbnail)
+      .addFields(isTrack ? [
+        { name: 'Duration', value: durationOrLive(info), inline: true },
         { name: 'Author', value: info.author, inline: true },
         { name: 'Position', value: player.queue.tracks.length.toString(), inline: true }
       ] : [

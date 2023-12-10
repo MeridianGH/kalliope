@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonComponent, ButtonStyle, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { genericChecks } from '../utilities/checks.js'
 import { logging } from '../utilities/logging.js'
-import { msToHMS } from '../utilities/utilities.js'
+import { durationOrLive, formatRepeatMode, msToHMS } from '../utilities/utilities.js'
 import { TrackInfo, UnresolvedTrackInfo } from 'lavalink-client'
 import { CommandStructure } from '../types/types.js'
 
@@ -20,17 +20,6 @@ export const { data, execute }: CommandStructure = {
     const header =
       'Still using old and boring commands? Use the new [web dashboard](https://kalliope.cc) instead!\n\n' +
       'Now Playing:\n' + formatTrack(trackInfo)
-
-    const repeatMode = player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'
-
-    /**
-     * Returns the formatted duration for a track.
-     * @param trackInfo The track info.
-     * @returns The formatted string.
-     */
-    function durationOrLive(trackInfo: TrackInfo | UnresolvedTrackInfo) {
-      return trackInfo.isStream ? '🔴 Live' : msToHMS(trackInfo.duration)
-    }
 
     /**
      * Formats a track to be used in the description.
@@ -59,7 +48,7 @@ export const { data, execute }: CommandStructure = {
         .setAuthor({ name: 'Queue.', iconURL: interaction.member.displayAvatarURL() })
         .setDescription(header + tracksText + footer)
         .setFooter({
-          text: `Kalliope | Page ${fromIndex / 10 + 1}/${Math.ceil(queue.tracks.length / 10)} | Repeat: ` + repeatMode,
+          text: `Kalliope | Page ${fromIndex / 10 + 1}/${Math.ceil(queue.tracks.length / 10)} | Repeat: ` + formatRepeatMode(player.repeatMode),
           iconURL: interaction.client.user.displayAvatarURL()
         })
 
@@ -74,7 +63,7 @@ export const { data, execute }: CommandStructure = {
           'No upcoming songs.\nAdd songs with `/play`!\n' +
           '\u2015'.repeat(34))
         .setFooter({
-          text: 'Kalliope | Page 1/1 | Repeat: ' + repeatMode,
+          text: 'Kalliope | Page 1/1 | Repeat: ' + formatRepeatMode(player.repeatMode),
           iconURL: interaction.client.user.displayAvatarURL()
         })
 

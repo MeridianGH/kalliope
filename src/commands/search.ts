@@ -41,7 +41,7 @@ export const { data, execute }: CommandStructure = {
         new EmbedBuilder()
           .setAuthor({ name: 'Search Results.', iconURL: interaction.member.displayAvatarURL() })
           .setTitle(`Here are the search results for your search\n"${query}":`)
-          .setThumbnail(result.tracks[0].pluginInfo.artworkUrl)
+          .setThumbnail(result.tracks[0].info.artworkUrl)
           .setFooter({
             text: 'Kalliope | This embed expires after one minute.',
             iconURL: interaction.client.user.displayAvatarURL()
@@ -77,7 +77,7 @@ export const { data, execute }: CommandStructure = {
         .setAuthor({ name: 'Added to queue.', iconURL: interaction.member.displayAvatarURL() })
         .setTitle(track.info.title)
         .setURL(track.info.uri)
-        .setThumbnail(track.pluginInfo.artworkUrl)
+        .setThumbnail(track.info.artworkUrl)
         .addFields([
           { name: 'Duration', value: track.info.isStream ? '🔴 Live' : msToHMS(track.info.duration), inline: true },
           { name: 'Author', value: track.info.author, inline: true },

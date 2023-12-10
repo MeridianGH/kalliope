@@ -4,6 +4,7 @@ import ytdl from 'ytdl-core'
 import { genericChecks } from '../utilities/checks.js'
 import { logging } from '../utilities/logging.js'
 import { CommandStructure } from '../types/types.js'
+import { formatRepeatMode } from '../utilities/utilities.js'
 
 const Genius = new GeniusClient(process.env.GENIUS_CLIENT_TOKEN)
 
@@ -53,9 +54,12 @@ export const { data, execute }: CommandStructure = {
         .setAuthor({ name: 'Lyrics.', iconURL: interaction.member.displayAvatarURL() })
         .setTitle(trackInfo.title)
         .setURL(song.url)
-        .setThumbnail(track.pluginInfo.artworkUrl)
+        .setThumbnail(trackInfo.artworkUrl)
         .setDescription(pages[0])
-        .setFooter({ text: `Kalliope | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
+        .setFooter({
+          text: `Kalliope | Repeat: ${formatRepeatMode(player.repeatMode)} | Provided by genius.com`,
+          iconURL: interaction.client.user.displayAvatarURL()
+        })
 
       const actionRow = isOnePage ? [] : [new ActionRowBuilder<ButtonBuilder>().setComponents([previous.setDisabled(true), next.setDisabled(false)])]
       const message = await interaction.editReply({ embeds: [embed], components: actionRow })
@@ -72,9 +76,12 @@ export const { data, execute }: CommandStructure = {
                 .setAuthor({ name: 'Lyrics.', iconURL: interaction.member.displayAvatarURL() })
                 .setTitle(trackInfo.title)
                 .setURL(song.url)
-                .setThumbnail(track.pluginInfo.artworkUrl)
+                .setThumbnail(trackInfo.artworkUrl)
                 .setDescription(pages[currentIndex])
-                .setFooter({ text: `Kalliope | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
+                .setFooter({
+                  text: `Kalliope | Repeat: ${formatRepeatMode(interaction.client.lavalink.getPlayer(interaction.guildId).repeatMode)} | Provided by genius.com`,
+                  iconURL: interaction.client.user.displayAvatarURL()
+                })
             ],
             components: [new ActionRowBuilder<ButtonBuilder>().setComponents([previous.setDisabled(currentIndex === 0), next.setDisabled(currentIndex === pages.length - 1)])]
           })
@@ -93,9 +100,12 @@ export const { data, execute }: CommandStructure = {
             .setAuthor({ name: 'Lyrics.', iconURL: interaction.member.displayAvatarURL() })
             .setTitle(trackInfo.title)
             .setURL(trackInfo.uri)
-            .setThumbnail(track.pluginInfo.artworkUrl)
+            .setThumbnail(trackInfo.artworkUrl)
             .setDescription('No results found!')
-            .setFooter({ text: `Kalliope | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'} | Provided by genius.com`, iconURL: interaction.client.user.displayAvatarURL() })
+            .setFooter({
+              text: `Kalliope | Repeat: ${formatRepeatMode(interaction.client.lavalink.getPlayer(interaction.guildId).repeatMode)} | Provided by genius.com`,
+              iconURL: interaction.client.user.displayAvatarURL()
+            })
         ]
       })
     }

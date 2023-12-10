@@ -1,6 +1,6 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { genericChecks } from '../utilities/checks.js'
-import { addMusicControls, msToHMS } from '../utilities/utilities.js'
+import { addMusicControls, formatRepeatMode, msToHMS } from '../utilities/utilities.js'
 import { CommandStructure } from '../types/types.js'
 
 export const { data, execute }: CommandStructure = {
@@ -22,13 +22,13 @@ export const { data, execute }: CommandStructure = {
       .setAuthor({ name: 'Now Playing...', iconURL: interaction.member.displayAvatarURL() })
       .setTitle(trackInfo.title)
       .setURL(trackInfo.uri)
-      .setThumbnail(track.pluginInfo.artworkUrl)
+      .setThumbnail(trackInfo.artworkUrl)
       .addFields([
         { name: 'Duration', value: trackInfo.isStream ? '🔴 Live' : `\`${progressBar}\`\n\`${msToHMS(player.position)}/${msToHMS(trackInfo.duration)}\``, inline: true },
         { name: 'Author', value: trackInfo.author, inline: true },
         { name: 'Requested By', value: track.requester.toString(), inline: true }
       ])
-      .setFooter({ text: `Kalliope | Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'}`, iconURL: interaction.client.user.displayAvatarURL() })
+      .setFooter({ text: `Kalliope | Repeat: ${formatRepeatMode(player.repeatMode)}`, iconURL: interaction.client.user.displayAvatarURL() })
 
     // noinspection JSUnresolvedReference
     if (track.pluginInfo.uri) { embed.setDescription(`This track has been resolved on [YouTube](${track.pluginInfo.uri}).`) }

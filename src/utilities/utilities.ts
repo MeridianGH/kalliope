@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { iconURL } from '../events/ready.js'
 import { logging } from './logging.js'
-import { Player } from 'lavalink-client'
+import { Player, RepeatMode, TrackInfo, UnresolvedTrackInfo } from 'lavalink-client'
 
 /**
  * Builds a simple embed object with default settings used as a parameter in message functions.
@@ -77,6 +77,24 @@ export function timeToMs(time: string): number {
     secondsInUnit *= 60
   }
   return seconds * 1000
+}
+
+/**
+ * Returns the formatted duration for a track.
+ * @param trackInfo The track info.
+ * @returns The formatted string.
+ */
+export function durationOrLive(trackInfo: TrackInfo | UnresolvedTrackInfo) {
+  return trackInfo.isStream ? '🔴 Live' : msToHMS(trackInfo.duration)
+}
+
+/**
+ * Returns a formatted string with emojis based on the repeat mode.
+ * @param repeatMode The current mode.
+ * @returns The formatted string.
+ */
+export function formatRepeatMode(repeatMode: RepeatMode) {
+  return repeatMode === 'queue' ? '🔁 Queue' : repeatMode === 'track' ? '🔂 Track' : '❌'
 }
 
 /**

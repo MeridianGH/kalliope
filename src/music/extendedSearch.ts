@@ -2,8 +2,8 @@ import fetch from 'node-fetch'
 import spotifyUrlInfo from 'spotify-url-info'
 import ytpl from 'ytpl'
 import { LoadTypes } from './lavalink.js'
-import { Player, SearchResult, Track, TrackInfo } from 'lavalink-client'
-import { Requester } from '../types/types'
+import { Player, SearchResult, Track } from 'lavalink-client'
+import { Requester, SpotifyTrackInfo } from '../types/types'
 import { logging } from '../utilities/logging.js'
 
 const spotify = spotifyUrlInfo(fetch)
@@ -46,8 +46,13 @@ export class ExtendedSearch {
       try {
         const result = await this._search(query, requestedBy) as SearchResult
         const data = ytpl.validateID(query) ? await ytpl(query) : null
-        result.playlist = Object.assign(result.playlist, { name: data.title, author: data.author.name, uri: data.url })
-        result.pluginInfo.artworkUrl = data.bestThumbnail.url
+        result.playlist = {
+          ...result.playlist,
+          name: data.title,
+          author: data.author.name,
+          thumbnail: data.bestThumbnail.url,
+          uri: data.url
+        }
         return result
       } catch (e) {
         return { loadType: LoadTypes.error, tracks: null, playlist: null, exception: { message: e.message, cause: 'Search Error', severity: 'COMMON' }, pluginInfo: null }
@@ -61,15 +66,23 @@ export class ExtendedSearch {
     if (locale) { query = query.replace(locale, '') }
     try {
       if (type === 'track') {
+        const track = await this.getSpotifyTrack(query, requestedBy)
         return {
           loadType: LoadTypes.track,
-          tracks: [await this.getTrack(query, requestedBy)],
+          tracks: [track],
           playlist: null,
           exception: null,
           pluginInfo: null
         }
       } else if (type === 'playlist' || type === 'album') {
-        return await this.getPlaylist(query, requestedBy)
+        const { tracks, playlist } = await this.getSpotifyPlaylist(query, requestedBy)
+        return {
+          loadType: 'playlist',
+          tracks: tracks,
+          playlist: playlist,
+          exception: null,
+          pluginInfo: null
+        }
       }
     } catch (e) {
       return { loadType: LoadTypes.error, tracks: null, playlist: null, exception: { message: e.message, cause: 'Search Error', severity: 'COMMON' }, pluginInfo: null }
@@ -78,7 +91,7 @@ export class ExtendedSearch {
     // Use best thumbnail available
     const search = await this._search(query, requestedBy) as SearchResult
     for (const track of search.tracks) {
-      track.pluginInfo.artworkUrl = await this.getBestThumbnail(track)
+      track.info.artworkUrl = await this.getBestThumbnail(track)
       track.requester = requestedBy
     }
 
@@ -91,21 +104,15 @@ export class ExtendedSearch {
    * @param requestedBy The member (or user) that requested this search.
    * @returns The track result.
    */
-  async getTrack(query: string, requestedBy: Requester): Promise<Track> {
+  async getSpotifyTrack(query: string, requestedBy: Requester): Promise<Track> {
     const data = await spotify.getData(query, {})
     logging.debug('track', data)
-    const trackData: TrackInfo = {
+    const trackData: SpotifyTrackInfo = {
+      title: data.artists[0].name + ' - ' + data.name,
       author: data.artists[0].name,
       duration: data.duration,
       artworkUrl: data.coverArt?.sources[0]?.url,
-      title: data.artists[0].name + ' - ' + data.name,
-      uri: this.spotifyURIToLink(data.uri),
-      sourceName: 'spotify',
-      // TODO: Fix empty properties
-      identifier: null,
-      isSeekable: null,
-      isStream: null,
-      isrc: null
+      uri: this.spotifyURIToLink(data.uri)
     }
     return await this.findClosestTrack(trackData, requestedBy)
   }
@@ -116,26 +123,23 @@ export class ExtendedSearch {
    * @param requestedBy The member (or user) that requested this search.
    * @returns The playlist result.
    */
-  async getPlaylist(query: string, requestedBy: Requester): Promise<SearchResult> {
+  async getSpotifyPlaylist(query: string, requestedBy: Requester): Promise<Pick<SearchResult, 'tracks' | 'playlist'>> {
     const data = await spotify.getData(query, {})
     logging.debug('playlist', data)
     const tracks = await Promise.all(
-      data.trackList.map((trackData) => this.getTrack(trackData.uri, requestedBy))
+      data.trackList.map((trackData) => this.getSpotifyTrack(trackData.uri, requestedBy))
     )
     return {
-      loadType: 'playlist',
       tracks: tracks,
       playlist: {
+        name: data.title,
         title: data.title,
         author: data.subtitle,
         uri: this.spotifyURIToLink(data.uri),
-        name: data.title,
-        // TODO: Fix empty properties
-        selectedTrack: null,
-        duration: null
-      },
-      exception: null,
-      pluginInfo: { artworkUrl: data.coverArt?.sources[0]?.url }
+        thumbnail: data.coverArt?.sources[0]?.url,
+        selectedTrack: tracks[0],
+        duration: tracks.map((track) => track.info.duration).reduce((acc, cur) => acc + cur)
+      }
     }
   }
 
@@ -146,20 +150,17 @@ export class ExtendedSearch {
    * @param [retries] How often to retry.
    * @returns The most closely matching track.
    */
-  async findClosestTrack(data: TrackInfo, requestedBy: Requester, retries: number = 5): Promise<Track> {
-    if (retries <= 0) { return }
-    const tracks = (await this.search(data.title, requestedBy)).tracks.slice(0, 5)
+  async findClosestTrack(data: SpotifyTrackInfo, requestedBy: Requester, retries: number = 5): Promise<Track> {
+    if (retries <= 0) { return null }
+    const tracks = (await this.search(data.title, requestedBy)).tracks.slice(0, 10 - retries)
     const track =
       tracks.find((track) => track.info.title.toLowerCase().includes('official audio')) ??
       tracks.find((track) => track.info.duration >= data.duration - 1500 && track.info.duration <= data.duration + 1500) ??
       tracks.find((track) => track.info.author.endsWith('- Topic') || track.info.author === data.author) ??
       tracks[0]
     if (!track) { return await this.findClosestTrack(data, requestedBy, retries - 1) }
-    const { author, title, artworkUrl, uri } = data
-    Object.assign(track, {
-      info: { ...track.info, author: author, title: title, uri: uri },
-      pluginInfo: { ...track.pluginInfo, artworkUrl: artworkUrl, uri: track.info.uri }
-    })
+    track.info = { ...track.info, ...data }
+    track.pluginInfo = { ...track.pluginInfo, uri: track.info.uri }
     return track
   }
 
