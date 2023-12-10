@@ -1,0 +1,33 @@
+name: Build Docs
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  build:
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Generate documentation
+        run: npm run docs
+
+      - name: Build GH Pages Artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: docs/
+
+      - name: Publish to GH Pages
+        uses: actions/deploy-pages@v2
