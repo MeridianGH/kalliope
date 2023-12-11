@@ -127,11 +127,12 @@ export class Lavalink {
    * @param newState The new voice state. Usually provided by discord.js.
    */
   private async _voiceUpdate(oldState: VoiceState, newState: VoiceState): Promise<void> {
+    const me = newState.guild.members.me
     const player = this.getPlayer(newState.guild.id)
     if (!player) { return }
 
     // Client events
-    if (newState.guild.members.me.id === newState.member.id) {
+    if (newState.member.id === me.id) {
       // Disconnect
       if (!newState.channelId) {
         await player.destroy()
@@ -149,9 +150,9 @@ export class Lavalink {
       if (newState.channel.type === ChannelType.GuildStageVoice) {
         // Join
         if (!oldState.channel) {
-          newState.guild.members.me.voice.setSuppressed(false).catch(async () => {
+          me.voice.setSuppressed(false).catch(async () => {
             if (!player.paused) { await player.pause() }
-            await newState.guild.members.me.voice.setRequestToSpeak(true)
+            await me.voice.setRequestToSpeak(true)
           })
           return
         }
@@ -167,7 +168,7 @@ export class Lavalink {
     }
 
     // Channel empty
-    if (newState.channel.members.size === 1) {
+    if (!newState.channelId && oldState.channel.members.filter((member) => member.id !== me.id)) {
       const textChannel = this.client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
       textChannel?.send(simpleEmbed('Left the voice channel because it was empty.'))
       await player.destroy()
