@@ -10,6 +10,7 @@ export const { data, execute }: CommandStructure = {
     .setDescription('Plays a song or playlist from YouTube.')
     .addStringOption((option) => option.setName('query').setDescription('The query to search for.').setRequired(true)),
   async execute(interaction) {
+    // noinspection DuplicatedCode
     if (!playChecks(interaction)) { return }
     await interaction.deferReply()
 
@@ -19,9 +20,10 @@ export const { data, execute }: CommandStructure = {
     if (!loadChecks(interaction, result)) { return }
 
     if (!player.connected) {
-      if (interaction.inCachedGuild() && !interaction.member.voice.channel) {
+      if (!interaction.member.voice.channel) {
         await player.destroy()
-        return await interaction.editReply(errorEmbed('You need to be in a voice channel to use this command.'))
+        await interaction.editReply(errorEmbed('You need to be in a voice channel to use this command.'))
+        return
       }
       await player.connect()
     }

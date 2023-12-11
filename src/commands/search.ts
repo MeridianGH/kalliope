@@ -7,13 +7,14 @@ import { CommandStructure } from '../types/types.js'
 export const { data, execute }: CommandStructure = {
   data: new SlashCommandBuilder()
     .setName('search')
-    .setDescription('Searches five songs from YouTube and lets you select one to play.')
+    .setDescription('Searches songs from YouTube and lets you select one to play.')
     .addStringOption((option) => option
       .setName('query')
       .setDescription('The query to search for.')
       .setRequired(true)
     ),
   async execute(interaction) {
+    // noinspection DuplicatedCode
     if (!playChecks(interaction)) { return }
     await interaction.deferReply()
 
@@ -22,20 +23,17 @@ export const { data, execute }: CommandStructure = {
     const result = await player.search(query, interaction.member) as SearchResult
     if (!loadChecks(interaction, result)) { return }
 
-    const tracks = result.tracks
-      .slice(0, 5)
-      .map((track: Track | UnresolvedTrack, index: number) => ({
-        label: track.info.title,
-        description: track.info.author,
-        value: index.toString()
-      }))
+    const tracks = result.tracks.map((track: Track | UnresolvedTrack, index: number) => ({
+      label: track.info.title,
+      description: track.info.author,
+      value: index.toString()
+    }))
 
     const selectMenu = new StringSelectMenuBuilder()
       .setCustomId('search')
       .setPlaceholder('Select a song...')
       .addOptions(...tracks)
 
-    // noinspection JSCheckFunctionSignatures
     const embedMessage = await interaction.editReply({
       embeds: [
         new EmbedBuilder()
@@ -61,7 +59,7 @@ export const { data, execute }: CommandStructure = {
     collector.on('collect', async (menuInteraction: StringSelectMenuInteraction) => {
       const track = result.tracks[Number(menuInteraction.values[0])]
       player.queue.add(track)
-      if (player.connected) {
+      if (!player.connected) {
         if (!interaction.member.voice.channel) {
           await player.destroy()
           await interaction.editReply(errorEmbed('You need to be in a voice channel to use this command.'))
@@ -72,7 +70,6 @@ export const { data, execute }: CommandStructure = {
       if (!player.playing && !player.paused) { await player.play() }
       interaction.client.websocket.updatePlayer(player)
 
-      // noinspection JSCheckFunctionSignatures
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Added to queue.', iconURL: interaction.member.displayAvatarURL() })
         .setTitle(track.info.title)
