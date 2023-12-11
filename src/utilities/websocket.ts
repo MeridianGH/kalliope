@@ -193,7 +193,7 @@ export class WebSocketConnector {
   private reconnect(): void {
     const maxDelay = 128000
     const randomDelay = Math.floor(Math.random() * 1000)
-    logging.info(`[WebSocket] Trying to reconnect in ${this.reconnectDelay / 1000}s (+${randomDelay / 1000}s variation).`)
+    logging.warn(`[WebSocket] Trying to reconnect in ${this.reconnectDelay / 1000}s (+${randomDelay / 1000}s variation).`)
     setTimeout(() => {
       this.wsClient.connect(socketURL)
     }, this.reconnectDelay + randomDelay)
