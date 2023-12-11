@@ -42,9 +42,9 @@ process.on('unhandledRejection', (reason) => {
 async function shutdown() {
   logging.info('[Process]   Received SIGTERM, shutting down.')
   logging.info(`[Lavalink]  Closing ${client.lavalink.manager.players.size} queues.`)
-  for (const player of client.lavalink.manager.players.values()) {
+  client.lavalink.manager.players.forEach((player) => {
     const textChannel = client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
-    await textChannel?.send({
+    textChannel?.send({
       embeds: [
         new EmbedBuilder()
           .setTitle('Server shutdown.')
@@ -53,9 +53,8 @@ async function shutdown() {
           .setColor([255, 0, 0])
       ]
     })
-    // noinspection ES6MissingAwait
     player.destroy()
-  }
+  })
   client.websocket.close()
   await client.destroy()
   process.exit(0)
