@@ -208,13 +208,11 @@ export class WebSocketConnector {
   initialize(): void {
     this.wsClient.connect(socketURL)
 
-    // noinspection JSUnresolvedFunction
     this.wsClient.on('connectFailed', (reason) => {
       logging.error('[WebSocket] Connection failed with reason: ' + reason)
       this.reconnect()
     })
 
-    // noinspection JSUnresolvedFunction
     this.wsClient.on('connect', (ws) => {
       this.reconnectDelay = 1000
 

@@ -23,7 +23,6 @@ export const { data, execute }: CommandStructure = {
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
     const filter = interaction.options.getString('filter')
-    // noinspection JSUnresolvedFunction
     await player.filters.setFilter(filter)
     await interaction.reply(simpleEmbed(`Set filter to \`${filter}\`.`))
     interaction.client.websocket.updatePlayer(player)

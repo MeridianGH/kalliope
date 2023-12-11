@@ -17,7 +17,6 @@ export const { data, execute }: CommandStructure = {
     const progress = Math.round(20 * player.position / trackInfo.duration)
     const progressBar = '▬'.repeat(progress) + '🔘' + ' '.repeat(20 - progress)
 
-    // noinspection JSCheckFunctionSignatures
     const embed = new EmbedBuilder()
       .setAuthor({ name: 'Now Playing...', iconURL: interaction.member.displayAvatarURL() })
       .setTitle(trackInfo.title)
@@ -30,7 +29,6 @@ export const { data, execute }: CommandStructure = {
       ])
       .setFooter({ text: `Kalliope | Repeat: ${formatRepeatMode(player.repeatMode)}`, iconURL: interaction.client.user.displayAvatarURL() })
 
-    // noinspection JSUnresolvedReference
     if (track.pluginInfo.uri) { embed.setDescription(`This track has been resolved on [YouTube](${track.pluginInfo.uri}).`) }
 
     const message = await interaction.reply({ embeds: [embed], fetchReply: true })

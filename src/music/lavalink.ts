@@ -245,15 +245,3 @@ export enum LoadTypes {
   error = 'error',
   empty = 'empty'
 }
-
-// noinspection JSUnusedGlobalSymbols
-/**
- * Enumeration for Lavalink player states.
- */
-export enum PlayerStates {
-  connecting = 'CONNECTING',
-  connected = 'CONNECTED',
-  disconnecting = 'DISCONNECTING',
-  disconnected = 'DISCONNECTED',
-  destroying = 'DESTROYING'
-}
