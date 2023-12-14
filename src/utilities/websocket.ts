@@ -159,8 +159,8 @@ export class WebSocketConnector {
    * @param [type] The data type. Is added to `data`.
    * @param [data] The data to send.
    */
-  sendData(type: string = 'none', data: { [key: string]: unknown } = {}): void {
-    data.type = data.type ?? type
+  sendData(type: 'clientData' | 'playerData', data: { [key: string]: unknown } = {}): void {
+    data.type = type
     data.clientId = this.client.user.id
     this.ws?.sendUTF(JSON.stringify(data))
     logging.debug('bot sent:', data)
