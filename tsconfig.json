@@ -18,8 +18,7 @@
       "GitHub": "https://github.com/MeridianGH/Kalliope",
       "Dashboard": "https://kalliope.cc"
     },
-    "defaultCategory": "Test",
-    "favicon": "./src/utilities/icon.png",
+    "favicon": "https://raw.githubusercontent.com/MeridianGH/MeridianGH/main/images/kalliope.png",
     "footerLastModified": true
   }
 }
