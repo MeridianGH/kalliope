@@ -37,7 +37,7 @@ export class Lavalink {
 
     this.manager
       .on('trackStart', (player) => {
-        setTimeout(() => { client.websocket?.updatePlayer(player) }, 500)
+        setTimeout(() => { client.websocket.updatePlayer(player) }, 500)
       })
       .on('trackStuck', async (player) => {
         const textChannel = client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
@@ -45,11 +45,11 @@ export class Lavalink {
         await player.skip()
       })
       .on('queueEnd', (player) => {
-        client.websocket?.updatePlayer(player)
+        client.websocket.updatePlayer(player)
         setTimeout(async () => { if (!player.playing && !player.queue.current) { await player.destroy() } }, 30000)
       })
       .on('playerDestroy', (player) => {
-        client.websocket.sendData('playerData', { guildId: player.guildId, player: null })
+        client.websocket.updatePlayer(null, player.guildId)
       })
 
     this.manager.nodeManager

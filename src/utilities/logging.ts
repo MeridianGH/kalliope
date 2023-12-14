@@ -50,7 +50,7 @@ export class logging {
    * @param message The message to log.
    */
   static debug(...message: unknown[]) {
-    if (this.level >= levels.debug) { console.log('%s \x1b[36m%s\x1b[0m', this.time(), message) }
+    if (this.level >= levels.debug) { console.log('%s \x1b[36m%s\x1b[0m', this.time(), ...message) }
   }
 
   /**
