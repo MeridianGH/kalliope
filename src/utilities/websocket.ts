@@ -157,9 +157,10 @@ export class WebSocketConnector {
    * @param [data] The data to send.
    */
   private send(type: 'clientData' | 'playerData', data: { [key: string]: unknown } = {}): void {
+    if (!this.ws) { return }
     data.type = type
     data.clientId = this.client.user.id
-    this.ws?.send(JSON.stringify(data))
+    this.ws.send(JSON.stringify(data))
     logging.debug('[WebSocket] Sent data:', data)
   }
 
@@ -210,7 +211,7 @@ export class WebSocketConnector {
     })
 
     this.ws.addEventListener('message', (event) => {
-      const data = JSON.parse(event.data.toString())
+      const data = JSON.parse(event.data.toString()) as WSData
       logging.debug('[WebSocket] Received data:', event.data)
 
       const player = this.client.lavalink.getPlayer(data.guildId)
