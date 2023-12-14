@@ -111,7 +111,7 @@ export function getFilesRecursively(directory: string, _files?: string[]): strin
     const absolute = path.join(dirPath, file)
     if (fs.statSync(absolute).isDirectory()) {
       getFilesRecursively(absolute, _files)
-    } else {
+    } else if (file.endsWith('.js')) {
       _files.push('file://' + absolute)
     }
   }

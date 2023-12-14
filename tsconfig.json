@@ -4,9 +4,9 @@
     "outDir": "./dist",
     "module": "ES2022",
     "target": "ES2022",
+    "sourceMap": true,
     "moduleResolution": "node",
-    "esModuleInterop": true,
-    "resolveJsonModule": true
+    "esModuleInterop": true
   },
   "typedocOptions": {
     "entryPointStrategy": "expand",

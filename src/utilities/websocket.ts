@@ -8,7 +8,7 @@ import { Requester, WSData } from '../types/types'
 
 const { client: WebSocketClient } = ws
 
-const production = process.argv[2] !== 'development'
+const production = !process.argv.includes('development')
 const socketURL = production ? 'wss://clients.kalliope.cc' : 'ws://clients.localhost'
 
 /**

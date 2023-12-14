@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsc --build --verbose",
     "start": "npm run build && node .",
-    "dev": "npm run build && node . development",
+    "dev": "npm run build && node --enable-source-maps . development",
     "deploy": "npm run build && node dist/utilities/deployCommands.js",
     "docs": "typedoc"
   },
