@@ -4,11 +4,11 @@
 
 <div align="center">
 
-[![Dashboard](https://img.shields.io/static/v1?style=for-the-badge&logo=google%20chrome&label=Dashboard&message=kalliope.cc&color=121212)](http://kalliope.cc)
+[![Dashboard](https://img.shields.io/static/v1?style=for-the-badge&logo=google%20chrome&label=Dashboard&message=kalliope.cc&color=121212)](https://kalliope.cc)
 [![Discord](https://shields.io/discord/610498937874546699?style=for-the-badge&logo=discord&label=discord)](https://discord.gg/qX2CBrrUpf)
 [![License](https://img.shields.io/github/license/MeridianGH/Kalliope?logo=gnu&style=for-the-badge)](https://github.com/MeridianGH/Kalliope/blob/main/LICENSE.md)
 
-<h1>Kalliope.</h1>
+# Kalliope.
 
 <b>A Discord music bot that still supports most platforms.</b>
 
@@ -114,49 +114,46 @@ Alternatively use **[GitHub Desktop](https://desktop.github.com/)** or download 
 <br/>
 
 ### Configuration
-Rename or copy `config_example.json` to `config.json` and replace the placeholders inside with your info:
+Rename or copy `.env.example` to `.env` and replace the placeholders inside with your info:
 - A Discord Bot Token (**[Guide](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot)**)
 - Your Application ID found in the `General Information` tab in your Discord application.
 - Create a Genius API application **[here](https://docs.genius.com/)**, generate an access token and paste it in the config.
 
-Run `node .\deployCommands.js` _once_ to synchronize the bots commands with Discord.\
+Run `npm run deploy` _**once**_ to synchronize the commands with Discord.\
 You only need to run this during the initial setup or when you install a new update that changes some commands.
 
+
+<details>
+<summary style="cursor: pointer"><b>Advanced: Guild Commands</b></summary>
+
+If only want to deploy the commands as guild commands (i.e. to test command changes), run this command instead:
+```
+npm run deploy -- guild [guildId]
+```
+
+Use the following command to clear all global commands or only guild commands, if you provide a guild ID:
+```
+npm run deploy -- clear [guildId]
+```
+
+---
+
+</details>
+
+<br/>
 
 <details>
 <summary style="cursor: pointer"><b>Optional: Lavalink</b></summary>
 
 Install the latest version of **[Java](https://www.oracle.com/java/technologies/downloads/)** available.
 
-If you encounter any issues with playback later, try installing OpenJDK 13.0.2 instead of the latest Java version:
-
-<details>
-<summary style="cursor: pointer">OpenJDK 13.0.2</summary>
-
-> Download the OpenJDK 13.0.2 installer either from the official **[Oracle Archive website](https://www.oracle.com/java/technologies/javase/jdk13-archive-downloads.html)** (Account creation required)\
-**OR**\
-download the binaries from the **[Java Archives](https://jdk.java.net/archive)** and unzip it to a location you can remember.\
-\
-Regardless of your method, make sure to add the `/bin` folder to your path variable. If you don't know how to do that, a quick Google search will help you.
-
-</details>
-
 Make sure Java is installed properly by running `java --version` in your terminal. If it displays the correct version, you are good to go!
 
-Get your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**.\
-Once acquired, set `PAPISID` and `PSID` in your `config.json` as follows:
+If you are experiencing issues with age- or region-restricted videos, get your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**.\
+Once acquired, set these tokens to `YOUTUBE_PAPISID` and `YOUTUBE_PSID` in your `.env`.
 
-```json
-{
-  "...": "...",
-  "papisid": "yourPAPISID",
-  "psid": "yourPSID"
-}
-```
-
-\
-Uncomment the `localhost` node in `lavalink.js` to make sure your bot actually connects to your Lavalink instance.
-
+Uncomment the `localhost` node in `lavalink.ts` to make sure your bot actually connects to your Lavalink instance.\
+You can use the hosted lavalink in parallel to your local instance as a redundant fallback.
 
 ---
 
@@ -206,6 +203,6 @@ For more information, please refer to the license.
 
 <div align="center">
 
-[Back to top 🡅](#readme)
+[Back to top 🡅](#kalliope)
 
 </div>

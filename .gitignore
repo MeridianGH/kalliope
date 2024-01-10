@@ -1,6 +1,6 @@
 node_modules/
 .idea/
-config.json
-package-lock.json
-music/lavalink/logs/
-music/lavalink/application.yml
+.env
+dist/
+docs/
+lavalink/application.yml

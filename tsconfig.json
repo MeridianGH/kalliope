@@ -1,0 +1,24 @@
+{
+  "include": ["./src/**/*"],
+  "compilerOptions": {
+    "outDir": "./dist",
+    "module": "ES2022",
+    "target": "ES2022",
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true
+  },
+  "typedocOptions": {
+    "entryPointStrategy": "expand",
+    "entryPoints": "./src",
+    "name": "Kalliope | Docs",
+    "plugin": ["typedoc-theme-hierarchy", "typedoc-plugin-extras"],
+    "theme": "hierarchy",
+    "navigationLinks": {
+      "GitHub": "https://github.com/MeridianGH/Kalliope",
+      "Dashboard": "https://kalliope.cc"
+    },
+    "favicon": "https://raw.githubusercontent.com/MeridianGH/MeridianGH/main/images/kalliope.png",
+    "footerLastModified": true
+  }
+}

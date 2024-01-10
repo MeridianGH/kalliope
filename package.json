@@ -1,32 +1,45 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "name": "kalliope",
   "description": "A Discord music bot that still supports most platforms.",
   "homepage": "https://kalliope.cc",
   "author": "Meridian",
-  "license": "Apache-2.0",
-  "main": "main.js",
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node .",
+    "dev": "npm run build && node --enable-source-maps . development",
+    "deploy": "npm run build && node dist/utilities/deployCommands.js",
+    "docs": "typedoc"
+  },
+  "main": "dist/main.js",
   "type": "module",
   "engines": {
-    "node": ">=16.0"
+    "node": ">=20.0"
   },
   "dependencies": {
-    "@discordjs/rest": "^2.0.1",
-    "discord-api-types": "^0.37.60",
-    "discord.js": "^14.12.1",
+    "@discordjs/rest": "^2.2.0",
+    "discord-api-types": "^0.37.67",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1",
     "genius-lyrics": "^4.4.6",
-    "isomorphic-unfetch": "^4.0.2",
     "js-yaml": "^4.1.0",
     "lavalink-client": "github:tomato6966/lavalink-client",
-    "spotify-url-info": "^3.2.9",
-    "undici": "^5.26.2",
-    "websocket": "^1.0.34",
-    "ws": "^8.14.2",
-    "ytdl-core": "^4.11.5",
-    "ytpl": "^2.3.0"
+    "node-fetch": "^3.3.2",
+    "spotify-url-info": "^3.2.10",
+    "ws": "^8.16.0",
+    "ytdl-core": "^4.11.5"
   },
   "devDependencies": {
-    "eslint": "^8.51.0",
-    "eslint-plugin-jsdoc": "^46.9.0"
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.10.8",
+    "@typescript-eslint/eslint-plugin": "^6.18.1",
+    "@typescript-eslint/parser": "^6.18.1",
+    "eslint": "^8.56.0",
+    "eslint-plugin-jsdoc": "^48.0.2",
+    "typedoc": "^0.25.7",
+    "typedoc-plugin-extras": "^3.0.0",
+    "typedoc-theme-hierarchy": "^4.1.2",
+    "typescript": "^5.3.3"
   }
 }
