@@ -167,7 +167,7 @@ export class Lavalink {
     }
 
     // Channel empty
-    if (!newState.channelId && oldState.channel.members.filter((member) => member.id !== me.id)) {
+    if (!newState.channelId && newState.channel.members.filter((member) => member.id !== me.id).size > 0) {
       const textChannel = this.client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
       textChannel?.send(simpleEmbed('Left the voice channel because it was empty.'))
       await player.destroy()
