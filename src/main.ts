@@ -5,6 +5,8 @@ import { logging } from './utilities/logging.js'
 import { getFilesRecursively } from './utilities/utilities.js'
 import 'dotenv/config'
 
+import { Runtime } from 'node:inspector'
+
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates], presence: { status: 'online', activities: [{ name: 'kalliope.cc', type: ActivityType.Listening }] } })
 client.lavalink = new Lavalink(client)
 await client.lavalink.initialize()
@@ -33,7 +35,7 @@ process.on('uncaughtException', (error) => {
 })
 process.on('unhandledRejection', (reason) => {
   logging.warn(`Unhandled promise rejection: ${reason}`)
-  logging.error(reason.toString())
+  logging.error((reason as { stack?: Runtime.StackTrace } | undefined)?.stack ?? reason)
 })
 
 /**
