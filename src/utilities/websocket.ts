@@ -181,7 +181,7 @@ export class WebSocketConnector {
    */
   updatePlayer(player: Player | null, guildId?: string): void {
     this.send('playerData', {
-      guildId: player.guildId ?? guildId,
+      guildId: player?.guildId ?? guildId,
       player: simplifyPlayer(player)
     })
   }
