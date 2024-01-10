@@ -147,19 +147,6 @@ npm run deploy -- clear [guildId]
 
 Install the latest version of **[Java](https://www.oracle.com/java/technologies/downloads/)** available.
 
-If you encounter any issues with playback later, try installing OpenJDK 13.0.2 instead of the latest Java version:
-
-<details>
-<summary style="cursor: pointer">OpenJDK 13.0.2</summary>
-
-> Download the OpenJDK 13.0.2 installer either from the official **[Oracle Archive website](https://www.oracle.com/java/technologies/javase/jdk13-archive-downloads.html)** (Account creation required)\
-**OR**\
-download the binaries from the **[Java Archives](https://jdk.java.net/archive)** and unzip it to a location you can remember.\
-\
-Regardless of your method, make sure to add the `/bin` folder to your path variable. If you don't know how to do that, a quick Google search will help you.
-
-</details>
-
 Make sure Java is installed properly by running `java --version` in your terminal. If it displays the correct version, you are good to go!
 
 If you are experiencing issues with age- or region-restricted videos, get your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**.\

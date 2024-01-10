@@ -1,6 +1,5 @@
 import fetch from 'node-fetch'
 import spotifyUrlInfo from 'spotify-url-info'
-import ytpl from 'ytpl'
 import { LoadTypes } from './lavalink.js'
 import { Player, SearchResult, Track } from 'lavalink-client'
 import { Requester, SpotifyTrackInfo } from '../types/types'
@@ -45,13 +44,11 @@ export class ExtendedSearch {
     if (query.match(playlistRegex)) {
       try {
         const result = await this._search(query, requestedBy) as SearchResult
-        const data = ytpl.validateID(query) ? await ytpl(query) : null
         result.playlist = {
           ...result.playlist,
-          name: data.title,
-          author: data.author.name,
-          thumbnail: data.bestThumbnail.url,
-          uri: data.url
+          thumbnail: await this.getBestThumbnail(result.tracks[0]),
+          uri: query,
+          duration: result.tracks.map((track) => track.info.duration).reduce((acc, cur) => acc + cur)
         }
         return result
       } catch (e) {

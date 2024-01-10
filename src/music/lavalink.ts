@@ -5,7 +5,7 @@ import http from 'http'
 import yaml from 'js-yaml'
 import { LavalinkManager, Player, SearchResult } from 'lavalink-client'
 import { logging } from '../utilities/logging.js'
-import { durationOrLive, errorEmbed, simpleEmbed } from '../utilities/utilities.js'
+import { durationOrLive, errorEmbed, msToHMS, simpleEmbed } from '../utilities/utilities.js'
 import { CustomFilters } from './customFilters.js'
 import { ExtendedSearch } from './extendedSearch.js'
 import { LavalinkYML, Requester } from '../types/types'
@@ -73,17 +73,16 @@ export class Lavalink {
 
     if (await this._portInUse(doc.server.port)) {
       logging.warn(`[Lavalink]  A server (possibly Lavalink) is already active on port ${doc.server.port}.`)
-      logging.warn('[Lavalink]  Continuing, but expect errors if the server already running isn\'t Lavalink.')
       return
     }
 
     return new Promise((resolve) => {
       const timeout = setTimeout(() => {
         logging.error('[Lavalink]  Failed to start Lavalink within 30s.')
-        process.exit()
+        resolve()
       }, 30000)
 
-      const lavalink = spawn(`cd ${process.cwd()}/lavalink && java -jar Lavalink.jar`, { shell: true })
+      const lavalink = spawn(`cd ${path.join(process.cwd(), 'lavalink')} && java -jar Lavalink.jar`, { shell: true })
       const onData = (chunk: Buffer | string) => {
         const data = chunk.toString().trim()
         if (data.includes('Undertow started')) {
@@ -95,7 +94,7 @@ export class Lavalink {
           logging.error('[Lavalink]  Failed to start Lavalink.')
           lavalink.stdout.removeListener('data', onData)
           clearTimeout(timeout)
-          process.exit()
+          resolve()
         }
       }
       lavalink.stdout.on('data', onData)
@@ -228,8 +227,8 @@ export class Lavalink {
         { name: 'Author', value: info.author, inline: true },
         { name: 'Position', value: player.queue.tracks.length.toString(), inline: true }
       ] : [
+        { name: 'Duration', value: msToHMS(info.duration), inline: true },
         { name: 'Amount', value: result.tracks.length + ' songs', inline: true },
-        { name: 'Author', value: info.author, inline: true },
         { name: 'Position', value: `${player.queue.tracks.length - result.tracks.length + 1}-${player.queue.tracks.length}`, inline: true }
       ])
       .setFooter({ text: 'Kalliope', iconURL: this.client.user.displayAvatarURL() })
