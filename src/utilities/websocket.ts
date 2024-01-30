@@ -53,7 +53,7 @@ function simplifyPlayer(player: Player) {
  * @param data The data object containing the action information.
  */
 async function executePlayerAction(client: Client, player: Player, data: WSData): Promise<void> {
-  const textChannel = this.client.channels.cache.get(player?.textChannelId) as GuildTextBasedChannel
+  const textChannel = client.channels.cache.get(player?.textChannelId) as GuildTextBasedChannel
   if (!textChannel) { return }
   switch (data.type) {
     case 'pause': {
