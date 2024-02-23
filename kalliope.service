@@ -1,0 +1,13 @@
+[Unit]
+Description=Kalliope
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=5
+ExecStart=/bin/bash -c "cd /home/kalliope/Kalliope; npm run start"
+
+[Install]
+WantedBy=default.target

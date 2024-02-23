@@ -167,6 +167,33 @@ Start the bot using:
 node .
 ```
 
+<br>
+
+<details>
+<summary style="cursor: pointer"><b>Advanced: systemd unit file</b></summary>
+
+When running Kalliope on a Linux server, chances are that you want to run it 24/7.\
+If so, you'll find a sample systemd unit file in this repository.
+
+This unit file assumes that you created a user `Kalliope` and placed this repository under `~/Kalliope/`
+
+Copy this unit file to `/etc/systemd/user/` using following command:
+```
+sudo cp kalliope.service /etc/systemd/user/
+```
+
+Use the following commands to reload systemd and enable the service:
+```
+sudo systemctl daemon-reload
+systemctl --user enable kalliope
+```
+
+Use `systemctl --user start kalliope` to start the service and `systemctl --user status kalliope` to check its status.
+To view the logs use `journalctl --user-unit kalliope`.
+---
+
+</details>
+
 ---
 
 ## Stats
