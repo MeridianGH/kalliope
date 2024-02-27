@@ -175,11 +175,11 @@ node .
 When running Kalliope on a Linux server, chances are that you want to run it 24/7.\
 If so, you'll find a sample systemd unit file in this repository.
 
-This unit file assumes that you created a user `Kalliope` and placed this repository under `~/Kalliope/`
+This unit file assumes that you created a user `kalliope` and placed this repository under `~/Kalliope/`
 
 Copy this unit file to `/etc/systemd/user/` using following command:
 ```shell
-sudo cp kalliope.service /etc/systemd/user/
+sudo cp kalliope.service /etc/systemd/system/
 ```
 
 Use the following commands to reload systemd and enable the service:
@@ -187,7 +187,7 @@ Use the following commands to reload systemd and enable the service:
 sudo systemctl daemon-reload
 ```
 ```shell
-systemctl --user enable kalliope
+sudo systemctl enable kalliope
 ```
 
 Use `systemctl --user start kalliope` to start the service and `systemctl --user status kalliope` to check its status.

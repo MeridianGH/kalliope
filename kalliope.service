@@ -8,6 +8,7 @@ Type=simple
 Restart=on-failure
 RestartSec=5
 ExecStart=/bin/bash -c "cd /home/kalliope/Kalliope; npm run start"
+User=kalliope
 
 [Install]
 WantedBy=default.target
