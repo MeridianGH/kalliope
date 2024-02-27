@@ -178,13 +178,15 @@ If so, you'll find a sample systemd unit file in this repository.
 This unit file assumes that you created a user `Kalliope` and placed this repository under `~/Kalliope/`
 
 Copy this unit file to `/etc/systemd/user/` using following command:
-```
+```shell
 sudo cp kalliope.service /etc/systemd/user/
 ```
 
 Use the following commands to reload systemd and enable the service:
-```
+```shell
 sudo systemctl daemon-reload
+```
+```shell
 systemctl --user enable kalliope
 ```
 
