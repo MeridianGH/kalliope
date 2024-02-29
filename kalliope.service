@@ -5,10 +5,10 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-Restart=on-failure
+Restart=always
 RestartSec=5
 ExecStart=/bin/bash -c "cd /home/kalliope/Kalliope; npm run start"
 User=kalliope
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target
