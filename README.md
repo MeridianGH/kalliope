@@ -13,7 +13,7 @@
 <b>A Discord music bot that still supports most platforms.</b>
 
 </div>
-<br/>
+<br>
 
 <details>
 <summary style="cursor: pointer"><b>Table of Contents</b></summary>
@@ -98,7 +98,7 @@ Kalliope uses slash commands to integrate itself into the server. You can easily
 
 Install the latest version available.
 
-<br/>
+<br>
 
 ### Getting started
 
@@ -111,7 +111,7 @@ npm install
 
 Alternatively use **[GitHub Desktop](https://desktop.github.com/)** or download as **[.zip](https://github.com/MeridianGH/Kalliope/archive/refs/heads/main.zip)**.
 
-<br/>
+<br>
 
 ### Configuration
 Rename or copy `.env.example` to `.env` and replace the placeholders inside with your info:
@@ -122,6 +122,7 @@ Rename or copy `.env.example` to `.env` and replace the placeholders inside with
 Run `npm run deploy` _**once**_ to synchronize the commands with Discord.\
 You only need to run this during the initial setup or when you install a new update that changes some commands.
 
+<br>
 
 <details>
 <summary style="cursor: pointer"><b>Advanced: Guild Commands</b></summary>
@@ -140,7 +141,7 @@ npm run deploy -- clear [guildId]
 
 </details>
 
-<br/>
+<br>
 
 <details>
 <summary style="cursor: pointer"><b>Optional: Lavalink</b></summary>
@@ -159,7 +160,7 @@ You can use the hosted lavalink in parallel to your local instance as a redundan
 
 </details>
 
-<br/>
+<br>
 
 ### Run
 Start the bot using:
