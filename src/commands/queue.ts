@@ -1,7 +1,14 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonComponent, ButtonStyle, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonComponent,
+  ButtonStyle,
+  EmbedBuilder,
+  SlashCommandBuilder
+} from 'discord.js'
 import { genericChecks } from '../utilities/checks.js'
 import { logging } from '../utilities/logging.js'
-import { durationOrLive, formatRepeatMode, msToHMS } from '../utilities/utilities.js'
+import { durationOrLive, formatMusicFooter, msToHMS } from '../utilities/utilities.js'
 import { TrackInfo, UnresolvedTrackInfo } from 'lavalink-client'
 import { CommandStructure } from '../types/types.js'
 
@@ -48,7 +55,7 @@ export const { data, execute }: CommandStructure = {
         .setAuthor({ name: 'Queue.', iconURL: interaction.member.displayAvatarURL() })
         .setDescription(header + tracksText + footer)
         .setFooter({
-          text: `Kalliope | Page ${fromIndex / 10 + 1}/${Math.ceil(queue.tracks.length / 10)} | Repeat: ` + formatRepeatMode(player.repeatMode),
+          text: `Kalliope | Page ${fromIndex / 10 + 1}/${Math.ceil(queue.tracks.length / 10)} | ${formatMusicFooter(player)}`,
           iconURL: interaction.client.user.displayAvatarURL()
         })
 
@@ -63,7 +70,7 @@ export const { data, execute }: CommandStructure = {
           'No upcoming songs.\nAdd songs with `/play`!\n' +
           '\u2015'.repeat(34))
         .setFooter({
-          text: 'Kalliope | Page 1/1 | Repeat: ' + formatRepeatMode(player.repeatMode),
+          text: `Kalliope | Page 1/1 | ${formatMusicFooter(player)}`,
           iconURL: interaction.client.user.displayAvatarURL()
         })
 

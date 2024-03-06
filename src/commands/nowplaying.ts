@@ -1,6 +1,6 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { genericChecks } from '../utilities/checks.js'
-import { addMusicControls, formatRepeatMode, msToHMS } from '../utilities/utilities.js'
+import { addMusicControls, formatMusicFooter, msToHMS } from '../utilities/utilities.js'
 import { CommandStructure } from '../types/types.js'
 
 export const { data, execute }: CommandStructure = {
@@ -27,7 +27,7 @@ export const { data, execute }: CommandStructure = {
         { name: 'Author', value: trackInfo.author, inline: true },
         { name: 'Requested By', value: track.requester.toString(), inline: true }
       ])
-      .setFooter({ text: `Kalliope | Repeat: ${formatRepeatMode(player.repeatMode)}`, iconURL: interaction.client.user.displayAvatarURL() })
+      .setFooter({ text: `Kalliope | ${formatMusicFooter(player)}`, iconURL: interaction.client.user.displayAvatarURL() })
 
     if (track.pluginInfo.uri) { embed.setDescription(`This track has been resolved on [YouTube](${track.pluginInfo.uri}).`) }
 

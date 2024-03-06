@@ -5,14 +5,14 @@ import http from 'http'
 import yaml from 'js-yaml'
 import { LavalinkManager, Player, SearchResult } from 'lavalink-client'
 import { logging } from '../utilities/logging.js'
-import { durationOrLive, errorEmbed, msToHMS, simpleEmbed } from '../utilities/utilities.js'
+import { durationOrLive, errorEmbed, formatMusicFooter, msToHMS, simpleEmbed } from '../utilities/utilities.js'
 import { CustomFilters } from './customFilters.js'
 import { ExtendedSearch } from './extendedSearch.js'
 import { LavalinkYML, Requester } from '../types/types'
 import path from 'path'
 
 export class Lavalink {
-  private client: Client
+  private readonly client: Client
   manager: LavalinkManager
   constructor(client: Client) {
     this.client = client
@@ -32,6 +32,7 @@ export class Lavalink {
         }
       ],
       sendToShard: (guildId, payload) => client.guilds.cache.get(guildId)?.shard?.send(payload),
+      playerOptions: { onEmptyQueue: { autoPlayFunction: (player, lastTrack) => player.searchAutoplay(this.client, lastTrack) } },
       queueOptions: { maxPreviousTracks: 10 }
     })
 
@@ -231,7 +232,7 @@ export class Lavalink {
         { name: 'Amount', value: result.tracks.length + ' songs', inline: true },
         { name: 'Position', value: `${player.queue.tracks.length - result.tracks.length + 1}-${player.queue.tracks.length}`, inline: true }
       ])
-      .setFooter({ text: 'Kalliope', iconURL: this.client.user.displayAvatarURL() })
+      .setFooter({ text: `Kalliope | ${formatMusicFooter(player)}`, iconURL: this.client.user.displayAvatarURL() })
   }
 }
 

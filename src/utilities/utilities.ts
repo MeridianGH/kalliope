@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { iconURL } from '../events/ready.js'
 import { logging } from './logging.js'
-import { Player, RepeatMode, TrackInfo, UnresolvedTrackInfo } from 'lavalink-client'
+import { Player, TrackInfo, UnresolvedTrackInfo } from 'lavalink-client'
 
 /**
  * Builds a simple embed object with default settings used as a parameter in message functions.
@@ -89,12 +89,12 @@ export function durationOrLive(trackInfo: TrackInfo | UnresolvedTrackInfo) {
 }
 
 /**
- * Returns a formatted string with emojis based on the repeat mode.
- * @param repeatMode The current mode.
+ * Returns a text string used for music embed footers.
+ * @param player The active player.
  * @returns The formatted string.
  */
-export function formatRepeatMode(repeatMode: RepeatMode) {
-  return repeatMode === 'queue' ? '🔁 Queue' : repeatMode === 'track' ? '🔂 Track' : '❌'
+export function formatMusicFooter(player: Player) {
+  return `Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'} | Autoplay: ${player.get('autoplay') ? '✅' : '❌'}`
 }
 
 /**
@@ -142,7 +142,7 @@ export async function addMusicControls(message: Message, player: Player): Promis
     .setEmoji('⏹️')
     .setStyle(ButtonStyle.Secondary)
   const dashboardButton = new ButtonBuilder()
-    .setURL(`https://kalliope.cc/dashboard/${message.guildId}`)
+    .setURL('https://kalliope.cc/dashboard')
     .setLabel('Dashboard')
     .setStyle(ButtonStyle.Link)
 
@@ -193,7 +193,14 @@ export async function addMusicControls(message: Message, player: Player): Promis
         break
       }
       case 'skip': {
+        console.log(player.queue.previous)
         if (player.queue.tracks.length === 0) {
+          if (player.get('autoplay')) {
+            // await player.skip(0, false)
+            await player.stopPlaying(false, true)
+            await buttonInteraction.reply(simpleEmbed('⏭️ Skipped', true))
+            break
+          }
           await player.destroy()
           await buttonInteraction.reply(simpleEmbed('⏹️ Stopped', true))
           break

@@ -1,6 +1,12 @@
-import { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js'
+import {
+  ActionRowBuilder,
+  EmbedBuilder,
+  SlashCommandBuilder,
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction
+} from 'discord.js'
 import { loadChecks, playChecks } from '../utilities/checks.js'
-import { addMusicControls, errorEmbed, msToHMS } from '../utilities/utilities.js'
+import { addMusicControls, errorEmbed, formatMusicFooter, msToHMS } from '../utilities/utilities.js'
 import { SearchResult, Track, UnresolvedTrack } from 'lavalink-client'
 import { CommandStructure } from '../types/types.js'
 
@@ -80,7 +86,7 @@ export const { data, execute }: CommandStructure = {
           { name: 'Author', value: track.info.author, inline: true },
           { name: 'Position', value: player.queue.tracks.length.toString(), inline: true }
         ])
-        .setFooter({ text: 'Kalliope', iconURL: interaction.client.user.displayAvatarURL() })
+        .setFooter({ text: `Kalliope | ${formatMusicFooter(player)}`, iconURL: interaction.client.user.displayAvatarURL() })
 
       const message = await menuInteraction.editReply({ embeds: [embed], components: [] })
       collector.stop()

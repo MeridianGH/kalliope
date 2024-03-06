@@ -16,6 +16,12 @@ export const { data, execute }: CommandStructure = {
     if (index > player.queue.tracks.length && player.queue.tracks.length > 0) { return await interaction.reply(errorEmbed(`You can only specify a song number between 1-${player.queue.tracks.length}.`)) }
 
     if (player.queue.tracks.length === 0) {
+      if (player.get('autoplay')) {
+        // await player.skip(0, false)
+        await player.stopPlaying(false, true)
+        await interaction.reply(simpleEmbed('⏭️ Skipped.'))
+        return
+      }
       await player.destroy()
       await interaction.reply(simpleEmbed('⏹️ Stopped.'))
       return

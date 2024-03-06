@@ -11,6 +11,6 @@ export const { data, execute }: EventStructure<'ready'> = {
     logging.success(`${client.user.tag} connected to Discord at ${date}`)
     iconURL = client.user.displayAvatarURL()
     client.websocket = new WebSocketConnector(client)
-    client.websocket.connect()
+    // client.websocket.connect()
   }
 }
