@@ -6,7 +6,7 @@
   "author": "Meridian",
   "license": "GPL-3.0-only",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build --verbose",
     "start": "npm run build && node .",
     "dev": "npm run build && node --enable-source-maps . development",
     "deploy": "npm run build && node dist/utilities/deployCommands.js",
