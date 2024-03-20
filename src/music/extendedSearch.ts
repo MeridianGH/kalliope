@@ -4,6 +4,8 @@ import { LoadTypes } from './lavalink.js'
 import { Player, SearchResult, Track } from 'lavalink-client'
 import { Requester, SpotifyTrackInfo } from '../types/types'
 import { logging } from '../utilities/logging.js'
+import { Client, EmbedBuilder, GuildTextBasedChannel } from 'discord.js'
+import { addMusicControls, durationOrLive, formatMusicFooter } from '../utilities/utilities.js'
 
 const spotify = spotifyUrlInfo(fetch)
 
@@ -12,14 +14,18 @@ const spotify = spotifyUrlInfo(fetch)
  * with one that provides more functionality.
  */
 export class ExtendedSearch {
+  private readonly player: Player
   private readonly _search: Player['search']
+
   /**
    * Attaches this plugin to the player.
    * @param player The player to attach to.
    */
   constructor(player: Player) {
+    this.player = player
     this._search = player.search.bind(player)
     player.search = this.search.bind(this)
+    player.searchAutoplay = this.executeAutoplay.bind(this)
     player.set('plugins', { ...player.get<Player['plugins']>('plugins'), extendedSearch: true })
   }
 
@@ -95,6 +101,45 @@ export class ExtendedSearch {
     return search
   }
 
+  async executeAutoplay(client: Client, lastTrack: Track) {
+    if (!this.player.get('autoplay') || !lastTrack) { return }
+
+    const textChannel = client.channels.cache.get(this.player?.textChannelId) as GuildTextBasedChannel
+
+    let result: SearchResult
+    if (lastTrack.info.sourceName === 'youtube' || lastTrack.info.sourceName === 'youtubemusic') {
+      result = await this._search({
+        query: `https://www.youtube.com/watch?v=${lastTrack.info.identifier}&list=RD${lastTrack.info.identifier}`,
+        source: 'youtube'
+      }, lastTrack.requester as Requester) as SearchResult
+    }
+
+    const track = result.tracks.find((track) => !this.isInPrevious(track))
+
+    if (result.loadType === LoadTypes.error || !track || result.loadType === LoadTypes.empty) {
+      return this.executeAutoplay(client, lastTrack)
+    }
+
+    track.pluginInfo.clientData.fromAutoplay = true
+    await this.player.queue.add(track)
+    if (!this.player.playing && !this.player.paused) { await this.player.play() }
+
+    const info = track.info
+    const embed = new EmbedBuilder()
+      .setAuthor({ name: 'Added from autoplay.', iconURL: (result.tracks[0].requester as Requester).displayAvatarURL() })
+      .setTitle(info.title)
+      .setURL(info.uri)
+      .setThumbnail(info.artworkUrl)
+      .addFields([
+        { name: 'Duration', value: durationOrLive(info), inline: true },
+        { name: 'Author', value: info.author, inline: true },
+        { name: 'Position', value: this.player.queue.tracks.length.toString(), inline: true }
+      ])
+      .setFooter({ text: `Kalliope | ${formatMusicFooter(this.player)}`, iconURL: client.user.displayAvatarURL() })
+    const message = await textChannel.send({ embeds: [embed] })
+    await addMusicControls(message, this.player)
+  }
+
   /**
    * Resolves a single track on Spotify.
    * @param query The Spotify URL to resolve.
@@ -156,8 +201,8 @@ export class ExtendedSearch {
       tracks.find((track) => track.info.author.endsWith('- Topic') || track.info.author === data.author) ??
       tracks[0]
     if (!track) { return await this.findClosestTrack(data, requestedBy, retries - 1) }
-    track.info = { ...track.info, ...data }
     track.pluginInfo = { ...track.pluginInfo, uri: track.info.uri }
+    track.info = { ...track.info, ...data }
     return track
   }
 
@@ -181,5 +226,14 @@ export class ExtendedSearch {
       if ((await fetch(thumbnail)).ok) { return thumbnail }
     }
     return track.info.artworkUrl
+  }
+
+  /**
+   * Checks if a track is in the previously played tracks.
+   * @param track The track to check for.
+   * @returns If the track has been previously played.
+   */
+  isInPrevious(track: Track) {
+    return this.player.queue.previous.some((previousTrack) => previousTrack.info.identifier === track.info.identifier)
   }
 }

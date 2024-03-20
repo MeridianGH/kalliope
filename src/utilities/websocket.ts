@@ -67,6 +67,12 @@ async function executePlayerAction(client: Client, player: Player, data: WSData)
         await player.skip(data.index)
         await textChannel.send(simpleEmbed(`⏭️ Skipped to \`#${data.index}\`: **${track.info.title}**.`))
       } else if (player.queue.tracks.length === 0) {
+        if (player.get('autoplay')) {
+          // await player.skip(0, false)
+          await player.stopPlaying(false, true)
+          await textChannel.send(simpleEmbed('⏭️ Skipped.'))
+          break
+        }
         await player.destroy()
         await textChannel.send(simpleEmbed('⏹️ Stopped.'))
       } else {

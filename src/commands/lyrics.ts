@@ -1,10 +1,17 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonComponent, ButtonStyle, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonComponent,
+  ButtonStyle,
+  EmbedBuilder,
+  SlashCommandBuilder
+} from 'discord.js'
 import { Client as GeniusClient } from 'genius-lyrics'
 import ytdl from 'ytdl-core'
 import { genericChecks } from '../utilities/checks.js'
 import { logging } from '../utilities/logging.js'
 import { CommandStructure } from '../types/types.js'
-import { formatRepeatMode } from '../utilities/utilities.js'
+import { formatMusicFooter } from '../utilities/utilities.js'
 
 const Genius = new GeniusClient(process.env.GENIUS_CLIENT_TOKEN)
 
@@ -57,7 +64,7 @@ export const { data, execute }: CommandStructure = {
         .setThumbnail(trackInfo.artworkUrl)
         .setDescription(pages[0])
         .setFooter({
-          text: `Kalliope | Repeat: ${formatRepeatMode(player.repeatMode)} | Provided by genius.com`,
+          text: `Kalliope | ${formatMusicFooter(player)} | Provided by genius.com`,
           iconURL: interaction.client.user.displayAvatarURL()
         })
 
@@ -79,7 +86,7 @@ export const { data, execute }: CommandStructure = {
                 .setThumbnail(trackInfo.artworkUrl)
                 .setDescription(pages[currentIndex])
                 .setFooter({
-                  text: `Kalliope | Repeat: ${formatRepeatMode(interaction.client.lavalink.getPlayer(interaction.guildId).repeatMode)} | Provided by genius.com`,
+                  text: `Kalliope | ${formatMusicFooter(interaction.client.lavalink.getPlayer(interaction.guildId))} | Provided by genius.com`,
                   iconURL: interaction.client.user.displayAvatarURL()
                 })
             ],
@@ -103,7 +110,7 @@ export const { data, execute }: CommandStructure = {
             .setThumbnail(trackInfo.artworkUrl)
             .setDescription('No results found!')
             .setFooter({
-              text: `Kalliope | Repeat: ${formatRepeatMode(interaction.client.lavalink.getPlayer(interaction.guildId).repeatMode)} | Provided by genius.com`,
+              text: `Kalliope | ${formatMusicFooter(interaction.client.lavalink.getPlayer(interaction.guildId))} | Provided by genius.com`,
               iconURL: interaction.client.user.displayAvatarURL()
             })
         ]
