@@ -1,5 +1,14 @@
 import { spawn } from 'child_process'
-import { ChannelType, ChatInputCommandInteraction, Client, EmbedBuilder, GuildMember, GuildTextBasedChannel, VoiceState } from 'discord.js'
+import {
+  BaseGuildVoiceChannel,
+  ChannelType,
+  ChatInputCommandInteraction,
+  Client,
+  EmbedBuilder,
+  GuildMember,
+  GuildTextBasedChannel,
+  VoiceState
+} from 'discord.js'
 import fs from 'fs'
 import http from 'http'
 import yaml from 'js-yaml'
@@ -171,10 +180,14 @@ export class Lavalink {
     }
 
     // Channel empty
-    if (!newState.channelId && newState.channel.members.filter((member) => member.id !== me.id).size > 0) {
-      const textChannel = this.client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
-      textChannel?.send(simpleEmbed('Left the voice channel because it was empty.'))
-      await player.destroy()
+    if (!newState.channel) {
+      const voiceChannel = this.client.channels.cache.get(oldState.channelId) as BaseGuildVoiceChannel
+      if (voiceChannel.members.filter((member) => member.id !== me.id).size === 0) {
+        const textChannel = this.client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
+        textChannel?.send(simpleEmbed('Left the voice channel because it was empty.'))
+        await player.destroy()
+      }
+      return
     }
   }
 

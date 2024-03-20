@@ -191,8 +191,8 @@ sudo systemctl daemon-reload
 sudo systemctl enable kalliope
 ```
 
-Use `systemctl --user start kalliope` to start the service and `systemctl --user status kalliope` to check its status.
-To view the logs use `journalctl --user-unit kalliope`.
+Use `systemctl start kalliope` to start the service and `systemctl status kalliope` to check its status.
+To view the logs use `journalctl -u kalliope`.
 
 ---
 
