@@ -193,7 +193,6 @@ export async function addMusicControls(message: Message, player: Player): Promis
         break
       }
       case 'skip': {
-        console.log(player.queue.previous)
         if (player.queue.tracks.length === 0) {
           if (player.get('autoplay')) {
             // await player.skip(0, false)

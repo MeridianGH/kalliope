@@ -6,7 +6,6 @@ import { Requester, SpotifyTrackInfo } from '../types/types'
 import { logging } from '../utilities/logging.js'
 import { Client, EmbedBuilder, GuildTextBasedChannel } from 'discord.js'
 import { addMusicControls, durationOrLive, formatMusicFooter } from '../utilities/utilities.js'
-import { log } from 'node:util'
 
 const spotify = spotifyUrlInfo(fetch)
 
@@ -16,7 +15,7 @@ const spotify = spotifyUrlInfo(fetch)
  */
 export class ExtendedSearch {
   private readonly player: Player
-  private readonly _search: any
+  private readonly _search: Player['search']
 
   /**
    * Attaches this plugin to the player.
@@ -26,7 +25,7 @@ export class ExtendedSearch {
     this.player = player
     this._search = player.search.bind(player)
     player.search = this.search.bind(this)
-    player.searchAutoplay = this.searchAutoplay.bind(this)
+    player.searchAutoplay = this.executeAutoplay.bind(this)
     player.set('plugins', { ...player.get<Player['plugins']>('plugins'), extendedSearch: true })
   }
 
@@ -93,7 +92,6 @@ export class ExtendedSearch {
     }
 
     // Use best thumbnail available
-    console.log(this._search)
     const search = await this._search(query, requestedBy) as SearchResult
     for (const track of search.tracks) {
       track.info.artworkUrl = await this.getBestThumbnail(track)
@@ -103,29 +101,28 @@ export class ExtendedSearch {
     return search
   }
 
-  async searchAutoplay(client: Client, lastTrack: Track) {
+  async executeAutoplay(client: Client, lastTrack: Track) {
     if (!this.player.get('autoplay') || !lastTrack) { return }
 
     const textChannel = client.channels.cache.get(this.player?.textChannelId) as GuildTextBasedChannel
 
     let result: SearchResult
     if (lastTrack.info.sourceName === 'youtube' || lastTrack.info.sourceName === 'youtubemusic') {
-      console.log(this._search)
       result = await this._search({
         query: `https://www.youtube.com/watch?v=${lastTrack.info.identifier}&list=RD${lastTrack.info.identifier}`,
         source: 'youtube'
       }, lastTrack.requester as Requester) as SearchResult
     }
 
-    console.log(this.player.queue.previous)
     const track = result.tracks.find((track) => !this.isInPrevious(track))
 
     if (result.loadType === LoadTypes.error || !track || result.loadType === LoadTypes.empty) {
-      return this.searchAutoplay(client, lastTrack)
+      return this.executeAutoplay(client, lastTrack)
     }
 
     track.pluginInfo.clientData.fromAutoplay = true
     await this.player.queue.add(track)
+    if (!this.player.playing && !this.player.paused) { await this.player.play() }
 
     const info = track.info
     const embed = new EmbedBuilder()
@@ -237,9 +234,6 @@ export class ExtendedSearch {
    * @returns If the track has been previously played.
    */
   isInPrevious(track: Track) {
-    return this.player.queue.previous.some((previousTrack) => {
-      console.log(previousTrack.info.identifier, track.info.identifier)
-      return previousTrack.info.identifier === track.info.identifier
-    })
+    return this.player.queue.previous.some((previousTrack) => previousTrack.info.identifier === track.info.identifier)
   }
 }

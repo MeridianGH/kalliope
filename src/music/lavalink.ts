@@ -32,7 +32,6 @@ export class Lavalink {
         }
       ],
       sendToShard: (guildId, payload) => client.guilds.cache.get(guildId)?.shard?.send(payload),
-      playerOptions: { onEmptyQueue: { autoPlayFunction: (player, lastTrack) => player.searchAutoplay(this.client, lastTrack) } },
       queueOptions: { maxPreviousTracks: 10 }
     })
 
@@ -45,7 +44,11 @@ export class Lavalink {
         await textChannel?.send(errorEmbed(`⏭️ Track **${player.queue.current.info.title}** got stuck, skipping...`))
         await player.skip()
       })
-      .on('queueEnd', (player) => {
+      .on('queueEnd', (player, track) => {
+        if (player.get('autoplay')) {
+          player.searchAutoplay(this.client, track)
+          return
+        }
         client.websocket.updatePlayer(player)
         setTimeout(async () => { if (!player.playing && !player.queue.current) { await player.destroy() } }, 30000)
       })

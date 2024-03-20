@@ -58,7 +58,6 @@ export function playChecks(interaction: ChatInputCommandInteraction<'cached'>): 
  */
 export function loadChecks(interaction: ChatInputCommandInteraction<'cached'>, result: SearchResult): boolean {
   if (result.loadType === LoadTypes.error) {
-    console.log(result.exception)
     interaction.editReply(errorEmbed('There was an error while adding your song to the queue.'))
     return false
   }
