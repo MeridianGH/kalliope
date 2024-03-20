@@ -204,8 +204,8 @@ export class ExtendedSearch {
       tracks.find((track) => track.info.author.endsWith('- Topic') || track.info.author === data.author) ??
       tracks[0]
     if (!track) { return await this.findClosestTrack(data, requestedBy, retries - 1) }
-    track.info = { ...track.info, ...data }
     track.pluginInfo = { ...track.pluginInfo, uri: track.info.uri }
+    track.info = { ...track.info, ...data }
     return track
   }
 
