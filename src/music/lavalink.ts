@@ -55,7 +55,7 @@ export class Lavalink {
       })
       .on('queueEnd', (player, track) => {
         if (player.get('autoplay')) {
-          player.searchAutoplay(this.client, track)
+          player.executeAutoplay(this.client, track)
           return
         }
         client.websocket.updatePlayer(player)

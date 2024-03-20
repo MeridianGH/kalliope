@@ -4,7 +4,8 @@ import { WebSocketConnector } from '../utilities/websocket.js'
 import { CustomFilters } from '../music/customFilters.js'
 import { CommandStructure } from './types.js'
 import { levels } from '../utilities/logging.js'
-import { Track } from 'lavalink-client/dist'
+import { Track, SearchResult } from 'lavalink-client/dist'
+import { Requester } from './types'
 
 declare global {
   namespace NodeJS {
@@ -33,7 +34,8 @@ declare module 'lavalink-client' {
   // noinspection JSUnusedGlobalSymbols
   interface Player {
     filters: CustomFilters,
-    searchAutoplay: (client: Client, lastTrack: Track) => Promise<void>,
+    extendedSearch: (query: string, requester: Requester) => Promise<SearchResult>,
+    executeAutoplay: (client: Client, lastTrack: Track) => Promise<void>,
     plugins: {
       extendedSearch: boolean,
       customFilters: boolean

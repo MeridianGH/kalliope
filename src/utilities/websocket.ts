@@ -23,6 +23,7 @@ function simplifyPlayer(player: Player) {
     volume: player.volume,
     position: player.position,
     repeatMode: player.repeatMode,
+    autoplay: player.get('autoplay'),
     queue: {
       tracks: player.queue?.tracks?.map((track) => ({
         info: track.info,
@@ -104,6 +105,12 @@ async function executePlayerAction(client: Client, player: Player, data: WSData)
       await textChannel.send(simpleEmbed(`Set repeat mode to ${player.repeatMode === 'queue' ? 'Queue 🔁' : player.repeatMode === 'track' ? 'Track 🔂' : 'Off ▶️'}`))
       break
     }
+    case 'autoplay': {
+      const autoplay = !player.get('autoplay')
+      player.set('autoplay', autoplay)
+      await textChannel.send(simpleEmbed(`↩️ Autoplay: ${autoplay ? 'Enabled ✅' : 'Disabled ❌'}`))
+      break
+    }
     case 'volume': {
       await player.setVolume(data.volume)
       await textChannel.send(simpleEmbed(`🔊 Set volume to ${data.volume}%.`))
@@ -111,7 +118,7 @@ async function executePlayerAction(client: Client, player: Player, data: WSData)
     }
     case 'play': {
       const member = await (await client.guilds.fetch(player.guildId)).members.fetch(data.userId)
-      const result = await player.search(data.query, member) as SearchResult
+      const result = await player.extendedSearch(data.query, member) as SearchResult
       if (result.loadType === LoadTypes.error) { break }
       if (result.loadType === LoadTypes.empty) { break }
 

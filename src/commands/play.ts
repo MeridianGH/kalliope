@@ -16,7 +16,7 @@ export const { data, execute }: CommandStructure = {
 
     const player = interaction.client.lavalink.createPlayer(interaction)
     const query = interaction.options.getString('query')
-    const result = await player.search(query, interaction.member) as SearchResult
+    const result = await player.extendedSearch(query, interaction.member) as SearchResult
     if (!loadChecks(interaction, result)) { return }
 
     if (!player.connected) {

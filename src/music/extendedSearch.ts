@@ -10,12 +10,11 @@ import { addMusicControls, durationOrLive, formatMusicFooter } from '../utilitie
 const spotify = spotifyUrlInfo(fetch)
 
 /**
- * A utility class replacing the standard `Player.search` function
- * with one that provides more functionality.
+ * A utility class extending the Player with an improved version of the `Player.search` function
+ * that provides more functionality.
  */
 export class ExtendedSearch {
   private readonly player: Player
-  private readonly _search: Player['search']
 
   /**
    * Attaches this plugin to the player.
@@ -23,9 +22,8 @@ export class ExtendedSearch {
    */
   constructor(player: Player) {
     this.player = player
-    this._search = player.search.bind(player)
-    player.search = this.search.bind(this)
-    player.searchAutoplay = this.executeAutoplay.bind(this)
+    player.extendedSearch = this.search.bind(this)
+    player.executeAutoplay = this.executeAutoplay.bind(this)
     player.set('plugins', { ...player.get<Player['plugins']>('plugins'), extendedSearch: true })
   }
 
@@ -49,7 +47,7 @@ export class ExtendedSearch {
     const playlistRegex = /https:\/\/(www\.)?youtube\.com\/playlist(.*)$/
     if (query.match(playlistRegex)) {
       try {
-        const result = await this._search(query, requestedBy) as SearchResult
+        const result = await this.player.search(query, requestedBy) as SearchResult
         result.playlist = {
           ...result.playlist,
           thumbnail: await this.getBestThumbnail(result.tracks[0]),
@@ -92,7 +90,7 @@ export class ExtendedSearch {
     }
 
     // Use best thumbnail available
-    const search = await this._search(query, requestedBy) as SearchResult
+    const search = await this.player.search(query, requestedBy) as SearchResult
     for (const track of search.tracks) {
       track.info.artworkUrl = await this.getBestThumbnail(track)
       track.requester = requestedBy
@@ -108,7 +106,7 @@ export class ExtendedSearch {
 
     let result: SearchResult
     if (lastTrack.info.sourceName === 'youtube' || lastTrack.info.sourceName === 'youtubemusic') {
-      result = await this._search({
+      result = await this.player.search({
         query: `https://www.youtube.com/watch?v=${lastTrack.info.identifier}&list=RD${lastTrack.info.identifier}`,
         source: 'youtube'
       }, lastTrack.requester as Requester) as SearchResult
