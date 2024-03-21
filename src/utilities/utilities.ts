@@ -1,4 +1,13 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonComponent, ButtonInteraction, ButtonStyle, EmbedBuilder, Message } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonComponent,
+  ButtonInteraction,
+  ButtonStyle,
+  EmbedBuilder,
+  InteractionCollector,
+  Message
+} from 'discord.js'
 import fs from 'fs'
 import path from 'path'
 import { iconURL } from '../events/ready.js'
@@ -159,6 +168,10 @@ export async function addMusicControls(message: Message, player: Player): Promis
   })
 
   const collector = message.createMessageComponentCollector({ idle: 300000 })
+  const collectors = player.get<Player['collectors']>('collectors') ?? []
+  collectors.push(collector)
+  player.set('collectors', collectors)
+
   collector.on('collect', async (buttonInteraction: ButtonInteraction<'cached'>) => {
     if (buttonInteraction.member.voice.channel?.id !== player.voiceChannelId) {
       await buttonInteraction.reply(errorEmbed('You need to be in the same voice channel as the bot to use this command!', true))

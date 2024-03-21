@@ -1,10 +1,10 @@
-import { Client, Collection } from 'discord.js'
+import { Client, CollectedInteraction, Collection, InteractionCollector } from 'discord.js'
 import { Lavalink } from '../music/lavalink.js'
 import { WebSocketConnector } from '../utilities/websocket.js'
 import { CustomFilters } from '../music/customFilters.js'
 import { CommandStructure } from './types.js'
 import { levels } from '../utilities/logging.js'
-import { Track, SearchResult } from 'lavalink-client/dist'
+import { SearchResult, Track } from 'lavalink-client/dist'
 import { Requester } from './types'
 
 declare global {
@@ -39,6 +39,7 @@ declare module 'lavalink-client' {
     plugins: {
       extendedSearch: boolean,
       customFilters: boolean
-    }
+    },
+    collectors: InteractionCollector<CollectedInteraction>[]
   }
 }

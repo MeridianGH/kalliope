@@ -62,6 +62,9 @@ export class Lavalink {
         setTimeout(async () => { if (!player.playing && !player.queue.current) { await player.destroy() } }, 30000)
       })
       .on('playerDestroy', (player) => {
+        for (const collector of player.get<Player['collectors']>('collectors')) {
+          collector.stop()
+        }
         client.websocket.updatePlayer(null, player.guildId)
       })
 
