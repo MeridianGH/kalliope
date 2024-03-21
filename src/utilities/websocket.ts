@@ -153,6 +153,24 @@ export class WebSocketConnector {
   private client: Client
   private ws: WebSocket
   private reconnectDelay: number
+  private static statusCodes = {
+    1000: 'Normal Closure',
+    1001: 'Going Away',
+    1002: 'Protocol Error',
+    1003: 'Unsupported Data',
+    1004: 'Reserved for future use',
+    1005: 'No Status Received',
+    1006: 'Abnormal Closure',
+    1007: 'Invalid frame payload data',
+    1008: 'Policy Violation',
+    1009: 'Message too big',
+    1010: 'Missing Extension',
+    1011: 'Internal Error',
+    1012: 'Service Restart',
+    1013: 'Try Again Later',
+    1014: 'Bad Gateway',
+    1015: 'TLS Handshake'
+  }
 
   /**
    * Creates a new websocket client and attaches it to a discord.js client.
@@ -206,9 +224,7 @@ export class WebSocketConnector {
     this.ws = new WebSocket(socketURL)
 
     this.ws.addEventListener('error', (event) => {
-      logging.debug(event)
-      logging.error('[WebSocket] Connection failed with reason: ' + event.message)
-      this.reconnect()
+      logging.error('[WebSocket] Connection encountered an error: ' + event.message)
     })
 
     this.ws.addEventListener('open', () => {
@@ -219,7 +235,7 @@ export class WebSocketConnector {
 
     this.ws.addEventListener('close', (event) => {
       if (event.wasClean) { return }
-      logging.error(`[WebSocket] Socket closed with reason: ${event.code} | ${event.reason}`)
+      logging.error(`[WebSocket] Socket closed with reason: ${event.code} (${WebSocketConnector.statusCodes[event.code]}) | ${event.reason}`)
       this.reconnect()
     })
 
