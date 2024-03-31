@@ -220,6 +220,7 @@ export class Lavalink {
     })
     if (!player.plugins?.extendedSearch) { new ExtendedSearch(player) }
     if (!player.plugins?.customFilters) { new CustomFilters(player) }
+    player.set('collectors', [])
     return player
   }
 

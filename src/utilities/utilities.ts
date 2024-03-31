@@ -168,7 +168,7 @@ export async function addMusicControls(message: Message, player: Player): Promis
   })
 
   const collector = message.createMessageComponentCollector({ idle: 300000 })
-  const collectors = player.get<Player['collectors']>('collectors') ?? []
+  const collectors = player.get<Player['collectors']>('collectors')
   collectors.push(collector)
   player.set('collectors', collectors)
 
