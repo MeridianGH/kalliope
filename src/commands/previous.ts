@@ -18,6 +18,6 @@ export const { data, execute }: CommandStructure = {
     await player.queue.add(player.queue.previous.shift(), 0)
 
     await interaction.reply(simpleEmbed(`⏮️ Playing previous track \`#0\`: **${track.info.title}**.`))
-    interaction.client.websocket.updatePlayer(player)
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

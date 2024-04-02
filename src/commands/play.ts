@@ -30,7 +30,7 @@ export const { data, execute }: CommandStructure = {
 
     const embed = await interaction.client.lavalink.processPlayResult(player, result)
 
-    interaction.client.websocket.updatePlayer(player)
+    interaction.client.websocket?.updatePlayer(player)
     const message = await interaction.editReply({ embeds: [embed] })
     await addMusicControls(message, player)
   }

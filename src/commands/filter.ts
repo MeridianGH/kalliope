@@ -25,6 +25,6 @@ export const { data, execute }: CommandStructure = {
     const filter = interaction.options.getString('filter')
     await player.filters.setFilter(filter)
     await interaction.reply(simpleEmbed(`Set filter to \`${filter}\`.`))
-    interaction.client.websocket.updatePlayer(player)
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

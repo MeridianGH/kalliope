@@ -15,6 +15,6 @@ export const { data, execute }: CommandStructure = {
 
     await player.pause()
     await interaction.reply(simpleEmbed('▶️ Resumed'))
-    interaction.client.websocket.updatePlayer(player)
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

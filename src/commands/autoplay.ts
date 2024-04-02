@@ -14,6 +14,6 @@ export const { data, execute }: CommandStructure = {
     const autoplay = !player.get('autoplay')
     player.set('autoplay', autoplay)
     await interaction.reply(simpleEmbed(`↩️ Autoplay: ${autoplay ? 'Enabled ✅' : 'Disabled ❌'}`))
-    interaction.client.websocket.updatePlayer(player)
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

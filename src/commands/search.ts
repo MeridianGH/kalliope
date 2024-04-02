@@ -74,7 +74,7 @@ export const { data, execute }: CommandStructure = {
         await player.connect()
       }
       if (!player.playing && !player.paused) { await player.play() }
-      interaction.client.websocket.updatePlayer(player)
+      interaction.client.websocket?.updatePlayer(player)
 
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Added to queue.', iconURL: interaction.member.displayAvatarURL() })

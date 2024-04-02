@@ -19,6 +19,6 @@ export const { data, execute }: CommandStructure = {
 
     await interaction.reply(simpleEmbed(`⏩ Skipped to ${msToHMS(time)}`))
     await player.seek(time)
-    interaction.client.websocket.updatePlayer(player)
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

@@ -35,6 +35,6 @@ export const { data, execute }: CommandStructure = {
       await player.skip()
       await interaction.reply(simpleEmbed('⏭️ Skipped.'))
     }
-    interaction.client.websocket.updatePlayer(player)
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

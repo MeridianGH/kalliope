@@ -13,6 +13,6 @@ export const { data, execute }: CommandStructure = {
 
     player.queue.splice(0, player.queue.tracks.length)
     await interaction.reply(simpleEmbed('🗑️ Cleared the queue.'))
-    interaction.client.websocket.updatePlayer(player)
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

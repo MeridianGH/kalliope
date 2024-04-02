@@ -227,7 +227,7 @@ export async function addMusicControls(message: Message, player: Player): Promis
         break
       }
     }
-    message.client.websocket.updatePlayer(player)
+    message.client.websocket?.updatePlayer(player)
   })
   collector.on('end', async () => {
     const fetchedMessage = await message.fetch(true).catch((e: unknown) => { logging.warn(`Failed to edit message components: ${e}`) })

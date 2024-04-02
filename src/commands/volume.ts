@@ -15,6 +15,6 @@ export const { data, execute }: CommandStructure = {
     const volume = Math.min(Math.max(interaction.options.getInteger('volume'), 0), 100)
     await player.setVolume(volume)
     await interaction.reply(simpleEmbed(`🔊 Set volume to ${volume}%.`))
-    interaction.client.websocket.updatePlayer(player)
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

@@ -19,6 +19,6 @@ export const { data, execute }: CommandStructure = {
     const mode = interaction.options.getString('mode') as 'off' | 'track' | 'queue'
     await player.setRepeatMode(mode)
     await interaction.reply(simpleEmbed(`Set repeat mode to ${player.repeatMode === 'queue' ? 'Queue 🔁' : player.repeatMode === 'track' ? 'Track 🔂' : 'Off ▶️'}`))
-    interaction.client.websocket.updatePlayer(player)
+    interaction.client.websocket?.updatePlayer(player)
   }
 }

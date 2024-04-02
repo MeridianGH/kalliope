@@ -57,7 +57,7 @@ async function shutdown() {
     })
     player.destroy()
   })
-  client.websocket.close()
+  client.websocket?.close()
   await client.destroy()
   process.exit(0)
 }

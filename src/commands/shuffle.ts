@@ -13,6 +13,6 @@ export const { data, execute }: CommandStructure = {
 
     await player.queue.shuffle()
     await interaction.reply(simpleEmbed('🔀 Shuffled the queue.'))
-    interaction.client.websocket.updatePlayer(player)
+    interaction.client.websocket?.updatePlayer(player)
   }
 }
