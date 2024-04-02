@@ -81,13 +81,13 @@ export class Lavalink {
   }
 
   async initialize(): Promise<void> {
-    if (!this.manager.options.nodes.find((node) => node.host === 'localhost')) {
-      return logging.info('[Lavalink]  No nodes with host \'localhost\' in LavalinkManagerOptions, skipping local Lavalink setup.')
-    }
-
     const doc = yaml.load(fs.readFileSync(path.join(process.cwd(), '/lavalink/template.yml')).toString(), {}) as LavalinkYML
     doc.lavalink.server.youtubeConfig = { PAPISID: process.env.YOUTUBE_PAPISID, PSID: process.env.YOUTUBE_PSID }
     fs.writeFileSync(path.join(process.cwd(), '/lavalink/application.yml'), yaml.dump(doc, {}))
+
+    if (!this.manager.options.nodes.find((node) => node.host === 'localhost')) {
+      return logging.info('[Lavalink]  No nodes with host \'localhost\' in LavalinkManagerOptions, skipping local Lavalink setup.')
+    }
 
     if (await this._portInUse(doc.server.port)) {
       logging.warn(`[Lavalink]  A server (possibly Lavalink) is already active on port ${doc.server.port}.`)
