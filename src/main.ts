@@ -49,8 +49,8 @@ async function shutdown() {
     textChannel?.send({
       embeds: [
         new EmbedBuilder()
-          .setTitle('Server shutdown.')
-          .setDescription('The server the bot is hosted on has been shut down.\n')
+          .setTitle('Shutdown.')
+          .setDescription('The bot or its server has been forcefully shut down.\n')
           .setFooter({ text: 'Kalliope', iconURL: iconURL })
           .setColor([255, 0, 0])
       ]
