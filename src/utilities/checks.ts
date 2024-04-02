@@ -4,6 +4,7 @@ import { ChatInputCommandInteraction, PermissionsBitField } from 'discord.js'
 import { LoadTypes } from '../music/lavalink.js'
 import { errorEmbed } from './utilities.js'
 import { SearchResult } from 'lavalink-client'
+import { logging } from './logging.js'
 
 /**
  * Executes generic music checks on an interaction and replies based on possible errors.
@@ -58,7 +59,8 @@ export function playChecks(interaction: ChatInputCommandInteraction<'cached'>): 
  */
 export function loadChecks(interaction: ChatInputCommandInteraction<'cached'>, result: SearchResult): boolean {
   if (result.loadType === LoadTypes.error) {
-    interaction.editReply(errorEmbed('There was an error while adding your song to the queue.'))
+    logging.warn(`[Lavalink]  Encountered error while loading track: ${result.exception.message}`)
+    interaction.editReply(errorEmbed('There was an error while adding your track to the queue.'))
     return false
   }
   if (result.loadType === LoadTypes.empty) {

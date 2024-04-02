@@ -48,10 +48,12 @@ export class Lavalink {
       .on('trackStart', (player) => {
         setTimeout(() => { client.websocket?.updatePlayer(player) }, 500)
       })
-      .on('trackStuck', async (player) => {
+      .on('trackError', async (player, track, payload) => {
+        logging.warn(`[Lavalink]  Encountered error while playing track '${track.info.title}'.`)
+        logging.debug('[Lavalink]  Exception message: ', payload.exception.message)
         const textChannel = client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
-        await textChannel?.send(errorEmbed(`⏭️ Track **${player.queue.current.info.title}** got stuck, skipping...`))
-        await player.skip()
+        await textChannel?.send(errorEmbed('There was an error while playing your track.'))
+        await player.stopPlaying(false, true)
       })
       .on('queueEnd', (player, track) => {
         if (player.get('autoplay')) {
