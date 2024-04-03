@@ -41,8 +41,8 @@ function simplifyPlayer(player: Player) {
       } : null
     },
     filters: {
-      current: player.filters?.current,
-      timescale: player.filters?.timescale
+      current: player.get('filters')?.current,
+      timescale: player.get('filters')?.timescale
     }
   } : null
 }
@@ -129,7 +129,7 @@ async function executePlayerAction(client: Client, player: Player, data: WSData)
       break
     }
     case 'filter': {
-      await player.filters.setFilter(data.filter)
+      await player.get('filters').setFilter(data.filter)
       await textChannel.send(simpleEmbed(`Set filter to ${data.filter}.`))
       break
     }

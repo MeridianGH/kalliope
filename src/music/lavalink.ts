@@ -64,7 +64,7 @@ export class Lavalink {
         setTimeout(async () => { if (!player.playing && !player.queue.current) { await player.destroy() } }, 30000)
       })
       .on('playerDestroy', (player) => {
-        for (const collector of player.get<Player['collectors']>('collectors')) {
+        for (const collector of player.get('collectors')) {
           collector.stop()
         }
         client.websocket?.updatePlayer(null, player.guildId)
@@ -220,9 +220,9 @@ export class Lavalink {
       selfDeaf: false,
       volume: 50
     })
-    if (!player.plugins?.extendedSearch) { new ExtendedSearch(player) }
-    if (!player.plugins?.customFilters) { new CustomFilters(player) }
-    player.set('collectors', [])
+    if (!player.get('plugins')?.extendedSearch) { new ExtendedSearch(player) }
+    if (!player.get('plugins')?.customFilters) { new CustomFilters(player) }
+    if (!player.get('collectors')) { player.set('collectors', []) }
     return player
   }
 

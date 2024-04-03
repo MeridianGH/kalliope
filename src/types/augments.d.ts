@@ -30,16 +30,21 @@ declare module 'discord.js' {
   }
 }
 
+interface CustomPlayerProperties {
+  plugins: {
+    extendedSearch: boolean,
+    customFilters: boolean
+  },
+  filters: CustomFilters,
+  autoplay: boolean,
+  collectors: InteractionCollector<CollectedInteraction>[]
+}
+
 declare module 'lavalink-client' {
   // noinspection JSUnusedGlobalSymbols
   interface Player {
-    filters: CustomFilters,
     extendedSearch: (query: string, requester: Requester) => Promise<SearchResult>,
     executeAutoplay: (client: Client, lastTrack: Track) => Promise<void>,
-    plugins: {
-      extendedSearch: boolean,
-      customFilters: boolean
-    },
-    collectors: InteractionCollector<CollectedInteraction>[]
+    get<K extends keyof CustomPlayerProperties>(key: K): CustomPlayerProperties[K]
   }
 }

@@ -24,7 +24,7 @@ export class ExtendedSearch {
     this.player = player
     player.extendedSearch = this.search.bind(this)
     player.executeAutoplay = this.executeAutoplay.bind(this)
-    player.set('plugins', { ...player.get<Player['plugins']>('plugins'), extendedSearch: true })
+    player.set('plugins', { ...player.get('plugins'), extendedSearch: true })
   }
 
   /**

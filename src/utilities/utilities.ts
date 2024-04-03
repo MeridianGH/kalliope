@@ -5,7 +5,6 @@ import {
   ButtonInteraction,
   ButtonStyle,
   EmbedBuilder,
-  InteractionCollector,
   Message
 } from 'discord.js'
 import fs from 'fs'
@@ -168,7 +167,7 @@ export async function addMusicControls(message: Message, player: Player): Promis
   })
 
   const collector = message.createMessageComponentCollector({ idle: 300000 })
-  const collectors = player.get<Player['collectors']>('collectors')
+  const collectors = player.get('collectors')
   collectors.push(collector)
   player.set('collectors', collectors)
 

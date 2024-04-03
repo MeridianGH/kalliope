@@ -15,8 +15,8 @@ export class CustomFilters {
     this.player = player
     this.current = 'none'
 
-    player.set('plugins', { ...player.get<Player['plugins']>('plugins'), customFilters: true })
-    Object.assign(player, { filters: this })
+    player.set('plugins', { ...player.get('plugins'), customFilters: true })
+    player.set('filters', this)
 
     this.filterData = {
       none: {},
