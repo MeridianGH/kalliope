@@ -1,5 +1,4 @@
-import { ActivityType, Client, Collection, EmbedBuilder, GatewayIntentBits, GuildTextBasedChannel } from 'discord.js'
-import { iconURL } from './events/ready.js'
+import { ActivityType, Client, Collection, GatewayIntentBits } from 'discord.js'
 import { Lavalink } from './music/lavalink.js'
 import { logging } from './utilities/logging.js'
 import { getFilesRecursively } from './utilities/utilities.js'
@@ -43,20 +42,7 @@ process.on('unhandledRejection', (reason) => {
  */
 async function shutdown() {
   logging.info('[Process]   Received SIGTERM, shutting down.')
-  logging.info(`[Lavalink]  Closing ${client.lavalink.manager.players.size} queues.`)
-  client.lavalink.manager.players.forEach((player) => {
-    const textChannel = client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
-    textChannel?.send({
-      embeds: [
-        new EmbedBuilder()
-          .setTitle('Shutdown.')
-          .setDescription('The bot or its server has been forcefully shut down.\n')
-          .setFooter({ text: 'Kalliope', iconURL: iconURL })
-          .setColor([255, 0, 0])
-      ]
-    })
-    player.destroy()
-  })
+  await client.lavalink.destroy()
   client.websocket?.close()
   await client.destroy()
   process.exit(0)

@@ -19,9 +19,12 @@ import { CustomFilters } from './customFilters.js'
 import { ExtendedSearch } from './extendedSearch.js'
 import { LavalinkYML, Requester } from '../types/types'
 import path from 'path'
+import { ChildProcessWithoutNullStreams } from 'node:child_process'
+import { iconURL } from '../events/ready.js'
 
 export class Lavalink {
   private readonly client: Client
+  private process: ChildProcessWithoutNullStreams
   manager: LavalinkManager
   constructor(client: Client) {
     this.client = client
@@ -72,7 +75,7 @@ export class Lavalink {
 
     this.manager.nodeManager
       .on('connect', (node) => { logging.info(`[Lavalink]  Node ${node.id} connected.`) })
-      .on('error', (node, error) => { logging.error(`[Lavalink]  Node ${node.id} encountered an error: ${error.message}`) })
+      .on('error', (node, error) => { logging.error(`[Lavalink]  Node ${node.id} encountered an error: ${error}`) })
 
     this.client
       .once('ready', async () => { await this.manager.init({ id: client.user.id, username: client.user.username }) })
@@ -116,10 +119,32 @@ export class Lavalink {
         }
       }
       lavalink.stdout.on('data', onData)
-
-      process.on('SIGTERM', () => { lavalink.kill() })
-      process.on('SIGINT', () => { lavalink.kill() })
+      this.process = lavalink
     })
+  }
+
+  async destroy(): Promise<void> {
+    logging.info(`[Lavalink]  Closing ${this.manager.players.size} queues.`)
+    const playerPromises = []
+    this.manager.players.forEach((player) => {
+      const textChannel = this.client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
+      textChannel?.send({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle('Shutdown.')
+            .setDescription('The bot or its server has been forcefully shut down.\n')
+            .setFooter({ text: 'Kalliope', iconURL: iconURL })
+            .setColor([255, 0, 0])
+        ]
+      })
+      playerPromises.push(player.destroy())
+    })
+    await Promise.allSettled(playerPromises)
+    try {
+      this.process.kill()
+    } catch {
+      logging.warn('[Lavalink]  Failed to stop Lavalink service as it was likely already terminated.')
+    }
   }
 
   /**
