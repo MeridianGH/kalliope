@@ -31,17 +31,17 @@ export class Lavalink {
     // noinspection JSUnusedGlobalSymbols
     this.manager = new LavalinkManager({
       nodes: [
-        /*{
+        {
           host: 'localhost',
           port: 2333,
           authorization: 'youshallnotpass'
-        },*/
+        }/*,
         {
           host: 'lavalink.kalliope.cc',
           port: 443,
           authorization: 'lavalink!Kalliope',
           secure: true
-        }
+        }*/
       ],
       sendToShard: (guildId, payload) => client.guilds.cache.get(guildId)?.shard?.send(payload),
       queueOptions: { maxPreviousTracks: 10 }
@@ -71,6 +71,12 @@ export class Lavalink {
           collector.stop()
         }
         client.websocket?.updatePlayer(null, player.guildId)
+      })
+      .on('SegmentsLoaded', (_player, track, payload) => {
+        logging.info(`[Lavalink]  Loaded SponsorBlock segments for track '${track.info.title}': `, payload.segments)
+      })
+      .on('SegmentSkipped', (_player, track, payload) => {
+        logging.info(`[Lavalink]  Skipped segment '${payload.segment.category}' (from ${msToHMS(payload.segment.start)} to ${msToHMS(payload.segment.end)}) in track ${track.info.title}.`)
       })
 
     this.manager.nodeManager
@@ -248,6 +254,7 @@ export class Lavalink {
     if (!player.get('plugins')?.extendedSearch) { new ExtendedSearch(player) }
     if (!player.get('plugins')?.customFilters) { new CustomFilters(player) }
     if (!player.get('collectors')) { player.set('collectors', []) }
+    player.setSponsorBlock(['music_offtopic'])
     return player
   }
 

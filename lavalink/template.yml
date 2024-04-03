@@ -20,6 +20,9 @@ lavalink:
     youtubeSearchEnabled: true
     soundcloudSearchEnabled: true
     gc-warnings: true
+  plugins:
+    - dependency: "com.github.topi314.sponsorblock:sponsorblock-plugin:3.0.0"
+      snapshot: false
 
 metrics:
   prometheus:
