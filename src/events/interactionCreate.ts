@@ -22,6 +22,6 @@ export const { data, execute }: EventStructure<'interactionCreate'> = {
       return
     }
 
-    logging.info(`${interaction.user.tag} triggered /${interaction.commandName} in #${interaction.channel.name}/${interaction.guild.name}.`)
+    logging.info(`[Discord]   ${interaction.user.tag} triggered /${interaction.commandName} in #${interaction.channel.name}/${interaction.guild.name}.`)
   }
 }

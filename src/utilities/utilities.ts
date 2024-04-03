@@ -229,7 +229,7 @@ export async function addMusicControls(message: Message, player: Player): Promis
     message.client.websocket?.updatePlayer(player)
   })
   collector.on('end', async () => {
-    const fetchedMessage = await message.fetch(true).catch((e: unknown) => { logging.warn(`Failed to edit message components: ${e}`) })
+    const fetchedMessage = await message.fetch(true).catch((e: unknown) => { logging.warn(`[Discord]   Failed to edit message components: ${e}`) })
     if (!fetchedMessage) { return }
     await fetchedMessage.edit({ components: [new ActionRowBuilder<ButtonBuilder>().setComponents(fetchedMessage.components[0].components.map((component: ButtonComponent) => ButtonBuilder.from(component.toJSON()).setDisabled(true)))] })
   })

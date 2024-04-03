@@ -29,11 +29,11 @@ for (const file of getFilesRecursively('events')) {
 process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)
 process.on('uncaughtException', (error) => {
-  logging.warn(`Ignoring uncaught exception: ${error.message}`)
+  logging.warn(`[Process]   Ignoring uncaught exception: ${error.message}`)
   logging.error(error.stack)
 })
 process.on('unhandledRejection', (reason) => {
-  logging.warn(`Unhandled promise rejection: ${reason}`)
+  logging.warn(`[Process]   Unhandled promise rejection: ${reason}`)
   logging.error((reason as { stack?: Runtime.StackTrace } | undefined)?.stack ?? reason)
 })
 

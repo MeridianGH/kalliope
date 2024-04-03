@@ -94,7 +94,7 @@ export const { data, execute }: CommandStructure = {
           })
         })
         collector.on('end', async () => {
-          const fetchedMessage = await message.fetch(true).catch((e) => { logging.warn(`Failed to edit message components: ${e}`) })
+          const fetchedMessage = await message.fetch(true).catch((e) => { logging.warn(`[Discord]   Failed to edit message components: ${e}`) })
           if (!fetchedMessage) { return }
           const disabledComponents = fetchedMessage.components[0].components.map((component: ButtonComponent) => ButtonBuilder.from(component.toJSON()).setDisabled(true))
           await fetchedMessage.edit({ components: [new ActionRowBuilder<ButtonBuilder>().setComponents(disabledComponents)] })

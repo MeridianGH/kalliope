@@ -121,7 +121,7 @@ export const { data, execute }: CommandStructure = {
       })
       collector.on('end', async () => {
         const fetchedMessage = await message.fetch(true).catch((e) => {
-          logging.warn(`Failed to edit message components: ${e}`)
+          logging.warn(`[Discord]   Failed to edit message components: ${e}`)
         })
         if (!fetchedMessage) { return }
 
