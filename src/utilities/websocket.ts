@@ -23,7 +23,7 @@ function simplifyPlayer(player: Player) {
     volume: player.volume,
     position: player.position,
     repeatMode: player.repeatMode,
-    autoplay: player.get('autoplay'),
+    autoplay: player.get('settings').autoplay,
     queue: {
       tracks: player.queue?.tracks?.map((track) => ({
         info: track.info,
@@ -68,7 +68,7 @@ async function executePlayerAction(client: Client, player: Player, data: WSData)
         await player.skip(data.index)
         await textChannel.send(simpleEmbed(`⏭️ Skipped to \`#${data.index}\`: **${track.info.title}**.`))
       } else if (player.queue.tracks.length === 0) {
-        if (player.get('autoplay')) {
+        if (player.get('settings').autoplay) {
           // await player.skip(0, false)
           await player.stopPlaying(false, true)
           await textChannel.send(simpleEmbed('⏭️ Skipped.'))
@@ -106,9 +106,10 @@ async function executePlayerAction(client: Client, player: Player, data: WSData)
       break
     }
     case 'autoplay': {
-      const autoplay = !player.get('autoplay')
-      player.set('autoplay', autoplay)
-      await textChannel.send(simpleEmbed(`↩️ Autoplay: ${autoplay ? 'Enabled ✅' : 'Disabled ❌'}`))
+      const settings = player.get('settings')
+      settings.autoplay = !settings.autoplay
+      player.set('settings', settings)
+      await textChannel.send(simpleEmbed(`↩️ Autoplay: ${settings.autoplay ? 'Enabled ✅' : 'Disabled ❌'}`))
       break
     }
     case 'volume': {

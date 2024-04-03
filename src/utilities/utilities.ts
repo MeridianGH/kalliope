@@ -206,7 +206,7 @@ export async function addMusicControls(message: Message, player: Player): Promis
       }
       case 'skip': {
         if (player.queue.tracks.length === 0) {
-          if (player.get('autoplay')) {
+          if (player.get('settings').autoplay) {
             // await player.skip(0, false)
             await player.stopPlaying(false, true)
             await buttonInteraction.reply(simpleEmbed('⏭️ Skipped', true))

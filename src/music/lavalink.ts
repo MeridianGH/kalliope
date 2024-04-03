@@ -59,7 +59,7 @@ export class Lavalink {
         await player.stopPlaying(false, true)
       })
       .on('queueEnd', (player, track) => {
-        if (player.get('autoplay')) {
+        if (player.get('settings').autoplay) {
           player.executeAutoplay(this.client, track)
           return
         }
@@ -74,6 +74,7 @@ export class Lavalink {
       })
       .on('SegmentsLoaded', (_player, track, payload) => {
         logging.info(`[Lavalink]  Loaded SponsorBlock segments for track '${track.info.title}': `, payload.segments)
+        track.pluginInfo.clientData.segments = payload.segments
       })
       .on('SegmentSkipped', (_player, track, payload) => {
         logging.info(`[Lavalink]  Skipped segment '${payload.segment.category}' (from ${msToHMS(payload.segment.start)} to ${msToHMS(payload.segment.end)}) in track ${track.info.title}.`)
@@ -254,7 +255,13 @@ export class Lavalink {
     if (!player.get('plugins')?.extendedSearch) { new ExtendedSearch(player) }
     if (!player.get('plugins')?.customFilters) { new CustomFilters(player) }
     if (!player.get('collectors')) { player.set('collectors', []) }
-    player.setSponsorBlock(['music_offtopic'])
+    if (!player.get('settings')) {
+      player.set('settings', { ...player.get('settings'), sponsorblock: true, sponsorblockSupport: true })
+      player.setSponsorBlock(['music_offtopic']).catch(() => {
+        logging.warn(`[Lavalink]  No SponsorBlock plugin available at Lavalink node '${player.node.id}'.`)
+        player.set('settings', { ...player.get('settings'), sponsorblock: false, sponsorblockSupport: false })
+      })
+    }
     return player
   }
 

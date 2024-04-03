@@ -35,8 +35,12 @@ interface CustomPlayerProperties {
     extendedSearch: boolean,
     customFilters: boolean
   },
+  settings: {
+    autoplay: boolean,
+    sponsorblock: boolean,
+    sponsorblockSupport: boolean
+  }
   filters: CustomFilters,
-  autoplay: boolean,
   collectors: InteractionCollector<CollectedInteraction>[]
 }
 
@@ -45,6 +49,7 @@ declare module 'lavalink-client' {
   interface Player {
     extendedSearch: (query: string, requester: Requester) => Promise<SearchResult>,
     executeAutoplay: (client: Client, lastTrack: Track) => Promise<void>,
-    get<K extends keyof CustomPlayerProperties>(key: K): CustomPlayerProperties[K]
+    get<K extends keyof CustomPlayerProperties>(key: K): CustomPlayerProperties[K],
+    set<K extends keyof CustomPlayerProperties>(key: K, value: CustomPlayerProperties[K]): void
   }
 }

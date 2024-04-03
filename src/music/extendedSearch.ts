@@ -100,7 +100,7 @@ export class ExtendedSearch {
   }
 
   async executeAutoplay(client: Client, lastTrack: Track) {
-    if (!this.player.get('autoplay') || !lastTrack) { return }
+    if (!this.player.get('settings').autoplay || !lastTrack) { return }
 
     const textChannel = client.channels.cache.get(this.player?.textChannelId) as GuildTextBasedChannel
 
