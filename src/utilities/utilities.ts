@@ -12,6 +12,8 @@ import path from 'path'
 import { iconURL } from '../events/ready.js'
 import { logging } from './logging.js'
 import { Player, TrackInfo, UnresolvedTrackInfo } from 'lavalink-client'
+import { createCanvas, loadImage } from 'canvas'
+import fetch from 'node-fetch'
 
 /**
  * Builds a simple embed object with default settings used as a parameter in message functions.
@@ -102,7 +104,114 @@ export function durationOrLive(trackInfo: TrackInfo | UnresolvedTrackInfo) {
  * @returns The formatted string.
  */
 export function formatMusicFooter(player: Player) {
-  return `Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'} | Autoplay: ${player.get('autoplay') ? '✅' : '❌'}`
+  const settings = player.get('settings')
+  let footer = `Repeat: ${player.repeatMode === 'queue' ? '🔁 Queue' : player.repeatMode === 'track' ? '🔂 Track' : '❌'}`
+  footer += ` | Autoplay: ${settings.autoplay ? '✅' : '❌'}`
+  if (settings.sponsorblockSupport) { footer += ` | SponsorBlock: ${settings.sponsorblock ? '✅' : '❌'}` }
+  return footer
+}
+
+/**
+ * Converts a clamped RGB array to a HEX code.
+ * @param color The RGB array to convert.
+ * @returns A HEX string.
+ */
+function rgbToHEX(color: Uint8ClampedArray) {
+  return '#' + ((1 << 24) + (color[0] << 16) + (color[1] << 8) + color[2]).toString(16).slice(1)
+}
+
+/**
+ * Converts a HEX color to an RGB array.
+ * @param color The color to convert.
+ * @returns A clamped RGB array.
+ */
+function hexToRGB(color: string): Uint8ClampedArray {
+  const rgb = parseInt(color.substring(1), 16)
+  const r = rgb >> 16
+  const g = rgb - (r << 16) >> 8
+  const b = rgb - (r << 16) - (g << 8)
+  return new Uint8ClampedArray([r, g, b])
+}
+
+/**
+ * Changes a color until it is different enough from the reference color.
+ * Alternates between darkening and brightening until a color is found.
+ * @param color The color to change.
+ * @param reference The reference color.
+ * @param brighten Whether to start brightening or not. Default is false (start with darkening).
+ * @returns A HEX color that is not similar to the reference color.
+ */
+function preventSimilarColor(color: string, reference: string, brighten: boolean = false): string {
+  // eslint-disable-next-line jsdoc/require-jsdoc
+  function changeColor(color: string, reference: string, brighten: boolean, recursionDepth = 0, originalColor = color) {
+    const stepSize = 20
+    const maxDepth = Math.ceil(255 / stepSize)
+    if (recursionDepth + 1 >= maxDepth) { return changeColor(originalColor, reference, !brighten) }
+
+    const clrRGB = hexToRGB(color)
+    const refRGB = hexToRGB(reference)
+    const difference = Math.abs(clrRGB[0] - refRGB[0]) + Math.abs(clrRGB[1] - refRGB[1]) + Math.abs(clrRGB[2] - refRGB[2])
+    if (difference > 50) { return color }
+
+    const changed = rgbToHEX(clrRGB.map((value) => brighten ? value + stepSize : value - stepSize))
+    if (changed === color) { return changeColor(originalColor, reference, !brighten) }
+    return changeColor(changed, reference, brighten, recursionDepth + 1, originalColor)
+  }
+  try {
+    return changeColor(color, reference, brighten)
+  } catch (e) {
+    return color
+  }
+}
+
+/**
+ * Generates a timeline image for the currently playing track.
+ * @param player The player to generate the image for.
+ * @returns The image buffer.
+ */
+export async function generateTimelineImage(player: Player) {
+  const track = player.queue.current
+  const canvas = createCanvas(500, 50)
+  const ctx = canvas.getContext('2d')
+  const timelineHeight = 6
+
+  // Get dominant thumbnail color using some canvas fuckery
+  const colorCanvas = createCanvas(1, 1)
+  const colorContext = colorCanvas.getContext('2d')
+  const img = await fetch(track.info.artworkUrl)
+    .then((result) => result.arrayBuffer())
+    .then((arrayBuffer) => Buffer.from(arrayBuffer))
+  colorContext.drawImage(await loadImage(img), 0, 0, 1, 1)
+  const imageData = colorContext.getImageData(0, 0, 1, 1).data
+  const dominantColor = rgbToHEX(imageData)
+
+  ctx.fillStyle = '#808080'
+  ctx.fillRect(0, timelineHeight / 2, canvas.width, timelineHeight)
+  ctx.fillStyle = preventSimilarColor(dominantColor, '#808080')
+  ctx.fillRect(0, timelineHeight / 2, player.position / track.info.duration * canvas.width, timelineHeight)
+
+  ctx.fillStyle = preventSimilarColor('#ff8000', dominantColor, true)
+  for (const segment of track.pluginInfo.clientData.segments ?? []) {
+    const start = segment.start / track.info.duration * canvas.width
+    const end = segment.end / track.info.duration * canvas.width
+    ctx.fillRect(start, timelineHeight / 2, end - start, timelineHeight)
+  }
+
+  ctx.beginPath()
+  const circlePosition = Math.min(Math.max(timelineHeight, player.position / track.info.duration * canvas.width), canvas.width - timelineHeight)
+  ctx.arc(circlePosition, timelineHeight, timelineHeight, 0, 2 * Math.PI)
+  ctx.fillStyle = '#ffffff'
+  ctx.fill()
+
+  ctx.fillStyle = '#ffffff'
+  ctx.font = 'bold 16px Arial'
+  ctx.textBaseline = 'top'
+  ctx.textAlign = 'start'
+  ctx.fillText(msToHMS(player.position), 0, timelineHeight * 2)
+  ctx.textAlign = 'end'
+  ctx.fillText(msToHMS(track.info.duration), canvas.width, timelineHeight * 2)
+
+  return canvas.toBuffer()
 }
 
 /**

@@ -31,17 +31,17 @@ export class Lavalink {
     // noinspection JSUnusedGlobalSymbols
     this.manager = new LavalinkManager({
       nodes: [
-        {
+        /*{
           host: 'localhost',
           port: 2333,
           authorization: 'youshallnotpass'
-        }/*,
+        },*/
         {
           host: 'lavalink.kalliope.cc',
           port: 443,
           authorization: 'lavalink!Kalliope',
           secure: true
-        }*/
+        }
       ],
       sendToShard: (guildId, payload) => client.guilds.cache.get(guildId)?.shard?.send(payload),
       queueOptions: { maxPreviousTracks: 10 }

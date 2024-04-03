@@ -1,6 +1,6 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
+import { AttachmentBuilder, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { genericChecks } from '../utilities/checks.js'
-import { addMusicControls, formatMusicFooter, msToHMS } from '../utilities/utilities.js'
+import { addMusicControls, formatMusicFooter, generateTimelineImage, msToHMS } from '../utilities/utilities.js'
 import { CommandStructure } from '../types/types.js'
 
 export const { data, execute }: CommandStructure = {
@@ -14,24 +14,30 @@ export const { data, execute }: CommandStructure = {
     const track = player.queue.current
     const trackInfo = track.info
 
-    const progress = Math.round(20 * player.position / trackInfo.duration)
-    const progressBar = '▬'.repeat(progress) + '🔘' + ' '.repeat(20 - progress)
-
     const embed = new EmbedBuilder()
       .setAuthor({ name: 'Now Playing...', iconURL: interaction.member.displayAvatarURL() })
       .setTitle(trackInfo.title)
       .setURL(trackInfo.uri)
       .setThumbnail(trackInfo.artworkUrl)
       .addFields([
-        { name: 'Duration', value: trackInfo.isStream ? '🔴 Live' : `\`${progressBar}\`\n\`${msToHMS(player.position)}/${msToHMS(trackInfo.duration)}\``, inline: true },
+        { name: 'Duration', value: trackInfo.isStream ? '🔴 Live' : msToHMS(trackInfo.duration), inline: true },
         { name: 'Author', value: trackInfo.author, inline: true },
         { name: 'Requested By', value: track.requester.toString(), inline: true }
       ])
       .setFooter({ text: `Kalliope | ${formatMusicFooter(player)}`, iconURL: interaction.client.user.displayAvatarURL() })
+      .setImage('attachment://timeline.png')
 
     if (track.pluginInfo.uri) { embed.setDescription(`This track has been resolved on [YouTube](${track.pluginInfo.uri}).`) }
+    if (track.pluginInfo.clientData.fromAutoplay) { embed.setDescription('This track has been added by autoplay.') }
+    if (track.pluginInfo.clientData.segments) {
+      embed.addFields([{ name: 'SponsorBlock', value: 'This track contains SponsorBlock segments (in orange) that will be skipped automatically.' }])
+    }
 
-    const message = await interaction.reply({ embeds: [embed], fetchReply: true })
+    const message = await interaction.reply({
+      embeds: [embed],
+      fetchReply: true,
+      files: [new AttachmentBuilder(await generateTimelineImage(player), { name: 'timeline.png' })]
+    })
     await addMusicControls(message, player)
   }
 }

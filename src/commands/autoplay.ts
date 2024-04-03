@@ -11,9 +11,10 @@ export const { data, execute }: CommandStructure = {
     if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
 
-    const autoplay = !player.get('autoplay')
-    player.set('autoplay', autoplay)
-    await interaction.reply(simpleEmbed(`↩️ Autoplay: ${autoplay ? 'Enabled ✅' : 'Disabled ❌'}`))
+    const settings = player.get('settings')
+    settings.autoplay = !settings.autoplay
+    player.set('settings', settings)
+    await interaction.reply(simpleEmbed(`↩️ Autoplay: ${settings.autoplay ? 'Enabled ✅' : 'Disabled ❌'}`))
     interaction.client.websocket?.updatePlayer(player)
   }
 }

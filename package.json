@@ -6,7 +6,7 @@
   "author": "Meridian",
   "license": "GPL-3.0-only",
   "scripts": {
-    "build": "tsc --build --verbose",
+    "build": "tsc",
     "start": "npm run build && node .",
     "dev": "npm run build && node --enable-source-maps . development",
     "deploy": "npm run build && node dist/utilities/deployCommands.js",
@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@discordjs/rest": "^2.2.0",
+    "canvas": "^2.11.2",
     "discord-api-types": "^0.37.78",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
