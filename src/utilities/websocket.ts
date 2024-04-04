@@ -23,7 +23,7 @@ function simplifyPlayer(player: Player) {
     volume: player.volume,
     position: player.position,
     repeatMode: player.repeatMode,
-    autoplay: player.get('settings').autoplay,
+    settings: player.get('settings'),
     queue: {
       tracks: player.queue?.tracks?.map((track) => ({
         info: track.info,
@@ -37,7 +37,8 @@ function simplifyPlayer(player: Player) {
         requester: {
           displayName: (player.queue.current.requester as Requester).displayName,
           displayAvatarURL: (player.queue.current.requester as Requester).displayAvatarURL()
-        }
+        },
+        segments: player.queue.current.pluginInfo?.clientData?.segments ?? null
       } : null
     },
     filters: {
