@@ -4,3 +4,4 @@ node_modules/
 dist/
 docs/
 lavalink/application.yml
+lavalink/plugins/
