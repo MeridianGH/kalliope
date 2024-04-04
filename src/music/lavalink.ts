@@ -73,11 +73,7 @@ export class Lavalink {
         client.websocket?.updatePlayer(null, player.guildId)
       })
       .on('SegmentsLoaded', (_player, track, payload) => {
-        logging.info(`[Lavalink]  Loaded SponsorBlock segments for track '${track.info.title}': `, payload.segments)
         track.pluginInfo.clientData.segments = payload.segments
-      })
-      .on('SegmentSkipped', (_player, track, payload) => {
-        logging.info(`[Lavalink]  Skipped segment '${payload.segment.category}' (from ${msToHMS(payload.segment.start)} to ${msToHMS(payload.segment.end)}) in track ${track.info.title}.`)
       })
 
     this.manager.nodeManager

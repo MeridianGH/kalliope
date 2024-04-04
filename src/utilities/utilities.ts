@@ -12,7 +12,7 @@ import path from 'path'
 import { iconURL } from '../events/ready.js'
 import { logging } from './logging.js'
 import { Player, TrackInfo, UnresolvedTrackInfo } from 'lavalink-client'
-import { createCanvas, loadImage } from 'canvas'
+import { Canvas, loadImage } from 'skia-canvas'
 import fetch from 'node-fetch'
 
 /**
@@ -165,25 +165,46 @@ function preventSimilarColor(color: string, reference: string, brighten: boolean
 }
 
 /**
+ * Fetches an image from URL and finds its dominant color.
+ * @param url The image to quantize.
+ * @returns A HEX color code.
+ */
+async function findDominantColor(url: string) {
+  const img = await fetch(url)
+    .then((result) => result.arrayBuffer())
+    .then((arrayBuffer) => Buffer.from(arrayBuffer))
+    .then((buffer) => loadImage(buffer))
+  const canvasSize = 20
+  const canvas = new Canvas(canvasSize, canvasSize)
+  const ctx = canvas.getContext('2d')
+
+  const colors = {}
+  ctx.filter = 'blur(2px)'
+  ctx.drawImage(img, 0, 0, canvasSize, canvasSize)
+  const imageData = ctx.getImageData(0, 0, canvasSize, canvasSize).data
+  for (let i = 0; i < imageData.length; i += 4) {
+    const rgb = rgbToHEX(new Uint8ClampedArray([
+      imageData[i] - imageData[i] % 32,
+      imageData[i + 1] - imageData[i + 1] % 32,
+      imageData[i + 2] - imageData[i + 2] % 32
+    ]))
+    colors[rgb] = (colors[rgb] ?? 0) + 1
+  }
+  return Object.keys(colors).reduce((a, b) => colors[a] > colors[b] ? a : b)
+}
+
+/**
  * Generates a timeline image for the currently playing track.
  * @param player The player to generate the image for.
  * @returns The image buffer.
  */
 export async function generateTimelineImage(player: Player) {
   const track = player.queue.current
-  const canvas = createCanvas(500, 50)
+  const canvas = new Canvas(500, 50)
   const ctx = canvas.getContext('2d')
   const timelineHeight = 6
 
-  // Get dominant thumbnail color using some canvas fuckery
-  const colorCanvas = createCanvas(1, 1)
-  const colorContext = colorCanvas.getContext('2d')
-  const img = await fetch(track.info.artworkUrl)
-    .then((result) => result.arrayBuffer())
-    .then((arrayBuffer) => Buffer.from(arrayBuffer))
-  colorContext.drawImage(await loadImage(img), 0, 0, 1, 1)
-  const imageData = colorContext.getImageData(0, 0, 1, 1).data
-  const dominantColor = rgbToHEX(imageData)
+  const dominantColor = await findDominantColor(track.info.artworkUrl)
 
   ctx.fillStyle = '#808080'
   ctx.fillRect(0, timelineHeight / 2, canvas.width, timelineHeight)
@@ -211,7 +232,7 @@ export async function generateTimelineImage(player: Player) {
   ctx.textAlign = 'end'
   ctx.fillText(msToHMS(track.info.duration), canvas.width, timelineHeight * 2)
 
-  return canvas.toBuffer()
+  return await canvas.toBuffer('png')
 }
 
 /**
