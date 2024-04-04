@@ -72,7 +72,8 @@ export class Lavalink {
         }
         client.websocket?.updatePlayer(null, player.guildId)
       })
-      .on('SegmentsLoaded', (_player, track, payload) => {
+      .on('SegmentsLoaded', (player, track, payload) => {
+        if (!track) { track = player.queue.current }
         track.pluginInfo.clientData.segments = payload.segments
       })
 
