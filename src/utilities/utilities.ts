@@ -13,7 +13,6 @@ import { iconURL } from '../events/ready.js'
 import { logging } from './logging.js'
 import { Player, TrackInfo, UnresolvedTrackInfo } from 'lavalink-client'
 import { Canvas, loadImage } from 'skia-canvas'
-import fetch from 'node-fetch'
 
 /**
  * Builds a simple embed object with default settings used as a parameter in message functions.
@@ -170,10 +169,7 @@ function preventSimilarColor(color: string, reference: string, brighten: boolean
  * @returns A HEX color code.
  */
 async function findDominantColor(url: string) {
-  const img = await fetch(url)
-    .then((result) => result.arrayBuffer())
-    .then((arrayBuffer) => Buffer.from(arrayBuffer))
-    .then((buffer) => loadImage(buffer))
+  const img = await loadImage(url)
   const canvasSize = 20
   const canvas = new Canvas(canvasSize, canvasSize)
   const ctx = canvas.getContext('2d')
