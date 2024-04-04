@@ -150,6 +150,8 @@ Install the latest version of **[Java](https://www.oracle.com/java/technologies/
 
 Make sure Java is installed properly by running `java --version` in your terminal. If it displays the correct version, you are good to go!
 
+Download the latest version of **[Lavalink](https://github.com/lavalink-devs/Lavalink/releases)** and place the file directly inside the `lavalink` folder.
+
 If you are experiencing issues with age- or region-restricted videos, get your YouTube keys like described in this **[Guide](https://github.com/Walkyst/lavaplayer-fork/issues/18)**.\
 Once acquired, set these tokens to `YOUTUBE_PAPISID` and `YOUTUBE_PSID` in your `.env`.
 
