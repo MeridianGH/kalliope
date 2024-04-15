@@ -1,13 +1,16 @@
 import WebSocket from 'ws'
 import { LoadTypes } from '../music/lavalink.js'
 import { logging } from './logging.js'
-import { addMusicControls, simpleEmbed } from './utilities.js'
+import { addMusicControls, errorEmbed, simpleEmbed } from './utilities.js'
 import { Client, GuildTextBasedChannel } from 'discord.js'
 import { Player, SearchResult } from 'lavalink-client'
 import { Requester, WSData } from '../types/types'
+import fs from 'fs'
+import { text } from 'node:stream/consumers'
 
 const production = !process.argv.includes('development')
 const socketURL = production ? 'wss://clients.kalliope.cc' : 'ws://clients.localhost'
+const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version
 
 /**
  * Simplifies a player object to an object that supports transfer as JSON.
@@ -113,6 +116,18 @@ async function executePlayerAction(client: Client, player: Player, data: WSData)
       await textChannel.send(simpleEmbed(`↩️ Autoplay: ${settings.autoplay ? 'Enabled ✅' : 'Disabled ❌'}`))
       break
     }
+    case 'sponsorblock': {
+      const settings = player.get('settings')
+      if (!settings.sponsorblockSupport) {
+        await textChannel.send(errorEmbed('SponsorBlock is not supported on this player.'))
+        break
+      }
+      settings.sponsorblock = !settings.sponsorblock
+      player.set('settings', settings)
+      player.setSponsorBlock(settings.sponsorblock ? ['music_offtopic'] : [])
+      await textChannel.send(simpleEmbed(`⏭️ SponsorBlock: ${settings.sponsorblock ? 'Enabled ✅' : 'Disabled ❌'}`))
+      break
+    }
     case 'volume': {
       await player.setVolume(data.volume)
       await textChannel.send(simpleEmbed(`🔊 Set volume to ${data.volume}%.`))
@@ -203,7 +218,12 @@ export class WebSocketConnector {
   updateClientData(): void {
     this.send('clientData', {
       guilds: this.client.guilds.cache.map((guild) => guild.id),
-      users: this.client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
+      users: this.client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0),
+      readyTimestamp: this.client.readyTimestamp,
+      ping: this.client.ws.ping,
+      displayAvatarURL: this.client.user.displayAvatarURL(),
+      displayName: this.client.user.displayName,
+      version: version
     })
   }
 
@@ -251,6 +271,10 @@ export class WebSocketConnector {
           guildId: data.guildId,
           player: simplifyPlayer(player)
         })
+        return
+      }
+      if (data.type === 'requestClientData') {
+        this.updateClientData()
         return
       }
 
