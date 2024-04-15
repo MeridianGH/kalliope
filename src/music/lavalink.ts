@@ -145,7 +145,7 @@ export class Lavalink {
     })
     await Promise.allSettled(playerPromises)
     try {
-      this.process.kill()
+      this.process?.kill()
     } catch {
       logging.warn('[Lavalink]  Failed to stop Lavalink service as it was likely already terminated.')
     }

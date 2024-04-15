@@ -2,9 +2,9 @@ import { ActivityType, Client, Collection, GatewayIntentBits } from 'discord.js'
 import { Lavalink } from './music/lavalink.js'
 import { logging } from './utilities/logging.js'
 import { getFilesRecursively } from './utilities/utilities.js'
+import { Runtime } from 'node:inspector'
 import 'dotenv/config'
 
-import { Runtime } from 'node:inspector'
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates], presence: { status: 'online', activities: [{ name: 'kalliope.cc', type: ActivityType.Listening }] } })
 client.lavalink = new Lavalink(client)

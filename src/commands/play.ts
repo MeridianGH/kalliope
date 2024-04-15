@@ -30,6 +30,7 @@ export const { data, execute }: CommandStructure = {
 
     const embed = await interaction.client.lavalink.processPlayResult(player, result)
 
+    // TODO: Prevent updatePlayer double firing (maybe playerUpdate event?)
     interaction.client.websocket?.updatePlayer(player)
     const message = await interaction.editReply({ embeds: [embed] })
     await addMusicControls(message, player)
