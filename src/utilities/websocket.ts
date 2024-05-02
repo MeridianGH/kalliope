@@ -4,9 +4,8 @@ import { logging } from './logging.js'
 import { addMusicControls, errorEmbed, simpleEmbed } from './utilities.js'
 import { Client, GuildTextBasedChannel } from 'discord.js'
 import { Player, SearchResult } from 'lavalink-client'
-import { Requester, WSData } from '../types/types'
+import { Requester, WebSocketMessage } from '../types/types'
 import fs from 'fs'
-import { text } from 'node:stream/consumers'
 
 const production = !process.argv.includes('development')
 const socketURL = production ? 'wss://clients.kalliope.cc' : 'ws://clients.localhost'
@@ -57,7 +56,7 @@ function simplifyPlayer(player: Player) {
  * @param player The player to run the action on.
  * @param data The data object containing the action information.
  */
-async function executePlayerAction(client: Client, player: Player, data: WSData): Promise<void> {
+async function executePlayerAction(client: Client, player: Player, data: WebSocketMessage): Promise<void> {
   const textChannel = client.channels.cache.get(player?.textChannelId) as GuildTextBasedChannel
   if (!textChannel) { return }
   switch (data.type) {
@@ -230,12 +229,22 @@ export class WebSocketConnector {
   /**
    * Sends a player update.
    * @param player The player to send.
-   * @param guildId If not specifying a player, provide a guildId to send a 'null' update anyway.
    */
-  updatePlayer(player: Player | null, guildId?: string): void {
+  updatePlayer(player: Player): void {
     this.send('playerData', {
-      guildId: player?.guildId ?? guildId,
+      guildId: player.guildId,
       player: simplifyPlayer(player)
+    })
+  }
+
+  /**
+   * Sends an empty player object.
+   * @param guildId The guild to update.
+   */
+  clearPlayer(guildId: string) {
+    this.send('playerData', {
+      guildId: guildId,
+      player: null
     })
   }
 
@@ -262,7 +271,7 @@ export class WebSocketConnector {
     })
 
     this.ws.addEventListener('message', (event) => {
-      const data = JSON.parse(event.data.toString()) as WSData
+      const data = JSON.parse(event.data.toString()) as WebSocketMessage
       logging.debug('[WebSocket] Received data:', event.data)
 
       const player = this.client.lavalink.getPlayer(data.guildId)
@@ -279,7 +288,11 @@ export class WebSocketConnector {
       }
 
       executePlayerAction(this.client, player, data).then(() => {
-        this.updatePlayer(player)
+        this.send('playerData', {
+          guildId: data.guildId,
+          player: simplifyPlayer(player),
+          isResponseTo: data.type
+        })
       })
     })
   }

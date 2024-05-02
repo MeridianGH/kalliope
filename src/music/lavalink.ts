@@ -70,7 +70,7 @@ export class Lavalink {
         for (const collector of player.get('collectors')) {
           collector.stop()
         }
-        client.websocket?.updatePlayer(null, player.guildId)
+        client.websocket?.clearPlayer(player.guildId)
       })
       .on('SegmentsLoaded', (player, track, payload) => {
         if (!track) { track = player.queue.current }

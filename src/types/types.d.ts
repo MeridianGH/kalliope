@@ -18,7 +18,14 @@ type Requester = GuildMember | User
 
 type SpotifyTrackInfo = Pick<TrackInfo, 'title' | 'author' | 'duration' | 'artworkUrl' | 'uri'>
 
-type WSData = { type: string, guildId: string, userId: string, index?: number, volume?: number, query?: string, filter?: string }
+type ServerMessage = { type: 'requestPlayerData' | 'requestClientData' }
+type UserMessage =
+  { type: 'pause' | 'previous' | 'shuffle' | 'repeat' | 'autoplay' | 'sponsorblock' | 'clear' } |
+  { type: 'skip' | 'remove', index: number } |
+  { type: 'volume', volume: number } |
+  { type: 'play', query: string, userId: string } |
+  { type: 'filter', filter: string }
+type WebSocketMessage = ServerMessage | UserMessage
 
 type LavalinkYML = {
   server: {
