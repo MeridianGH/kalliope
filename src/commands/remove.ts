@@ -14,7 +14,7 @@ export const { data, execute }: CommandStructure = {
 
     const index = interaction.options.getInteger('track')
     if (index < 1 || index > player.queue.tracks.length) { return await interaction.reply(errorEmbed(`You can only specify a song number between 1-${player.queue.tracks.length}.`, true)) }
-    const track = player.queue.splice(index - 1, 1)[0]
+    const track = await player.queue.splice(index - 1, 1)
     await interaction.reply(simpleEmbed(`🗑️ Removed track \`#${index}\`: **${track.info.title}**`))
     interaction.client.websocket?.updatePlayer(player)
   }
