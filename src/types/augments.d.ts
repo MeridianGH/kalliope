@@ -5,7 +5,6 @@ import { CustomFilters } from '../music/customFilters.js'
 import { CommandStructure, ContextMenuStructure, Requester } from './types'
 import { levels } from '../utilities/logging.js'
 import { SearchResult, Track } from 'lavalink-client/dist'
-import { Requester } from './types'
 
 declare global {
   namespace NodeJS {
@@ -25,6 +24,7 @@ declare global {
 declare module 'discord.js' {
   interface Client {
     commands: Collection<string, CommandStructure>,
+    contextMenus: Collection<string, ContextMenuStructure>
     lavalink: Lavalink,
     websocket: WebSocketConnector
   }

@@ -1,6 +1,6 @@
 // noinspection JSIgnoredPromiseFromCall
 
-import { ChatInputCommandInteraction, PermissionsBitField } from 'discord.js'
+import { ChatInputCommandInteraction, ContextMenuCommandInteraction, PermissionsBitField } from 'discord.js'
 import { LoadTypes } from '../music/lavalink.js'
 import { errorEmbed } from './utilities.js'
 import { SearchResult } from 'lavalink-client'
@@ -30,7 +30,7 @@ export function genericChecks(interaction: ChatInputCommandInteraction<'cached'>
  * @param interaction.member The member that instantiated the interaction.
  * @returns If the checks succeeded or not.
  */
-export function playChecks(interaction: ChatInputCommandInteraction<'cached'>): boolean {
+export function playChecks(interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>): boolean {
   const channel = interaction.member.voice.channel
   if (!channel) {
     interaction.reply(errorEmbed('You need to be in a voice channel to use this command.', true))
@@ -57,7 +57,7 @@ export function playChecks(interaction: ChatInputCommandInteraction<'cached'>): 
  * @param result The search result to check.
  * @returns If the checks succeeded or not.
  */
-export function loadChecks(interaction: ChatInputCommandInteraction<'cached'>, result: SearchResult): boolean {
+export function loadChecks(interaction: ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>, result: SearchResult): boolean {
   if (result.loadType === LoadTypes.error) {
     logging.warn(`[Lavalink]  Encountered error while loading track: ${result.exception.message}`)
     interaction.editReply(errorEmbed('There was an error while adding your track to the queue.'))

@@ -3,13 +3,17 @@ import { Routes } from 'discord-api-types/v10'
 import { logging } from './logging.js'
 import { getFilesRecursively } from './utilities.js'
 import 'dotenv/config'
-import { CommandStructure } from '../types/types'
+import { CommandStructure, ContextMenuStructure } from '../types/types'
 
 const commands = []
 
 for (const file of getFilesRecursively('commands')) {
   const command = await import(file) as CommandStructure
   commands.push(command.data.toJSON())
+}
+for (const file of getFilesRecursively('menus')) {
+  const contextMenu = await import(file) as ContextMenuStructure
+  commands.push(contextMenu.data.toJSON())
 }
 
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN)

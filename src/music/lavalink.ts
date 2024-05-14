@@ -3,7 +3,7 @@ import {
   BaseGuildVoiceChannel,
   ChannelType,
   ChatInputCommandInteraction,
-  Client,
+  Client, ContextMenuCommandInteraction,
   EmbedBuilder,
   GuildMember,
   GuildTextBasedChannel,
@@ -241,7 +241,7 @@ export class Lavalink {
    * @returns The created Lavalink player.
    * @see LavalinkManager.createPlayer
    */
-  createPlayer(interaction: ChatInputCommandInteraction): Player {
+  createPlayer(interaction: ChatInputCommandInteraction | ContextMenuCommandInteraction): Player {
     const player = this.manager.createPlayer({
       guildId: interaction.guild.id,
       voiceChannelId: (interaction.member as GuildMember).voice.channel.id,

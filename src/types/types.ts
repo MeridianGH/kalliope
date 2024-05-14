@@ -15,6 +15,10 @@ export interface CommandStructure {
   data: Omit<SlashCommandBuilder, 'addSubcommandGroup' | 'addSubcommand'> | SlashCommandSubcommandsOnlyBuilder,
   execute: (interaction: ChatInputCommandInteraction<'cached'>) => Awaitable<unknown>
 }
+export interface ContextMenuStructure {
+  data: ContextMenuCommandBuilder,
+  execute: (interaction: ContextMenuCommandInteraction<'cached'>) => Awaitable<unknown>
+}
 
 export interface EventStructure<E extends keyof ClientEvents> {
   data: { name: E, once?: boolean },

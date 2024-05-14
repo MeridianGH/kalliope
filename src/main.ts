@@ -17,6 +17,13 @@ for (const file of getFilesRecursively('commands')) {
   client.commands.set(command.data.name, command)
 }
 
+// Context menus
+client.contextMenus = new Collection()
+for (const file of getFilesRecursively('menus')) {
+  const contextMenu = await import(file)
+  client.contextMenus.set(contextMenu.data.name, contextMenu)
+}
+
 // Events
 for (const file of getFilesRecursively('events')) {
   const event = await import(file)
