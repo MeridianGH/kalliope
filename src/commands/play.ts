@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from 'discord.js'
 import { loadChecks, playChecks } from '../utilities/checks.js'
 import { addMusicControls, errorEmbed } from '../utilities/utilities.js'
 import { SearchResult } from 'lavalink-client'
-import { CommandStructure } from '../types/types.js'
+import { CommandStructure } from '../types/types'
 
 export const { data, execute }: CommandStructure = {
   data: new SlashCommandBuilder()

@@ -1,7 +1,7 @@
 import { AttachmentBuilder, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { genericChecks } from '../utilities/checks.js'
 import { addMusicControls, formatMusicFooter, generateTimelineImage, msToHMS } from '../utilities/utilities.js'
-import { CommandStructure } from '../types/types.js'
+import { CommandStructure } from '../types/types'
 
 export const { data, execute }: CommandStructure = {
   data: new SlashCommandBuilder()

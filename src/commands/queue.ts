@@ -10,7 +10,7 @@ import { genericChecks } from '../utilities/checks.js'
 import { logging } from '../utilities/logging.js'
 import { durationOrLive, formatMusicFooter, msToHMS } from '../utilities/utilities.js'
 import { TrackInfo, UnresolvedTrackInfo } from 'lavalink-client'
-import { CommandStructure } from '../types/types.js'
+import { CommandStructure } from '../types/types'
 
 export const { data, execute }: CommandStructure = {
   data: new SlashCommandBuilder()

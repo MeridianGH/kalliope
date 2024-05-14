@@ -1,6 +1,6 @@
 import { logging } from '../utilities/logging.js'
 import { errorEmbed } from '../utilities/utilities.js'
-import { EventStructure } from '../types/types.js'
+import { EventStructure } from '../types/types'
 
 export const { data, execute }: EventStructure<'interactionCreate'> = {
   data: { name: 'interactionCreate' },

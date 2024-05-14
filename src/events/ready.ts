@@ -1,6 +1,6 @@
 import { logging } from '../utilities/logging.js'
 import { WebSocketConnector } from '../utilities/websocket.js'
-import { EventStructure } from '../types/types.js'
+import { EventStructure } from '../types/types'
 import 'dotenv/config'
 
 export let iconURL: string

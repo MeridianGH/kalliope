@@ -10,7 +10,7 @@ import { Client as GeniusClient } from 'genius-lyrics'
 import ytdl from 'ytdl-core'
 import { genericChecks } from '../utilities/checks.js'
 import { logging } from '../utilities/logging.js'
-import { CommandStructure } from '../types/types.js'
+import { CommandStructure } from '../types/types'
 import { formatMusicFooter } from '../utilities/utilities.js'
 
 const Genius = new GeniusClient(process.env.GENIUS_CLIENT_TOKEN)

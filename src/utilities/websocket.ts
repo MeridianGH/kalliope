@@ -4,7 +4,14 @@ import { logging } from './logging.js'
 import { addMusicControls, errorEmbed, simpleEmbed } from './utilities.js'
 import { Client, GuildTextBasedChannel } from 'discord.js'
 import { Player, SearchResult } from 'lavalink-client'
-import { Requester, WebSocketMessage } from '../types/types'
+import {
+  ClientMessage,
+  ClientMessageTypes,
+  Requester,
+  SimplePlayer,
+  SimpleTrack,
+  WebSocketMessage
+} from '../types/types'
 import fs from 'fs'
 
 const production = !process.argv.includes('development')
@@ -16,7 +23,7 @@ const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version
  * @param player The player to convert.
  * @returns A JSON compatible player object.
  */
-function simplifyPlayer(player: Player) {
+function simplifyPlayer(player: Player): SimplePlayer {
   return player ? {
     guildId: player.guildId,
     voiceChannelId: player.voiceChannelId,
@@ -28,14 +35,14 @@ function simplifyPlayer(player: Player) {
     settings: player.get('settings'),
     queue: {
       tracks: player.queue?.tracks?.map((track) => ({
-        info: track.info,
+        info: track.info as SimpleTrack['info'],
         requester: {
           displayName: (track.requester as Requester).displayName,
           displayAvatarURL: (track.requester as Requester).displayAvatarURL()
         }
       })),
       current: player.queue?.current ? {
-        info: player.queue.current.info,
+        info: player.queue.current.info as SimpleTrack['info'],
         requester: {
           displayName: (player.queue.current.requester as Requester).displayName,
           displayAvatarURL: (player.queue.current.requester as Requester).displayAvatarURL()
@@ -203,12 +210,11 @@ export class WebSocketConnector {
    * @param [type] The data type. Is added to `data`.
    * @param [data] The data to send.
    */
-  private send(type: 'clientData' | 'playerData', data: { [key: string]: unknown } = {}): void {
+  private send<T extends ClientMessageTypes>(type: T, data: Omit<ClientMessage<T>, 'type' | 'clientId'>): void {
     if (!this.ws) { return }
-    data.type = type
-    data.clientId = this.client.user.id
-    this.ws.send(JSON.stringify(data))
-    logging.debug('[WebSocket] Sent data:', data)
+    const message = Object.assign({ type: type, clientId: this.client.user.id }, data) as ClientMessage<typeof type>
+    this.ws.send(JSON.stringify(message))
+    logging.debug('[WebSocket] Sent data:', message)
   }
 
   /**
@@ -291,7 +297,7 @@ export class WebSocketConnector {
         this.send('playerData', {
           guildId: data.guildId,
           player: simplifyPlayer(player),
-          isResponseTo: data.type
+          responseTo: { type: data.type, userId: data.userId }
         })
       })
     })

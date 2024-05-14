@@ -8,7 +8,7 @@ import {
 import { loadChecks, playChecks } from '../utilities/checks.js'
 import { addMusicControls, errorEmbed, formatMusicFooter, msToHMS } from '../utilities/utilities.js'
 import { SearchResult, Track, UnresolvedTrack } from 'lavalink-client'
-import { CommandStructure } from '../types/types.js'
+import { CommandStructure } from '../types/types'
 
 export const { data, execute }: CommandStructure = {
   data: new SlashCommandBuilder()
