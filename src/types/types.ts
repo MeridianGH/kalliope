@@ -41,7 +41,6 @@ interface ClientMessageOptions {
   clientData: {
     guilds: string[],
     users: number,
-    players: number,
     readyTimestamp: EpochTimeStamp,
     ping: number,
     displayAvatarURL: string,
