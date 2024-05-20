@@ -4,14 +4,8 @@ import { logging } from './logging.js'
 import { addMusicControls, errorEmbed, simpleEmbed } from './utilities.js'
 import { Client, GuildTextBasedChannel } from 'discord.js'
 import { Player, SearchResult } from 'lavalink-client'
-import {
-  ClientMessage,
-  ClientMessageTypes,
-  Requester,
-  SimplePlayer,
-  SimpleTrack,
-  WebSocketMessage
-} from '../types/types'
+import { DistributedOmit, Requester, SimplePlayer, SimpleTrack } from '../types/types'
+import { MessageToClient, MessageToServer } from 'kalliopeserver/src/types/types'
 import fs from 'fs'
 
 const production = !process.argv.includes('development')
@@ -63,20 +57,20 @@ function simplifyPlayer(player: Player): SimplePlayer {
  * @param player The player to run the action on.
  * @param data The data object containing the action information.
  */
-async function executePlayerAction(client: Client, player: Player, data: WebSocketMessage): Promise<void> {
+async function executePlayerAction(client: Client, player: Player, data: MessageToClient): Promise<void> {
   const textChannel = client.channels.cache.get(player?.textChannelId) as GuildTextBasedChannel
-  if (!textChannel) { return }
-  switch (data.type) {
+  if (!textChannel || data.type !== 'requestPlayerAction') { return }
+  switch (data.action) {
     case 'pause': {
       player.paused ? await player.resume() : await player.pause()
       await textChannel.send(simpleEmbed(player.paused ? '⏸️ Paused.' : '▶️ Resumed.'))
       break
     }
     case 'skip': {
-      if (data.index) {
-        const track = player.queue[data.index - 1]
-        await player.skip(data.index)
-        await textChannel.send(simpleEmbed(`⏭️ Skipped to \`#${data.index}\`: **${track.info.title}**.`))
+      if (data.payload.index) {
+        const track = player.queue[data.payload.index - 1]
+        await player.skip(data.payload.index)
+        await textChannel.send(simpleEmbed(`⏭️ Skipped to \`#${data.payload.index}\`: **${track.info.title}**.`))
       } else if (player.queue.tracks.length === 0) {
         if (player.get('settings').autoplay) {
           // await player.skip(0, false)
@@ -135,13 +129,13 @@ async function executePlayerAction(client: Client, player: Player, data: WebSock
       break
     }
     case 'volume': {
-      await player.setVolume(data.volume)
-      await textChannel.send(simpleEmbed(`🔊 Set volume to ${data.volume}%.`))
+      await player.setVolume(data.payload.volume)
+      await textChannel.send(simpleEmbed(`🔊 Set volume to ${data.payload.volume}%.`))
       break
     }
     case 'play': {
       const member = await (await client.guilds.fetch(player.guildId)).members.fetch(data.userId)
-      const result = await player.extendedSearch(data.query, member) as SearchResult
+      const result = await player.extendedSearch(data.payload.query, member) as SearchResult
       if (result.loadType === LoadTypes.error) { break }
       if (result.loadType === LoadTypes.empty) { break }
 
@@ -152,8 +146,8 @@ async function executePlayerAction(client: Client, player: Player, data: WebSock
       break
     }
     case 'filter': {
-      await player.get('filters').setFilter(data.filter)
-      await textChannel.send(simpleEmbed(`Set filter to ${data.filter}.`))
+      await player.get('filters').setFilter(data.payload.filter)
+      await textChannel.send(simpleEmbed(`Set filter to ${data.payload.filter}.`))
       break
     }
     case 'clear': {
@@ -162,8 +156,8 @@ async function executePlayerAction(client: Client, player: Player, data: WebSock
       break
     }
     case 'remove': {
-      const track = await player.queue.splice(data.index - 1, 1)
-      await textChannel.send(simpleEmbed(`🗑️ Removed track \`#${data.index}\`: **${track.info.title}**`))
+      const track = await player.queue.splice(data.payload.index - 1, 1)
+      await textChannel.send(simpleEmbed(`🗑️ Removed track \`#${data.payload.index}\`: **${track.info.title}**`))
       break
     }
   }
@@ -207,28 +201,32 @@ export class WebSocketConnector {
 
   /**
    * Sends data using the WebSocket connection.
-   * @param [type] The data type. Is added to `data`.
    * @param [data] The data to send.
    */
-  private send<T extends ClientMessageTypes>(type: T, data: Omit<ClientMessage<T>, 'type' | 'clientId'>): void {
+  private send(data: DistributedOmit<MessageToServer, 'clientId'>): void {
     if (!this.ws) { return }
-    const message = Object.assign({ type: type, clientId: this.client.user.id }, data) as ClientMessage<typeof type>
+    const message = Object.assign({ clientId: this.client.user.id }, data)
     this.ws.send(JSON.stringify(message))
     logging.debug('[WebSocket] Sent data:', message)
   }
 
   /**
    * Sends an update containing information about this client.
+   * @param message The message this update should respond to.
    */
-  updateClientData(): void {
-    this.send('clientData', {
-      guilds: this.client.guilds.cache.map((guild) => guild.id),
-      users: this.client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0),
-      readyTimestamp: this.client.readyTimestamp,
-      ping: this.client.ws.ping,
-      displayAvatarURL: this.client.user.displayAvatarURL(),
-      displayName: this.client.user.displayName,
-      version: version
+  updateClientData(message?: MessageToClient): void {
+    this.send({
+      requestId: message.requestId ?? 'none',
+      type: 'clientData',
+      clientData: {
+        guilds: this.client.guilds.cache.map((guild) => guild.id),
+        users: this.client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0),
+        readyTimestamp: this.client.readyTimestamp,
+        ping: this.client.ws.ping,
+        displayAvatarURL: this.client.user.displayAvatarURL(),
+        displayName: this.client.user.displayName,
+        version: version
+      }
     })
   }
 
@@ -237,10 +235,7 @@ export class WebSocketConnector {
    * @param player The player to send.
    */
   updatePlayer(player: Player): void {
-    this.send('playerData', {
-      guildId: player.guildId,
-      player: simplifyPlayer(player)
-    })
+    this.send({ type: 'playerData', guildId: player.guildId, player: simplifyPlayer(player) })
   }
 
   /**
@@ -248,10 +243,7 @@ export class WebSocketConnector {
    * @param guildId The guild to update.
    */
   clearPlayer(guildId: string) {
-    this.send('playerData', {
-      guildId: guildId,
-      player: null
-    })
+    this.send({ type: 'playerData', guildId: guildId, player: null })
   }
 
   /**
@@ -277,29 +269,24 @@ export class WebSocketConnector {
     })
 
     this.ws.addEventListener('message', (event) => {
-      const data = JSON.parse(event.data.toString()) as WebSocketMessage
+      const message = JSON.parse(event.data.toString()) as MessageToClient
       logging.debug('[WebSocket] Received data:', event.data)
 
-      const player = this.client.lavalink.getPlayer(data.guildId)
-      if (data.type === 'requestPlayerData') {
-        this.send('playerData', {
-          guildId: data.guildId,
-          player: simplifyPlayer(player)
-        })
+      if (message.type === 'requestPlayerData') {
+        const player = this.client.lavalink.getPlayer(message.guildId)
+        this.send({ type: 'playerData', guildId: message.guildId, player: simplifyPlayer(player) })
         return
       }
-      if (data.type === 'requestClientData') {
-        this.updateClientData()
+      if (message.type === 'requestClientData') {
+        this.updateClientData(message)
         return
       }
-
-      executePlayerAction(this.client, player, data).then(() => {
-        this.send('playerData', {
-          guildId: data.guildId,
-          player: simplifyPlayer(player),
-          responseTo: { type: data.type, userId: data.userId }
+      if (message.type === 'requestPlayerAction') {
+        const player = this.client.lavalink.getPlayer(message.guildId)
+        executePlayerAction(this.client, player, message).then(() => {
+          this.send({ requestId: message.requestId, type: 'playerData', guildId: message.guildId, player: simplifyPlayer(player) })
         })
-      })
+      }
     })
   }
 

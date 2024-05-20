@@ -24,6 +24,7 @@
     "dotenv": "^16.4.5",
     "genius-lyrics": "^4.4.6",
     "js-yaml": "^4.1.0",
+    "kalliopeserver": "github:MeridianGH/KalliopeServer#dev",
     "lavalink-client": "github:tomato6966/lavalink-client",
     "node-fetch": "^3.3.2",
     "skia-canvas": "^1.0.1",
