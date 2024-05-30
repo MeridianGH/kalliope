@@ -118,6 +118,7 @@ export class ExtendedSearch {
       return this.executeAutoplay(client, lastTrack)
     }
 
+    track.info.artworkUrl = await this.getBestThumbnail(track)
     track.pluginInfo.clientData.fromAutoplay = true
     await this.player.queue.add(track)
     if (!this.player.playing && !this.player.paused) { await this.player.play() }

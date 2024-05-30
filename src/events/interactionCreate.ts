@@ -11,6 +11,7 @@ export const { data, execute }: EventStructure<'interactionCreate'> = {
         return
       }
 
+      logging.info(`[Discord]   ${interaction.user.tag} triggered /${interaction.commandName} in #${interaction.channel.name}/${interaction.guild.name}.`)
       const command = interaction.client.commands.get(interaction.commandName)
 
       try {
@@ -21,8 +22,6 @@ export const { data, execute }: EventStructure<'interactionCreate'> = {
         interaction.replied || interaction.deferred ? await interaction.editReply(embed) : await interaction.reply(embed)
         return
       }
-
-      logging.info(`[Discord]   ${interaction.user.tag} triggered /${interaction.commandName} in #${interaction.channel.name}/${interaction.guild.name}.`)
     } else if (interaction.isContextMenuCommand()) {
       if (!interaction.inCachedGuild()) {
         await interaction.reply(errorEmbed('Context menus are not supported in DMs.\nPlease use the bot in a server.'))
@@ -30,6 +29,7 @@ export const { data, execute }: EventStructure<'interactionCreate'> = {
       }
 
       const contextMenu = interaction.client.contextMenus.get(interaction.commandName)
+      logging.info(`[Discord]   ${interaction.user.tag} used menu '${interaction.commandName}' in #${interaction.channel.name}/${interaction.guild.name}.`)
 
       try {
         await contextMenu?.execute(interaction)
@@ -39,8 +39,6 @@ export const { data, execute }: EventStructure<'interactionCreate'> = {
         interaction.replied || interaction.deferred ? await interaction.editReply(embed) : await interaction.reply(embed)
         return
       }
-
-      logging.info(`[Discord]   ${interaction.user.tag} used menu '${interaction.commandName}' in #${interaction.channel.name}/${interaction.guild.name}.`)
     }
   }
 }

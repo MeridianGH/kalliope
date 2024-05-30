@@ -30,7 +30,7 @@ export const { data, execute }: CommandStructure = {
     if (index) {
       const track = player.queue[index - 1]
       await player.skip(index)
-      await interaction.reply(simpleEmbed(`⏭️ Skipped to \`#${index}\`: **${track.info.title}**.`))
+      await interaction.reply(simpleEmbed(`⏭️ Skipped to \`#${index}\`: **${track.info?.title ?? 'Unknown track'}**.`))
     } else {
       await player.skip()
       await interaction.reply(simpleEmbed('⏭️ Skipped.'))

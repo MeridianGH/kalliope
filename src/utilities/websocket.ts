@@ -4,8 +4,8 @@ import { logging } from './logging.js'
 import { addMusicControls, errorEmbed, simpleEmbed } from './utilities.js'
 import { Client, GuildTextBasedChannel } from 'discord.js'
 import { Player, SearchResult } from 'lavalink-client'
-import { DistributedOmit, Requester, SimplePlayer, SimpleTrack } from '../types/types'
-import { MessageToClient, MessageToServer } from 'kalliopeserver/src/types/types'
+import { DistributedOmit, Requester } from '../types/types'
+import { MessageToClient, MessageToServer, Player as SimplePlayer, Track as SimpleTrack } from 'kalliopeserver/src/types/types'
 import fs from 'fs'
 
 const production = !process.argv.includes('development')
@@ -67,7 +67,7 @@ async function executePlayerAction(client: Client, player: Player, data: Message
       break
     }
     case 'skip': {
-      if (data.payload.index) {
+      if (data.payload?.index) {
         const track = player.queue[data.payload.index - 1]
         await player.skip(data.payload.index)
         await textChannel.send(simpleEmbed(`⏭️ Skipped to \`#${data.payload.index}\`: **${track.info.title}**.`))
@@ -147,7 +147,7 @@ async function executePlayerAction(client: Client, player: Player, data: Message
     }
     case 'filter': {
       await player.get('filters').setFilter(data.payload.filter)
-      await textChannel.send(simpleEmbed(`Set filter to ${data.payload.filter}.`))
+      await textChannel.send(simpleEmbed(`Set filter to ${data.payload.filterText}.`))
       break
     }
     case 'clear': {
@@ -216,7 +216,7 @@ export class WebSocketConnector {
    */
   updateClientData(message?: MessageToClient): void {
     this.send({
-      requestId: message.requestId ?? 'none',
+      requestId: message?.requestId ?? 'none',
       type: 'clientData',
       clientData: {
         guilds: this.client.guilds.cache.map((guild) => guild.id),
@@ -272,20 +272,23 @@ export class WebSocketConnector {
       const message = JSON.parse(event.data.toString()) as MessageToClient
       logging.debug('[WebSocket] Received data:', event.data)
 
-      if (message.type === 'requestPlayerData') {
-        const player = this.client.lavalink.getPlayer(message.guildId)
-        this.send({ type: 'playerData', guildId: message.guildId, player: simplifyPlayer(player) })
-        return
-      }
-      if (message.type === 'requestClientData') {
-        this.updateClientData(message)
-        return
-      }
-      if (message.type === 'requestPlayerAction') {
-        const player = this.client.lavalink.getPlayer(message.guildId)
-        executePlayerAction(this.client, player, message).then(() => {
-          this.send({ requestId: message.requestId, type: 'playerData', guildId: message.guildId, player: simplifyPlayer(player) })
-        })
+      switch (message.type) {
+        case 'requestPlayerData': {
+          const player = this.client.lavalink.getPlayer(message.guildId)
+          this.send({ type: 'playerData', guildId: message.guildId, player: simplifyPlayer(player) })
+          break
+        }
+        case 'requestClientData': {
+          this.updateClientData(message)
+          break
+        }
+        case 'requestPlayerAction': {
+          const player = this.client.lavalink.getPlayer(message.guildId)
+          executePlayerAction(this.client, player, message).then(() => {
+            this.send({ requestId: message.requestId, type: 'playerData', guildId: message.guildId, player: simplifyPlayer(player) })
+          })
+          break
+        }
       }
     })
   }
