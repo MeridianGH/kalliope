@@ -53,7 +53,7 @@ jobs:
           npx --yes postject kalliope NODE_SEA_BLOB ./bin/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
 
       - name: Compile binary (macOS)
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-13'
         run: |
           cd ./build
           cp $(command -v node) kalliope
