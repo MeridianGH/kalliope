@@ -11,14 +11,14 @@ jobs:
       matrix:
         include:
           - os: 'windows-latest'
-            artifact_name: ${{ github.event.repository.name }}.exe
-            asset_name: ${{ github.event.repository.name }}-windows-amd64.exe
+            artifact_name: kalliope.exe
+            asset_name: kalliope-windows-amd64.exe
           - os: 'ubuntu-latest'
-            artifact_name: ${{ github.event.repository.name }}
-            asset_name: ${{ github.event.repository.name }}-linux-amd64
+            artifact_name: kalliope
+            asset_name: kalliope-linux-amd64
           - os: 'macos-13'
-            artifact_name: ${{ github.event.repository.name }}
-            asset_name: ${{ github.event.repository.name }}-macos-amd64
+            artifact_name: kalliope
+            asset_name: kalliope-macos-amd64
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
