@@ -24,6 +24,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install Node Dependencies
+        run: npm ci
+
       - name: Build project
         run: |
           cd ./build
