@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - '*'
-  workflow_dispatch:
 
 jobs:
   build:
@@ -14,12 +13,12 @@ jobs:
           - os: 'windows-latest'
             artifact_name: ${{ github.event.repository.name }}.exe
             asset_name: ${{ github.event.repository.name }}-windows-amd64.exe
-#          - os: 'ubuntu-latest'
-#            artifact_name: ${{ github.event.repository.name }}
-#            asset_name: ${{ github.event.repository.name }}-linux-amd64
-#          - os: 'macos-latest'
-#            artifact_name: ${{ github.event.repository.name }}
-#            asset_name: ${{ github.event.repository.name }}-macos-amd64
+          - os: 'ubuntu-latest'
+            artifact_name: ${{ github.event.repository.name }}
+            asset_name: ${{ github.event.repository.name }}-linux-amd64
+          - os: 'macos-latest'
+            artifact_name: ${{ github.event.repository.name }}
+            asset_name: ${{ github.event.repository.name }}-macos-amd64
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
