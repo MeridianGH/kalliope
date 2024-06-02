@@ -16,7 +16,7 @@ jobs:
           - os: 'ubuntu-latest'
             artifact_name: ${{ github.event.repository.name }}
             asset_name: ${{ github.event.repository.name }}-linux-amd64
-          - os: 'macos-latest-large'
+          - os: 'macos-13'
             artifact_name: ${{ github.event.repository.name }}
             asset_name: ${{ github.event.repository.name }}-macos-amd64
     runs-on: ${{ matrix.os }}
