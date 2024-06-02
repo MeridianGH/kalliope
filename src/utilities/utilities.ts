@@ -12,7 +12,8 @@ import path from 'path'
 import { iconURL } from '../events/ready.js'
 import { logging } from './logging.js'
 import { Player, TrackInfo, UnresolvedTrackInfo } from 'lavalink-client'
-import { Canvas, loadImage } from 'skia-canvas'
+import { createCanvas } from 'canvas'
+import jimp from 'jimp'
 
 /**
  * Builds a simple embed object with default settings used as a parameter in message functions.
@@ -169,23 +170,16 @@ function preventSimilarColor(color: string, reference: string, brighten: boolean
  * @returns A HEX color code.
  */
 async function findDominantColor(url: string) {
-  const img = await loadImage(url)
-  const canvasSize = 20
-  const canvas = new Canvas(canvasSize, canvasSize)
-  const ctx = canvas.getContext('2d')
-
   const colors = {}
-  ctx.filter = 'blur(2px)'
-  ctx.drawImage(img, 0, 0, canvasSize, canvasSize)
-  const imageData = ctx.getImageData(0, 0, canvasSize, canvasSize).data
-  for (let i = 0; i < imageData.length; i += 4) {
-    const rgb = rgbToHEX(new Uint8ClampedArray([
-      imageData[i] - imageData[i] % 32,
-      imageData[i + 1] - imageData[i + 1] % 32,
-      imageData[i + 2] - imageData[i + 2] % 32
-    ]))
-    colors[rgb] = (colors[rgb] ?? 0) + 1
-  }
+  const img = await jimp.read(url)
+  img
+    .resize(20, 20)
+    .blur(2)
+    .scan(0, 0, img.bitmap.width, img.bitmap.height, (x, y) => {
+      const hex = img.getPixelColor(x, y)
+      const hexString = `#${hex.toString(16).padStart(6, '0')}`
+      colors[hexString] = (colors[hexString] ?? 0) + 1
+    })
   return Object.keys(colors).reduce((a, b) => colors[a] > colors[b] ? a : b)
 }
 
@@ -196,7 +190,7 @@ async function findDominantColor(url: string) {
  */
 export async function generateTimelineImage(player: Player) {
   const track = player.queue.current
-  const canvas = new Canvas(500, 50)
+  const canvas = createCanvas(500, 50)
   const ctx = canvas.getContext('2d')
   const timelineHeight = 6
 
@@ -228,7 +222,7 @@ export async function generateTimelineImage(player: Player) {
   ctx.textAlign = 'end'
   ctx.fillText(msToHMS(track.info.duration), canvas.width, timelineHeight * 2)
 
-  return await canvas.toBuffer('png')
+  return canvas.toBuffer()
 }
 
 /**
