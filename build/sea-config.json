@@ -1,0 +1,4 @@
+{
+  "main": "../dist/main.js",
+  "output": "./bin/sea-prep.blob"
+}
