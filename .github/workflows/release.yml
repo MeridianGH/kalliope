@@ -42,18 +42,21 @@ jobs:
       - name: Compile binary (Windows)
         if: matrix.os == 'windows-latest'
         run: |
+          cd ./build
           node -e "require('fs').copyFileSync(process.execPath, 'kalliope.exe')"
           npx --yes postject kalliope.exe NODE_SEA_BLOB ./bin/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
 
       - name: Compile binary (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
+          cd ./build
           cp $(command -v node) kalliope
           npx --yes postject kalliope NODE_SEA_BLOB ./bin/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
 
       - name: Compile binary (macOS)
         if: matrix.os == 'macos-latest'
         run: |
+          cd ./build
           cp $(command -v node) kalliope
           codesign --remove-signature kalliope
           npx --yes postject kalliope NODE_SEA_BLOB ./bin/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --macho-segment-name NODE_SEA
@@ -63,6 +66,6 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/release/${{ matrix.artifact_name }}
+          file: ./build/${{ matrix.artifact_name }}
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ github.ref }}
