@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: 'windows-latest'
+            artifact_name: kalliope.exe
+            asset_name: kalliope-windows-amd64.exe
+          - os: 'ubuntu-latest'
+            artifact_name: kalliope
+            asset_name: kalliope-linux-amd64
+          - os: 'macos-13'
+            artifact_name: kalliope
+            asset_name: kalliope-macos-amd64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Build project
+        run: |
+          cd ./build
+          node ./esbuild.js
+          node --experimental-sea-config sea-config.json
+
+      - name: Compile binary (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd ./build
+          node -e "require('fs').copyFileSync(process.execPath, 'kalliope.exe')"
+          npx --yes postject kalliope.exe NODE_SEA_BLOB ./bin/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
+
+      - name: Compile binary (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd ./build
+          cp $(command -v node) kalliope
+          npx --yes postject kalliope NODE_SEA_BLOB ./bin/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
+
+      - name: Compile binary (macOS)
+        if: matrix.os == 'macos-13'
+        run: |
+          cd ./build
+          cp $(command -v node) kalliope
+          codesign --remove-signature kalliope
+          npx --yes postject kalliope NODE_SEA_BLOB ./bin/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --macho-segment-name NODE_SEA
+          codesign --sign - kalliope
+
+      - name: Create changelog
+        id: create_changelog
+        uses: mikepenz/release-changelog-builder-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./build/${{ matrix.artifact_name }}
+          body: ${{steps.create_changelog.outputs.changelog}}
+          asset_name: ${{ matrix.asset_name }}
+          tag: ${{ github.ref }}

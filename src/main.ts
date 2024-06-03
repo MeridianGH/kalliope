@@ -8,30 +8,32 @@ import 'dotenv/config'
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates], presence: { status: 'online', activities: [{ name: 'kalliope.cc', type: ActivityType.Listening }] } })
 client.lavalink = new Lavalink(client)
-await client.lavalink.initialize()
 
 // Commands
 client.commands = new Collection()
 for (const file of getFilesRecursively('commands')) {
-  const command = await import(file)
-  client.commands.set(command.data.name, command)
+  import(file).then((command) => {
+    client.commands.set(command.data.name, command)
+  })
 }
 
 // Context menus
 client.contextMenus = new Collection()
 for (const file of getFilesRecursively('menus')) {
-  const contextMenu = await import(file)
-  client.contextMenus.set(contextMenu.data.name, contextMenu)
+  import(file).then((contextMenu) => {
+    client.contextMenus.set(contextMenu.data.name, contextMenu)
+  })
 }
 
 // Events
 for (const file of getFilesRecursively('events')) {
-  const event = await import(file)
-  if (event.data.once) {
-    client.once(event.data.name, (...args) => event.execute(...args))
-  } else {
-    client.on(event.data.name, (...args) => event.execute(...args))
-  }
+  import(file).then((event) => {
+    if (event.data.once) {
+      client.once(event.data.name, (...args) => event.execute(...args))
+    } else {
+      client.on(event.data.name, (...args) => event.execute(...args))
+    }
+  })
 }
 process.on('SIGTERM', shutdown)
 process.on('SIGINT', shutdown)
@@ -56,4 +58,7 @@ async function shutdown() {
 }
 
 // Login
-await client.login(process.env.DISCORD_TOKEN)
+client.lavalink.initialize().then(() => {
+  // noinspection JSIgnoredPromiseFromCall
+  client.login(process.env.DISCORD_TOKEN)
+})

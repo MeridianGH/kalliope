@@ -2,6 +2,9 @@ node_modules/
 .idea/
 .env
 dist/
+build/
+!build/esbuild.js
+!build/sea-config.json
 docs/
 lavalink/Lavalink.jar
 lavalink/application.yml
