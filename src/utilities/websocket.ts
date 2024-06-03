@@ -5,7 +5,7 @@ import { addMusicControls, errorEmbed, simpleEmbed } from './utilities.js'
 import { Client, GuildTextBasedChannel } from 'discord.js'
 import { Player, SearchResult } from 'lavalink-client'
 import { DistributedOmit, Requester } from '../types/types'
-import { MessageToClient, MessageToServer, Player as SimplePlayer, Track as SimpleTrack } from 'kalliopeserver/src/types/types'
+import { MessageToClient, MessageToServer, Player as SimplePlayer, Track as SimpleTrack } from 'kalliope-server/src/types/types'
 import fs from 'fs'
 
 const production = !process.argv.includes('development')

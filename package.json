@@ -40,7 +40,7 @@
     "esbuild": "^0.21.4",
     "eslint": "^8.57.0",
     "eslint-plugin-jsdoc": "^48.2.2",
-    "kalliopeserver": "github:MeridianGH/KalliopeServer#dev",
+    "kalliope-server": "github:MeridianGH/kalliope-server#dev",
     "typedoc": "^0.25.12",
     "typedoc-plugin-extras": "^3.0.0",
     "typedoc-theme-hierarchy": "^4.1.2",
