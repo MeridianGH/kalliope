@@ -6,7 +6,8 @@
     "target": "ES2022",
     "sourceMap": true,
     "moduleResolution": "node",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "typedocOptions": {
     "entryPointStrategy": "expand",

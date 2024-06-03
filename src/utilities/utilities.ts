@@ -13,7 +13,8 @@ import { iconURL } from '../events/ready.js'
 import { logging } from './logging.js'
 import { Player, TrackInfo, UnresolvedTrackInfo } from 'lavalink-client'
 import { createCanvas } from 'canvas'
-import jimp from 'jimp'
+import { decode, Image } from 'imagescript'
+import fetch from 'node-fetch'
 
 /**
  * Builds a simple embed object with default settings used as a parameter in message functions.
@@ -170,17 +171,10 @@ function preventSimilarColor(color: string, reference: string, brighten: boolean
  * @returns A HEX color code.
  */
 async function findDominantColor(url: string) {
-  const colors = {}
-  const img = await jimp.read(url)
-  img
-    .resize(20, 20)
-    .blur(2)
-    .scan(0, 0, img.bitmap.width, img.bitmap.height, (x, y) => {
-      const hex = img.getPixelColor(x, y)
-      const hexString = `#${hex.toString(16).padStart(6, '0')}`
-      colors[hexString] = (colors[hexString] ?? 0) + 1
-    })
-  return Object.keys(colors).reduce((a, b) => colors[a] > colors[b] ? a : b)
+  const imageBuffer = Buffer.from(await fetch(url).then((response) => response.arrayBuffer()))
+  const img = await decode(imageBuffer) as Image
+  const hex = img.dominantColor(true, false)
+  return `#${hex.toString(16).padStart(6, '0')}`
 }
 
 /**
