@@ -68,7 +68,7 @@ async function executePlayerAction(client: Client, player: Player, data: Message
     }
     case 'skip': {
       if (data.payload?.index) {
-        const track = player.queue[data.payload.index - 1]
+        const track = player.queue.tracks[data.payload.index - 1]
         await player.skip(data.payload.index)
         await textChannel.send(simpleEmbed(`⏭️ Skipped to \`#${data.payload.index}\`: **${track.info.title}**.`))
       } else if (player.queue.tracks.length === 0) {
