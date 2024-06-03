@@ -5,8 +5,7 @@ import {
   ContextMenuCommandBuilder,
   ContextMenuCommandInteraction,
   GuildMember,
-  SlashCommandBuilder,
-  SlashCommandSubcommandsOnlyBuilder,
+  SlashCommandOptionsOnlyBuilder,
   User
 } from 'discord.js'
 import { TrackInfo } from 'lavalink-client'
@@ -14,7 +13,7 @@ import { TrackInfo } from 'lavalink-client'
 export type DistributedOmit<T, K extends keyof never> = T extends unknown ? Omit<T, K> : never
 
 export interface CommandStructure {
-  data: Omit<SlashCommandBuilder, 'addSubcommandGroup' | 'addSubcommand'> | SlashCommandSubcommandsOnlyBuilder,
+  data: SlashCommandOptionsOnlyBuilder,
   execute: (interaction: ChatInputCommandInteraction<'cached'>) => Awaitable<unknown>
 }
 export interface ContextMenuStructure {
