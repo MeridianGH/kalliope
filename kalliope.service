@@ -7,7 +7,7 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=5
-ExecStart=/bin/bash -c "cd /home/kalliope/Kalliope; npm run start"
+ExecStart=/bin/bash -c "cd /home/kalliope/kalliope; npm run start"
 User=kalliope
 
 [Install]
