@@ -1,0 +1,30 @@
+name: Deploy via SSH
+
+on:
+  workflow_dispatch:
+  release:
+    types: ['published']
+
+jobs:
+  webpack:
+    uses: ./.github/workflows/webpack.yml
+  deploy:
+    needs: webpack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: setInNextStep
+
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Executing SSH Script
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: ./scripts/kalliope/deploy.sh
