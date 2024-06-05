@@ -75,3 +75,7 @@ jobs:
           body: ${{steps.create_changelog.outputs.changelog}}
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ github.ref }}
+
+  deploy:
+    needs: build
+    uses: ./.github/workflows/deploy.yml
