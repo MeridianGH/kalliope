@@ -10,7 +10,8 @@
     "start": "npm run build && node .",
     "dev": "npm run build && node --enable-source-maps . development",
     "deploy": "npm run build && node dist/utilities/deployCommands.js",
-    "docs": "typedoc"
+    "docs": "typedoc",
+    "prepare": "husky"
   },
   "main": "dist/main.js",
   "type": "module",
@@ -33,6 +34,8 @@
     "ytdl-core": "^4.11.5"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.12.2",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
@@ -40,6 +43,7 @@
     "esbuild": "^0.21.4",
     "eslint": "^8.57.0",
     "eslint-plugin-jsdoc": "^48.2.2",
+    "husky": "^9.0.11",
     "kalliope-server": "github:MeridianGH/kalliope-server#dev",
     "typedoc": "^0.25.12",
     "typedoc-plugin-extras": "^3.0.0",
