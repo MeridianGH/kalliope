@@ -5,13 +5,15 @@
   "homepage": "https://kalliope.cc",
   "author": "Meridian",
   "license": "GPL-3.0-only",
+  "private": true,
   "scripts": {
     "build": "tsc",
     "start": "npm run build && node .",
     "dev": "npm run build && node --enable-source-maps . development",
     "deploy": "npm run build && node dist/utilities/deployCommands.js",
     "docs": "typedoc",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release": "commit-and-tag-version --skip.changelog --releaseCommitMessageFormat \"chore: release %s\""
   },
   "main": "dist/main.js",
   "type": "module",
@@ -40,6 +42,7 @@
     "@types/node": "^20.12.2",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^7.5.0",
+    "commit-and-tag-version": "^12.4.1",
     "esbuild": "^0.21.4",
     "eslint": "^8.57.0",
     "eslint-plugin-jsdoc": "^48.2.2",
