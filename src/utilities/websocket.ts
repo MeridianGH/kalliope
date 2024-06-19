@@ -169,6 +169,7 @@ async function executePlayerAction(client: Client, player: Player, data: Message
 export class WebSocketConnector {
   private client: Client
   private ws: WebSocket
+  private heartbeatTimeoutId: NodeJS.Timeout
   private reconnectDelay: number
   private static statusCodes = {
     1000: 'Normal Closure',
@@ -197,6 +198,17 @@ export class WebSocketConnector {
     this.client = client
     this.ws = null
     this.reconnectDelay = 1000
+  }
+
+  /**
+   * Resets the heartbeat timeout. Terminates the WebSocket if no ping was recieved for 60s.
+   */
+  private heartbeatTimeout() {
+    clearTimeout(this.heartbeatTimeoutId)
+    this.heartbeatTimeoutId = setTimeout(() => {
+      logging.warn('[WebSocket] Connection did not receive heartbeat after 60s. Assuming connection is dead.')
+      this.ws.terminate()
+    }, 60 * 1000 + 1000)
   }
 
   /**
@@ -252,25 +264,30 @@ export class WebSocketConnector {
   connect(): void {
     this.ws = new WebSocket(socketURL)
 
-    this.ws.addEventListener('error', (event) => {
+    this.ws.on('error', (event) => {
       logging.error('[WebSocket] Connection encountered an error: ' + event.message)
     })
 
-    this.ws.addEventListener('open', () => {
+    this.ws.on('open', () => {
       logging.success('[WebSocket] Opened WebSocket connection.')
       this.reconnectDelay = 1000
       this.updateClientData()
+      this.heartbeatTimeout()
     })
 
-    this.ws.addEventListener('close', (event) => {
-      if (event.wasClean) { return }
-      logging.error(`[WebSocket] Socket closed with reason: ${event.code} (${WebSocketConnector.statusCodes[event.code]}) | ${event.reason}`)
+    this.ws.on('close', (code, reason) => {
+      logging.error(`[WebSocket] Socket closed with reason: ${code} (${WebSocketConnector.statusCodes[code]}) | ${reason}`)
+      clearTimeout(this.heartbeatTimeoutId)
       this.reconnect()
     })
 
-    this.ws.addEventListener('message', (event) => {
-      const message = JSON.parse(event.data.toString()) as MessageToClient
-      logging.debug('[WebSocket] Received data:', event.data)
+    this.ws.on('ping', () => {
+      this.heartbeatTimeout()
+    })
+
+    this.ws.on('message', (data) => {
+      const message = JSON.parse(data.toString()) as MessageToClient
+      logging.debug('[WebSocket] Received data:', data)
 
       switch (message.type) {
         case 'requestPlayerData': {
