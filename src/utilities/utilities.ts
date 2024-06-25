@@ -174,7 +174,7 @@ async function findDominantColor(url: string) {
   const imageBuffer = Buffer.from(await fetch(url).then((response) => response.arrayBuffer()))
   const img = await decode(imageBuffer) as Image
   const hex = img.dominantColor(true, false)
-  return `#${hex.toString(16).padStart(6, '0')}`
+  return `#${hex.toString(16).padStart(8, '0').substring(0, 6)}`
 }
 
 /**
