@@ -2,7 +2,7 @@ import WebSocket from 'ws'
 import { LoadTypes } from '../music/lavalink.js'
 import { logging } from './logging.js'
 import { addMusicControls, errorEmbed, simpleEmbed } from './utilities.js'
-import { Client, GuildTextBasedChannel } from 'discord.js'
+import { Client, GuildTextBasedChannel, PermissionsBitField } from 'discord.js'
 import { Player, SearchResult } from 'lavalink-client'
 import { DistributedOmit, Requester } from '../types/types'
 import { MessageToClient, MessageToServer, Player as SimplePlayer, Track as SimpleTrack } from 'kalliope-server/src/types/types'
@@ -17,7 +17,7 @@ const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version
  * @param player The player to convert.
  * @returns A JSON compatible player object.
  */
-function simplifyPlayer(player: Player): SimplePlayer {
+function simplifyPlayer(player: Player): SimplePlayer | null {
   return player ? {
     guildId: player.guildId,
     voiceChannelId: player.voiceChannelId,
@@ -56,37 +56,43 @@ function simplifyPlayer(player: Player): SimplePlayer {
  * @param client The client that should execute the action.
  * @param player The player to run the action on.
  * @param data The data object containing the action information.
+ * @returns Whether this action was completed successfully or not.
  */
-async function executePlayerAction(client: Client, player: Player, data: MessageToClient): Promise<void> {
-  const textChannel = client.channels.cache.get(player?.textChannelId) as GuildTextBasedChannel
-  if (!textChannel || data.type !== 'requestPlayerAction') { return }
+async function executePlayerAction(client: Client, player: Player, data: MessageToClient): Promise<boolean> {
+  if (data.type !== 'requestPlayerAction') { return false }
+  const textChannel = player?.textChannelId ? client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel : undefined
+
   switch (data.action) {
     case 'pause': {
       player.paused ? await player.resume() : await player.pause()
-      await textChannel.send(simpleEmbed(player.paused ? '⏸️ Paused.' : '▶️ Resumed.'))
+      await textChannel?.send(simpleEmbed(player.paused ? '⏸️ Paused.' : '▶️ Resumed.'))
       break
     }
     case 'skip': {
       if (data.payload?.index) {
         const track = player.queue.tracks[data.payload.index - 1]
         await player.skip(data.payload.index)
-        await textChannel.send(simpleEmbed(`⏭️ Skipped to \`#${data.payload.index}\`: **${track.info.title}**.`))
+        await textChannel?.send(simpleEmbed(`⏭️ Skipped to \`#${data.payload.index}\`: **${track.info.title}**.`))
       } else if (player.queue.tracks.length === 0) {
         if (player.get('settings').autoplay) {
           // await player.skip(0, false)
           await player.stopPlaying(false, true)
-          await textChannel.send(simpleEmbed('⏭️ Skipped.'))
+          await textChannel?.send(simpleEmbed('⏭️ Skipped.'))
           break
         }
-        await player.destroy()
-        await textChannel.send(simpleEmbed('⏹️ Stopped.'))
+        await player.stopPlaying(false, true)
+        await textChannel?.send(simpleEmbed('⏹️ Skipped.'))
       } else {
         await player.skip()
-        await textChannel.send(simpleEmbed('⏭️ Skipped.'))
+        await textChannel?.send(simpleEmbed('⏭️ Skipped.'))
       }
       break
     }
     case 'previous': {
+      if (player.queue.previous.length === 0) {
+        client.websocket?.sendError(data.guildId, 'No previous songs to play.', data.requestId)
+        return false
+      }
       if (player.position > 5000) {
         await player.seek(0)
         break
@@ -94,80 +100,117 @@ async function executePlayerAction(client: Client, player: Player, data: Message
       const track = player.queue.previous.shift()
       await player.play({ track: track })
       await player.queue.add(player.queue.previous.shift(), 0)
-      await textChannel.send(simpleEmbed(`⏮️ Playing previous track \`#0\`: **${track.info.title}**.`))
+      await textChannel?.send(simpleEmbed(`⏮️ Playing previous track \`#0\`: **${track.info.title}**.`))
       break
     }
     case 'shuffle': {
       await player.queue.shuffle()
-      await textChannel.send(simpleEmbed('🔀 Shuffled the queue.'))
+      await textChannel?.send(simpleEmbed('🔀 Shuffled the queue.'))
       break
     }
     case 'repeat': {
       player.repeatMode === 'off' ? await player.setRepeatMode('track') :
         player.repeatMode === 'track' ? await player.setRepeatMode('queue') :
           await player.setRepeatMode('off')
-      await textChannel.send(simpleEmbed(`Set repeat mode to ${player.repeatMode === 'queue' ? 'Queue 🔁' : player.repeatMode === 'track' ? 'Track 🔂' : 'Off ▶️'}`))
+      await textChannel?.send(simpleEmbed(`Set repeat mode to ${player.repeatMode === 'queue' ? 'Queue 🔁' : player.repeatMode === 'track' ? 'Track 🔂' : 'Off ▶️'}`))
       break
     }
     case 'autoplay': {
       const settings = player.get('settings')
       settings.autoplay = !settings.autoplay
       player.set('settings', settings)
-      await textChannel.send(simpleEmbed(`↩️ Autoplay: ${settings.autoplay ? 'Enabled ✅' : 'Disabled ❌'}`))
+      await textChannel?.send(simpleEmbed(`↩️ Autoplay: ${settings.autoplay ? 'Enabled ✅' : 'Disabled ❌'}`))
       break
     }
     case 'sponsorblock': {
       const settings = player.get('settings')
       if (!settings.sponsorblockSupport) {
-        await textChannel.send(errorEmbed('SponsorBlock is not supported on this player.'))
-        break
+        client.websocket?.sendError(data.guildId, 'SponsorBlock is not supported on this player.', data.requestId)
+        await textChannel?.send(errorEmbed('SponsorBlock is not supported on this player.'))
+        return false
       }
       settings.sponsorblock = !settings.sponsorblock
       player.set('settings', settings)
       player.setSponsorBlock(settings.sponsorblock ? ['music_offtopic'] : [])
-      await textChannel.send(simpleEmbed(`⏭️ SponsorBlock: ${settings.sponsorblock ? 'Enabled ✅' : 'Disabled ❌'}`))
+      await textChannel?.send(simpleEmbed(`⏭️ SponsorBlock: ${settings.sponsorblock ? 'Enabled ✅' : 'Disabled ❌'}`))
       break
     }
     case 'volume': {
       await player.setVolume(data.payload.volume)
-      await textChannel.send(simpleEmbed(`🔊 Set volume to ${data.payload.volume}%.`))
+      await textChannel?.send(simpleEmbed(`🔊 Set volume to ${data.payload.volume}%.`))
       break
     }
     case 'play': {
-      const member = await (await client.guilds.fetch(player.guildId)).members.fetch(data.userId)
+      const guild = client.guilds.cache.get(data.guildId)
+      const member = await guild.members.fetch(data.userId)
+
+      if (!player) {
+        const channel = member.voice.channel
+        if (!channel) {
+          client.websocket?.sendError(guild.id, 'You need to be in a voice channel to use this.', data.requestId)
+          return false
+        }
+        if (guild.members.me.voice.channel && channel !== guild.members.me.voice.channel) {
+          client.websocket?.sendError(guild.id, 'You need to be in the same voice channel as the bot to use this!', data.requestId)
+          return false
+        }
+        if (!guild.members.me.permissionsIn(channel).has([PermissionsBitField.Flags.Connect, PermissionsBitField.Flags.Speak])) {
+          client.websocket?.sendError(guild.id, 'The bot does not have the correct permissions to play in your voice channel!', data.requestId)
+          return false
+        }
+        player = client.lavalink.createPlayer(data.guildId, channel.id)
+
+        if (!player.connected) {
+          if (!member.voice.channel) {
+            await player.destroy()
+            client.websocket?.sendError(guild.id, 'You need to be in a voice channel to use this.', data.requestId)
+            return false
+          }
+          await player.connect()
+        }
+      }
+
       const result = await player.extendedSearch(data.payload.query, member) as SearchResult
-      if (result.loadType === LoadTypes.error) { break }
-      if (result.loadType === LoadTypes.empty) { break }
+      if (result.loadType === LoadTypes.error) {
+        client.websocket?.sendError(guild.id, 'There was an error while adding your track to the queue.', data.requestId)
+        return false
+      }
+      if (result.loadType === LoadTypes.empty) {
+        client.websocket?.sendError(guild.id, 'There were no tracks found using your query.', data.requestId)
+        return false
+      }
 
       const embed = await client.lavalink.processPlayResult(player, result)
-
-      const message = await textChannel.send({ embeds: [embed] })
-      await addMusicControls(message, player)
+      if (textChannel) {
+        const message = await textChannel.send({ embeds: [embed] })
+        await addMusicControls(message, player)
+      }
       break
     }
     case 'filter': {
       await player.get('filters').setFilter(data.payload.filter)
-      await textChannel.send(simpleEmbed(`Set filter to ${data.payload.filterText}.`))
+      await textChannel?.send(simpleEmbed(`Set filter to ${data.payload.filterText}.`))
       break
     }
     case 'clear': {
       await player.queue.splice(0, player.queue.tracks.length)
-      await textChannel.send(simpleEmbed('🗑️ Cleared the queue.'))
+      await textChannel?.send(simpleEmbed('🗑️ Cleared the queue.'))
       break
     }
     case 'remove': {
       const track = await player.queue.splice(data.payload.index - 1, 1)
-      await textChannel.send(simpleEmbed(`🗑️ Removed track \`#${data.payload.index}\`: **${track.info.title}**`))
+      await textChannel?.send(simpleEmbed(`🗑️ Removed track \`#${data.payload.index}\`: **${track.info.title}**`))
       break
     }
   }
+  return true
 }
 
 /**
  * Websocket client that manages and maintains a connection.
  */
 export class WebSocketConnector {
-  private client: Client
+  private readonly client: Client
   private ws: WebSocket
   private heartbeatTimeoutId: NodeJS.Timeout
   private reconnectDelay: number
@@ -259,6 +302,16 @@ export class WebSocketConnector {
   }
 
   /**
+   * Sends an error message.
+   * @param guildId The affected guild.
+   * @param message The error message.
+   * @param requestId The request ID if this error happened in response to a request.
+   */
+  sendError(guildId: string, message: string, requestId?: string) {
+    this.send({ type: 'error', guildId: guildId, errorMessage: message, requestId: requestId })
+  }
+
+  /**
    * Opens a new WebSocket connection.
    */
   connect(): void {
@@ -278,21 +331,21 @@ export class WebSocketConnector {
     this.ws.on('close', (code, reason) => {
       logging.error(`[WebSocket] Socket closed with reason: ${code} (${WebSocketConnector.statusCodes[code]}) | ${reason}`)
       clearTimeout(this.heartbeatTimeoutId)
-      this.reconnect()
+      this.reconnect(code)
     })
 
     this.ws.on('ping', () => {
       this.heartbeatTimeout()
     })
 
-    this.ws.on('message', (data) => {
+    this.ws.on('message', async (data) => {
       const message = JSON.parse(data.toString()) as MessageToClient
-      logging.debug('[WebSocket] Received data:', data)
+      logging.debug('[WebSocket] Received data:', message)
 
       switch (message.type) {
         case 'requestPlayerData': {
           const player = this.client.lavalink.getPlayer(message.guildId)
-          this.send({ type: 'playerData', guildId: message.guildId, player: simplifyPlayer(player) })
+          this.send({ type: 'playerData', guildId: message.guildId, player: simplifyPlayer(player), requestId: message.requestId ?? 'none' })
           break
         }
         case 'requestClientData': {
@@ -301,9 +354,15 @@ export class WebSocketConnector {
         }
         case 'requestPlayerAction': {
           const player = this.client.lavalink.getPlayer(message.guildId)
-          executePlayerAction(this.client, player, message).then(() => {
-            this.send({ requestId: message.requestId, type: 'playerData', guildId: message.guildId, player: simplifyPlayer(player) })
-          })
+          const success = await executePlayerAction(this.client, player, message)
+          if (success) {
+            this.send({
+              requestId: message.requestId,
+              type: 'playerData',
+              guildId: message.guildId,
+              player: simplifyPlayer(this.client.lavalink.getPlayer(message.guildId))
+            })
+          }
           break
         }
       }
@@ -312,8 +371,11 @@ export class WebSocketConnector {
 
   /**
    * Handles a WebSocket reconnect.
+   * @param code The reason code why the WebSocket was closed.
    */
-  private reconnect(): void {
+  private reconnect(code: number): void {
+    if (code === 1000) { return }
+
     const maxDelay = 128000
     const randomDelay = Math.floor(Math.random() * 2000)
     logging.warn(`[WebSocket] Trying to reconnect in ${this.reconnectDelay / 1000}s (+${randomDelay / 1000}s variation).`)
@@ -330,6 +392,7 @@ export class WebSocketConnector {
    */
   close(): void {
     if (!this.ws) { return }
+    this.send({ type: 'clientData', clientData: null })
     logging.info('[WebSocket] Closing WebSocket connection.')
     this.ws.close(1000, 'Socket closed by client.')
   }

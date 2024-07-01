@@ -26,7 +26,7 @@ declare module 'discord.js' {
     commands: Collection<string, CommandStructure>,
     contextMenus: Collection<string, ContextMenuStructure>
     lavalink: Lavalink,
-    websocket: WebSocketConnector
+    websocket?: WebSocketConnector
   }
 }
 

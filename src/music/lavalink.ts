@@ -12,7 +12,7 @@ import {
 import fs from 'fs'
 import http from 'http'
 import yaml from 'js-yaml'
-import { LavalinkManager, Player, SearchResult } from 'lavalink-client'
+import { LavalinkManager, Player, SearchResult, PlayerOptions } from 'lavalink-client'
 import { logging } from '../utilities/logging.js'
 import { durationOrLive, errorEmbed, formatMusicFooter, msToHMS, simpleEmbed } from '../utilities/utilities.js'
 import { CustomFilters } from './customFilters.js'
@@ -55,8 +55,9 @@ export class Lavalink {
         logging.warn(`[Lavalink]  Encountered error while playing track '${track.info.title}'.`)
         logging.debug('[Lavalink]  Exception message: ', payload.exception.message)
         const textChannel = client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
-        await textChannel?.send(errorEmbed('There was an error while playing your track.'))
+        await textChannel?.send(errorEmbed(`There was an error while playing track '${track.info.title}'.`))
         await player.stopPlaying(false, true)
+        client.websocket?.sendError(player.guildId, `There was an error while playing track '${track.info.title}'.`)
       })
       .on('queueEnd', (player, track) => {
         if (player.get('settings').autoplay) {
@@ -64,7 +65,13 @@ export class Lavalink {
           return
         }
         client.websocket?.updatePlayer(player)
-        setTimeout(async () => { if (!player.playing && !player.queue.current) { await player.destroy() } }, 30000)
+        setTimeout(async () => {
+          if (!player.playing && !player.queue.current) {
+            const textChannel = this.client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
+            textChannel?.send(simpleEmbed('ℹ️ Left the voice channel due to inactivity.'))
+            await player.destroy()
+          }
+        }, 30000)
       })
       .on('playerDestroy', (player) => {
         for (const collector of player.get('collectors')) {
@@ -218,7 +225,7 @@ export class Lavalink {
       const voiceChannel = this.client.channels.cache.get(oldState.channelId) as BaseGuildVoiceChannel
       if (voiceChannel.members.filter((member) => member.id !== me.id).size === 0) {
         const textChannel = this.client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
-        textChannel?.send(simpleEmbed('Left the voice channel because it was empty.'))
+        textChannel?.send(simpleEmbed('ℹ️ Left the voice channel because it was empty.'))
         await player.destroy()
       }
       return
@@ -241,14 +248,25 @@ export class Lavalink {
    * @returns The created Lavalink player.
    * @see LavalinkManager.createPlayer
    */
-  createPlayer(interaction: ChatInputCommandInteraction | ContextMenuCommandInteraction): Player {
-    const player = this.manager.createPlayer({
-      guildId: interaction.guild.id,
-      voiceChannelId: (interaction.member as GuildMember).voice.channel.id,
-      textChannelId: interaction.channel.id,
+  createPlayer(guildId: string, voiceChannelId: string): Player
+  createPlayer(interaction: ChatInputCommandInteraction | ContextMenuCommandInteraction): Player
+  createPlayer(interactionOrGuildId: string | ChatInputCommandInteraction | ContextMenuCommandInteraction, voiceChannelId?: string) {
+    let playerOptions: PlayerOptions
+    const defaultOptions: Partial<PlayerOptions> = {
       selfDeaf: false,
       volume: 50
-    })
+    }
+    if (typeof interactionOrGuildId === 'string') {
+      playerOptions = Object.assign(defaultOptions, { guildId: interactionOrGuildId, voiceChannelId: voiceChannelId })
+    } else {
+      playerOptions = Object.assign({
+        guildId: interactionOrGuildId.guild.id,
+        voiceChannelId: (interactionOrGuildId.member as GuildMember).voice.channel.id,
+        textChannelId: interactionOrGuildId.channel.id
+      }, defaultOptions)
+    }
+
+    const player = this.manager.createPlayer(playerOptions)
     if (!player.get('plugins')?.extendedSearch) { new ExtendedSearch(player) }
     if (!player.get('plugins')?.customFilters) { new CustomFilters(player) }
     if (!player.get('collectors')) { player.set('collectors', []) }
