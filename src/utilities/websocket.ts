@@ -202,6 +202,13 @@ async function executePlayerAction(client: Client, player: Player, data: Message
       await textChannel?.send(simpleEmbed(`🗑️ Removed track \`#${data.payload.index}\`: **${track.info.title}**`))
       break
     }
+    case 'reorder': {
+      const shuffled = data.payload.indices.map((index) => player.queue.tracks[index - 1])
+      await player.queue.splice(0, player.queue.tracks.length)
+      await player.queue.add(shuffled)
+      await textChannel?.send(simpleEmbed('🔀 Reordered the queue. View the new order using `/queue`.'))
+      break
+    }
   }
   return true
 }
