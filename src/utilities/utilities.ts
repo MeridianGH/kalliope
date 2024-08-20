@@ -328,7 +328,8 @@ export async function addMusicControls(message: Message, player: Player): Promis
           }
           await player.destroy()
           await buttonInteraction.reply(simpleEmbed('⏹️ Stopped', true))
-          break
+          message.client.websocket?.clearPlayer(message.guild.id)
+          return
         }
         await player.skip()
         await buttonInteraction.reply(simpleEmbed('⏭️ Skipped', true))
@@ -337,7 +338,8 @@ export async function addMusicControls(message: Message, player: Player): Promis
       case 'stop': {
         await player.destroy()
         await buttonInteraction.reply(simpleEmbed('⏹️ Stopped', true))
-        break
+        message.client.websocket?.clearPlayer(message.guild.id)
+        return
       }
     }
     message.client.websocket?.updatePlayer(player)
