@@ -62,6 +62,19 @@ export function sleep(seconds: number): Promise<void> {
 }
 
 /**
+ * Truncates a string with an ellipsis if the string's length is greater than the given number.
+ * @param string The string to truncate.
+ * @param length The maximum string length.
+ * @returns The truncated string.
+ */
+export function truncateString(string: string, length: number): string {
+  if (string.length > length) {
+    return string.slice(0, length - 1) + '…'
+  }
+  return string
+}
+
+/**
  * Converts milliseconds to a formatted time string.
  * @param ms The milliseconds to convert.
  * @returns A string in HH:MM:SS format.
