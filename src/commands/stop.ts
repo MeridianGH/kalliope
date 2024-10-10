@@ -13,5 +13,6 @@ export const { data, execute }: CommandStructure = {
 
     await player.destroy()
     await interaction.reply(simpleEmbed('⏹️ Stopped.'))
+    interaction.client.websocket?.clearPlayer(interaction.guild.id)
   }
 }

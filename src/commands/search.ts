@@ -6,7 +6,7 @@ import {
   StringSelectMenuInteraction
 } from 'discord.js'
 import { loadChecks, playChecks } from '../utilities/checks.js'
-import { addMusicControls, errorEmbed, formatMusicFooter, msToHMS } from '../utilities/utilities.js'
+import { addMusicControls, errorEmbed, formatMusicFooter, msToHMS, truncateString } from '../utilities/utilities.js'
 import { SearchResult, Track, UnresolvedTrack } from 'lavalink-client'
 import { CommandStructure } from '../types/types'
 
@@ -30,9 +30,9 @@ export const { data, execute }: CommandStructure = {
     if (!loadChecks(interaction, result)) { return }
 
     const tracks = result.tracks.map((track: Track | UnresolvedTrack, index: number) => ({
-      label: track.info.title,
-      description: track.info.author,
-      value: index.toString()
+      label: truncateString(track.info.title, 100),
+      description: truncateString(track.info.author, 100),
+      value: truncateString(index.toString(), 100)
     }))
 
     const selectMenu = new StringSelectMenuBuilder()

@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 import spotifyUrlInfo from 'spotify-url-info'
 import { LoadTypes } from './lavalink.js'
-import { Player, SearchResult, Track } from 'lavalink-client'
+import { Player, SearchResult, Track, UnresolvedTrack } from 'lavalink-client'
 import { Requester, SpotifyTrackInfo } from '../types/types'
 import { logging } from '../utilities/logging.js'
 import { Client, EmbedBuilder, GuildTextBasedChannel } from 'discord.js'
@@ -99,7 +99,7 @@ export class ExtendedSearch {
     return search
   }
 
-  async executeAutoplay(client: Client, lastTrack: Track) {
+  async executeAutoplay(client: Client, lastTrack: Track | UnresolvedTrack) {
     if (!this.player.get('settings').autoplay || !lastTrack) { return }
 
     const textChannel = client.channels.cache.get(this.player?.textChannelId) as GuildTextBasedChannel
