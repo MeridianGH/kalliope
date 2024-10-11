@@ -34,7 +34,6 @@
     "js-yaml": "^4.1.0",
     "lavalink-client": "github:tomato6966/lavalink-client",
     "node-fetch": "^3.3.2",
-    "puppeteer": "^23.5.2",
     "spotify-url-info": "^3.2.17",
     "ws": "^8.18.0",
     "ytdl-core": "^4.11.5"
