@@ -1,23 +1,14 @@
 import { spawn } from 'child_process'
-import {
-  BaseGuildVoiceChannel,
-  ChannelType,
-  ChatInputCommandInteraction,
-  Client, ContextMenuCommandInteraction,
-  EmbedBuilder,
-  GuildMember,
-  GuildTextBasedChannel,
-  VoiceState
-} from 'discord.js'
+import { BaseGuildVoiceChannel, ChannelType, Client, EmbedBuilder, GuildTextBasedChannel, VoiceState } from 'discord.js'
 import fs from 'fs'
 import http from 'http'
 import yaml from 'js-yaml'
-import { LavalinkManager, Player, SearchResult, PlayerOptions } from 'lavalink-client'
+import { LavalinkManager, Player, PlayerOptions, SearchResult } from 'lavalink-client'
 import { logging } from '../utilities/logging.js'
 import { durationOrLive, errorEmbed, formatMusicFooter, msToHMS, simpleEmbed } from '../utilities/utilities.js'
 import { CustomFilters } from './customFilters.js'
 import { ExtendedSearch } from './extendedSearch.js'
-import { LavalinkYML, Requester } from '../types/types'
+import { ChatOrMenuInteraction, LavalinkYML, Requester } from '../types/types'
 import path from 'path'
 import { ChildProcessWithoutNullStreams } from 'node:child_process'
 import { iconURL } from '../events/ready.js'
@@ -31,11 +22,11 @@ export class Lavalink {
     // noinspection JSUnusedGlobalSymbols
     this.manager = new LavalinkManager({
       nodes: [
-        /*{
+        /* {
           host: 'localhost',
           port: 2333,
           authorization: 'youshallnotpass'
-        },*/
+        }, */
         {
           host: 'lavalink.kalliope.cc',
           port: 443,
@@ -51,25 +42,26 @@ export class Lavalink {
       .on('trackStart', (player) => {
         setTimeout(() => { client.websocket?.updatePlayer(player) }, 500)
       })
-      .on('trackError', async (player, track, payload) => {
-        logging.warn(`[Lavalink]  Encountered error while playing track '${track.info.title}'.`)
-        logging.debug('[Lavalink]  Exception message: ', payload.exception.message)
-        const textChannel = client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
-        await textChannel?.send(errorEmbed(`There was an error while playing track '${track.info.title}'.`))
-        await player.stopPlaying(false, true)
-        client.websocket?.sendError(player.guildId, `There was an error while playing track '${track.info.title}'.`)
+      .on('trackError', (player, track, payload) => {
+        logging.warn(`[Lavalink]  Encountered error while playing track '${track?.info.title ?? 'Unknown track'}'.`)
+        logging.debug('[Lavalink]  Exception message: ', payload.exception?.message)
+        const textChannel = client.channels.cache.get(player.textChannelId ?? '') as GuildTextBasedChannel
+        void textChannel?.send(errorEmbed(`There was an error while playing track '${track?.info.title ?? 'Unknown track'}'.`))
+        void player.stopPlaying(false, true)
+        client.websocket?.sendError(player.guildId, `There was an error while playing track '${track?.info.title ?? 'Unknown track'}'.`)
       })
       .on('queueEnd', (player, track) => {
         if (player.get('settings').autoplay) {
-          player.executeAutoplay(this.client, track)
+          if (!track) { return }
+          void player.executeAutoplay(this.client, track)
           return
         }
         client.websocket?.updatePlayer(player)
-        setTimeout(async () => {
+        setTimeout(() => {
           if (!player.playing && !player.queue.current) {
-            const textChannel = this.client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
-            textChannel?.send(simpleEmbed('ℹ️ Left the voice channel due to inactivity.'))
-            await player.destroy()
+            const textChannel = this.client.channels.cache.get(player.textChannelId ?? '') as GuildTextBasedChannel
+            void textChannel?.send(simpleEmbed('ℹ️ Left the voice channel due to inactivity.'))
+            void player.destroy()
           }
         }, 30000)
       })
@@ -80,8 +72,11 @@ export class Lavalink {
         client.websocket?.clearPlayer(player.guildId)
       })
       .on('SegmentsLoaded', (player, track, payload) => {
-        if (!track) { track = player.queue.current }
-        track.pluginInfo.clientData.segments = payload.segments
+        if (!track) {
+          if (!player.queue.current) { return }
+          track = player.queue.current
+        }
+        track.pluginInfo.clientData = { ...track.pluginInfo.clientData, segments: payload.segments }
       })
 
     this.manager.nodeManager
@@ -89,9 +84,9 @@ export class Lavalink {
       .on('error', (node, error) => { logging.error(`[Lavalink]  Node ${node.id} encountered an error: ${error}`) })
 
     this.client
-      .once('ready', async () => { await this.manager.init({ id: client.user.id, username: client.user.username }) })
-      .on('voiceStateUpdate', (oldState, newState) => this._voiceUpdate(oldState, newState))
-      .on('raw', (d) => this.manager.sendRawData(d))
+      .once('ready', (client) => { void this.manager.init({ id: client.user.id, username: client.user.username }) })
+      .on('voiceStateUpdate', (oldState, newState) => void this._voiceUpdate(oldState, newState))
+      .on('raw', (d) => void this.manager.sendRawData(d)) // eslint-disable-line @typescript-eslint/no-unsafe-argument
   }
 
   async initialize(): Promise<void> {
@@ -136,10 +131,10 @@ export class Lavalink {
 
   async destroy(): Promise<void> {
     logging.info(`[Lavalink]  Closing ${this.manager.players.size} queues.`)
-    const playerPromises = []
+    const playerPromises: Promise<unknown>[] = []
     this.manager.players.forEach((player) => {
-      const textChannel = this.client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
-      textChannel?.send({
+      const textChannel = this.client.channels.cache.get(player.textChannelId ?? '') as GuildTextBasedChannel
+      void textChannel?.send({
         embeds: [
           new EmbedBuilder()
             .setTitle('Shutdown.')
@@ -182,10 +177,10 @@ export class Lavalink {
   private async _voiceUpdate(oldState: VoiceState, newState: VoiceState): Promise<void> {
     const me = newState.guild.members.me
     const player = this.getPlayer(newState.guild.id)
-    if (!player) { return }
+    if (!me || !player) { return }
 
     // Client events
-    if (newState.member.id === me.id) {
+    if (newState.member?.id === me.id) {
       // Disconnect
       if (!newState.channelId) {
         await player.destroy()
@@ -195,12 +190,16 @@ export class Lavalink {
       // Mute / Unmute
       if (oldState.serverMute !== newState.serverMute) {
         try {
-          newState.serverMute ? await player.pause() : await player.resume()
+          if (newState.serverMute) {
+            await player.pause()
+          } else {
+            await player.resume()
+          }
         } catch { /* Ignore play/pause error */ }
       }
 
       // Stage Channel
-      if (newState.channel.type === ChannelType.GuildStageVoice) {
+      if (newState.channel?.type === ChannelType.GuildStageVoice) {
         // Join
         if (!oldState.channel) {
           me.voice.setSuppressed(false).catch(async () => {
@@ -212,7 +211,11 @@ export class Lavalink {
         // Suppressed
         if (oldState.suppress !== newState.suppress) {
           try {
-            newState.suppress ? await player.pause() : await player.resume()
+            if (newState.suppress) {
+              await player.pause()
+            } else {
+              await player.resume()
+            }
           } catch { /* Ignore play/pause error */ }
           return
         }
@@ -222,10 +225,10 @@ export class Lavalink {
 
     // Channel empty
     if (!newState.channel) {
-      const voiceChannel = this.client.channels.cache.get(oldState.channelId) as BaseGuildVoiceChannel
-      if (voiceChannel.members.filter((member) => member.id !== me.id).size === 0) {
-        const textChannel = this.client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel
-        textChannel?.send(simpleEmbed('ℹ️ Left the voice channel because it was empty.'))
+      const voiceChannel = this.client.channels.cache.get(oldState.channelId ?? '') as BaseGuildVoiceChannel | undefined
+      if (voiceChannel?.members.filter((member) => member.id !== me.id).size === 0) {
+        const textChannel = this.client.channels.cache.get(player.textChannelId ?? '') as GuildTextBasedChannel | undefined
+        await textChannel?.send(simpleEmbed('ℹ️ Left the voice channel because it was empty.'))
         await player.destroy()
       }
       return
@@ -235,34 +238,33 @@ export class Lavalink {
   /**
    * Gets a player using a guild ID.
    * @param guildId The guild ID to retrieve the player from.
-   * @returns The Lavalink player.
+   * @returns The Lavalink player for that guild ID or `null` if none exists.
    * @see LavalinkManager.getPlayer
    */
-  getPlayer(guildId: string): Player {
-    return this.manager.getPlayer(guildId)
+  getPlayer(guildId: string): Player | null {
+    return this.manager.getPlayer(guildId) ?? null
   }
 
   /**
    * Creates a player from a discord.js interaction.
-   * @param interaction The interaction that requested a player to be created.
    * @returns The created Lavalink player.
    * @see LavalinkManager.createPlayer
    */
   createPlayer(guildId: string, voiceChannelId: string): Player
-  createPlayer(interaction: ChatInputCommandInteraction | ContextMenuCommandInteraction): Player
-  createPlayer(interactionOrGuildId: string | ChatInputCommandInteraction | ContextMenuCommandInteraction, voiceChannelId?: string) {
+  createPlayer(interaction: ChatOrMenuInteraction & { member: { voice: { channel: string } } }): Player
+  createPlayer(guildIdOrInteraction: string | ChatOrMenuInteraction & { member: { voice: { channel: string } } }, voiceChannelId?: string): Player {
     let playerOptions: PlayerOptions
     const defaultOptions: Partial<PlayerOptions> = {
       selfDeaf: false,
       volume: 50
     }
-    if (typeof interactionOrGuildId === 'string') {
-      playerOptions = Object.assign(defaultOptions, { guildId: interactionOrGuildId, voiceChannelId: voiceChannelId })
+    if (typeof guildIdOrInteraction === 'string') {
+      playerOptions = Object.assign(defaultOptions, { guildId: guildIdOrInteraction, voiceChannelId: voiceChannelId! })
     } else {
       playerOptions = Object.assign({
-        guildId: interactionOrGuildId.guild.id,
-        voiceChannelId: (interactionOrGuildId.member as GuildMember).voice.channel.id,
-        textChannelId: interactionOrGuildId.channel.id
+        guildId: guildIdOrInteraction.guild.id,
+        voiceChannelId: guildIdOrInteraction.member.voice.channel.id,
+        textChannelId: guildIdOrInteraction.channel!.id
       }, defaultOptions)
     }
 
@@ -297,18 +299,20 @@ export class Lavalink {
     return new EmbedBuilder()
       .setAuthor({ name: 'Added to queue.', iconURL: (result.tracks[0].requester as Requester).displayAvatarURL() })
       .setTitle(info.title)
-      .setURL(info.uri)
-      .setThumbnail(isTrack ? result.tracks[0].info.artworkUrl : result.playlist.thumbnail)
-      .addFields(isTrack ? [
-        { name: 'Duration', value: durationOrLive(info), inline: true },
-        { name: 'Author', value: info.author, inline: true },
-        { name: 'Position', value: player.queue.tracks.length.toString(), inline: true }
-      ] : [
-        { name: 'Duration', value: msToHMS(info.duration), inline: true },
-        { name: 'Amount', value: result.tracks.length + ' songs', inline: true },
-        { name: 'Position', value: `${player.queue.tracks.length - result.tracks.length + 1}-${player.queue.tracks.length}`, inline: true }
-      ])
-      .setFooter({ text: `Kalliope | ${formatMusicFooter(player)}`, iconURL: this.client.user.displayAvatarURL() })
+      .setURL(info.uri ?? null)
+      .setThumbnail(isTrack ? result.tracks[0].info.artworkUrl : result.playlist?.thumbnail ?? null)
+      .addFields(isTrack ?
+        [
+          { name: 'Duration', value: durationOrLive(info), inline: true },
+          { name: 'Author', value: info.author ?? 'Unknown author', inline: true },
+          { name: 'Position', value: player.queue.tracks.length.toString(), inline: true }
+        ] :
+        [
+          { name: 'Duration', value: msToHMS(info.duration), inline: true },
+          { name: 'Amount', value: result.tracks.length + ' songs', inline: true },
+          { name: 'Position', value: `${player.queue.tracks.length - result.tracks.length + 1}-${player.queue.tracks.length}`, inline: true }
+        ])
+      .setFooter({ text: `Kalliope | ${formatMusicFooter(player)}`, iconURL: this.client.user?.displayAvatarURL() })
   }
 }
 

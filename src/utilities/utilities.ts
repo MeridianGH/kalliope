@@ -11,7 +11,7 @@ import fs from 'fs'
 import path from 'path'
 import { iconURL } from '../events/ready.js'
 import { logging } from './logging.js'
-import { Player, TrackInfo, UnresolvedTrackInfo } from 'lavalink-client'
+import { Player, TrackInfo, UnresolvedTrackInfo, SponsorBlockSegmentsLoaded } from 'lavalink-client'
 import { createCanvas } from 'canvas'
 import { decode, Image } from 'imagescript'
 import fetch from 'node-fetch'
@@ -22,7 +22,7 @@ import fetch from 'node-fetch'
  * @param ephemeral If the embed should be ephemeral.
  * @returns An object compatible with most discord.js send functions.
  */
-export function simpleEmbed(content: string, ephemeral: boolean = false): { ephemeral: boolean; embeds: EmbedBuilder[] } {
+export function simpleEmbed(content: string, ephemeral = false): { ephemeral: boolean, embeds: EmbedBuilder[] } {
   return {
     embeds: [
       new EmbedBuilder()
@@ -39,7 +39,7 @@ export function simpleEmbed(content: string, ephemeral: boolean = false): { ephe
  * @param ephemeral If the embed should be ephemeral.
  * @returns An object compatible with most discord.js send functions.
  */
-export function errorEmbed(content: string, ephemeral: boolean = false): { ephemeral: boolean; embeds: EmbedBuilder[] } {
+export function errorEmbed(content: string, ephemeral = false): { ephemeral: boolean, embeds: EmbedBuilder[] } {
   return {
     embeds: [
       new EmbedBuilder()
@@ -79,7 +79,8 @@ export function truncateString(string: string, length: number): string {
  * @param ms The milliseconds to convert.
  * @returns A string in HH:MM:SS format.
  */
-export function msToHMS(ms: number): string {
+export function msToHMS(ms: number | null | undefined): string {
+  if (!ms) { return 'Unknown duration' }
   let totalSeconds = ms / 1000
   const hours = Math.floor(totalSeconds / 3600).toString()
   totalSeconds %= 3600
@@ -95,9 +96,10 @@ export function msToHMS(ms: number): string {
  */
 export function timeToMs(time: string): number {
   const times = time.split(':')
-  let seconds = 0; let secondsInUnit = 1
+  let seconds = 0
+  let secondsInUnit = 1
   while (times.length > 0) {
-    seconds += secondsInUnit * parseInt(times.pop())
+    seconds += secondsInUnit * parseInt(times.pop()!)
     secondsInUnit *= 60
   }
   return seconds * 1000
@@ -155,7 +157,7 @@ function hexToRGB(color: string): Uint8ClampedArray {
  * @param brighten Whether to start brightening or not. Default is false (start with darkening).
  * @returns A HEX color that is not similar to the reference color.
  */
-function preventSimilarColor(color: string, reference: string, brighten: boolean = false): string {
+function preventSimilarColor(color: string, reference: string, brighten = false): string {
   // eslint-disable-next-line jsdoc/require-jsdoc
   function changeColor(color: string, reference: string, brighten: boolean, recursionDepth = 0, originalColor = color) {
     const stepSize = 20
@@ -173,7 +175,7 @@ function preventSimilarColor(color: string, reference: string, brighten: boolean
   }
   try {
     return changeColor(color, reference, brighten)
-  } catch (e) {
+  } catch {
     return color
   }
 }
@@ -183,7 +185,8 @@ function preventSimilarColor(color: string, reference: string, brighten: boolean
  * @param url The image to quantize.
  * @returns A HEX color code.
  */
-async function findDominantColor(url: string) {
+async function findDominantColor(url: string | null | undefined) {
+  if (!url) { return '#000000' }
   const imageBuffer = Buffer.from(await fetch(url).then((response) => response.arrayBuffer()))
   const img = await decode(imageBuffer) as Image
   const hex = img.dominantColor(true, false)
@@ -193,10 +196,12 @@ async function findDominantColor(url: string) {
 /**
  * Generates a timeline image for the currently playing track.
  * @param player The player to generate the image for.
- * @returns The image buffer.
+ * @returns The image buffer or null, if there is no current track.
  */
 export async function generateTimelineImage(player: Player) {
   const track = player.queue.current
+  if (!track) { return null }
+
   const canvas = createCanvas(500, 50)
   const ctx = canvas.getContext('2d')
   const timelineHeight = 6
@@ -209,7 +214,7 @@ export async function generateTimelineImage(player: Player) {
   ctx.fillRect(0, timelineHeight / 2, player.position / track.info.duration * canvas.width, timelineHeight)
 
   ctx.fillStyle = preventSimilarColor('#ff8000', dominantColor, true)
-  for (const segment of track.pluginInfo.clientData.segments ?? []) {
+  for (const segment of (track.pluginInfo.clientData?.segments ?? []) as SponsorBlockSegmentsLoaded['segments']) {
     const start = segment.start / track.info.duration * canvas.width
     const end = segment.end / track.info.duration * canvas.width
     ctx.fillRect(start, timelineHeight / 2, end - start, timelineHeight)
@@ -298,7 +303,7 @@ export async function addMusicControls(message: Message, player: Player): Promis
   collectors.push(collector)
   player.set('collectors', collectors)
 
-  collector.on('collect', async (buttonInteraction: ButtonInteraction<'cached'>) => {
+  const onCollect = async (buttonInteraction: ButtonInteraction<'cached'>) => {
     if (buttonInteraction.member.voice.channel?.id !== player.voiceChannelId) {
       await buttonInteraction.reply(errorEmbed('You need to be in the same voice channel as the bot to use this command!', true))
       return
@@ -316,18 +321,22 @@ export async function addMusicControls(message: Message, player: Player): Promis
             await buttonInteraction.reply(errorEmbed('You can\'t use the command `/previous` right now!', true))
             return
           }
-          const track = player.queue.previous.shift()
+          const track = player.queue.previous.shift()!
           await player.play({ track: track })
-          await player.queue.add(player.queue.previous.shift(), 0)
+          await player.queue.add(player.queue.previous.shift()!, 0)
           await buttonInteraction.reply(simpleEmbed(`⏮️ Playing previous track \`#0\`: **${track.info.title}**.`, true))
-        } catch (e) {
+        } catch {
           await player.seek(0)
           await buttonInteraction.deferUpdate()
         }
         break
       }
       case 'pause': {
-        player.paused ? await player.resume() : await player.pause()
+        if (player.paused) {
+          await player.resume()
+        } else {
+          await player.pause()
+        }
         await buttonInteraction.reply(simpleEmbed(player.paused ? '⏸️ Paused.' : '▶️ Resumed.', true))
         break
       }
@@ -341,7 +350,7 @@ export async function addMusicControls(message: Message, player: Player): Promis
           }
           await player.destroy()
           await buttonInteraction.reply(simpleEmbed('⏹️ Stopped', true))
-          message.client.websocket?.clearPlayer(message.guild.id)
+          message.client.websocket?.clearPlayer(message.guild!.id)
           return
         }
         await player.skip()
@@ -351,15 +360,19 @@ export async function addMusicControls(message: Message, player: Player): Promis
       case 'stop': {
         await player.destroy()
         await buttonInteraction.reply(simpleEmbed('⏹️ Stopped', true))
-        message.client.websocket?.clearPlayer(message.guild.id)
+        message.client.websocket?.clearPlayer(message.guild!.id)
         return
       }
     }
     message.client.websocket?.updatePlayer(player)
-  })
-  collector.on('end', async () => {
+  }
+  collector.on('collect', (buttonInteraction: ButtonInteraction<'cached'>) => void onCollect(buttonInteraction))
+
+  const onEnd = async () => {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     const fetchedMessage = await message.fetch(true).catch((e: unknown) => { logging.warn(`[Discord]   Failed to edit message components: ${e}`) })
     if (!fetchedMessage) { return }
     await fetchedMessage.edit({ components: [new ActionRowBuilder<ButtonBuilder>().setComponents(fetchedMessage.components[0].components.map((component: ButtonComponent) => ButtonBuilder.from(component.toJSON()).setDisabled(true)))] })
-  })
+  }
+  collector.on('end', () => void onEnd())
 }

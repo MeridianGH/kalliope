@@ -2,7 +2,7 @@ import { logging } from '../utilities/logging.js'
 import { errorEmbed } from '../utilities/utilities.js'
 import { EventStructure } from '../types/types'
 
-export const { data, execute }: EventStructure<'interactionCreate'> = {
+const event: EventStructure<'interactionCreate'> = {
   data: { name: 'interactionCreate' },
   async execute(interaction) {
     if (interaction.isChatInputCommand()) {
@@ -11,7 +11,7 @@ export const { data, execute }: EventStructure<'interactionCreate'> = {
         return
       }
 
-      logging.info(`[Discord]   ${interaction.user.tag} triggered /${interaction.commandName} in #${interaction.channel.name}/${interaction.guild.name}.`)
+      logging.info(`[Discord]   ${interaction.user.tag} triggered /${interaction.commandName} in #${interaction.channel?.name}/${interaction.guild.name}.`)
       const command = interaction.client.commands.get(interaction.commandName)
 
       try {
@@ -19,7 +19,11 @@ export const { data, execute }: EventStructure<'interactionCreate'> = {
       } catch (error) {
         logging.error(error)
         const embed = errorEmbed('There was an error while executing this command!', true)
-        interaction.replied || interaction.deferred ? await interaction.editReply(embed) : await interaction.reply(embed)
+        if (interaction.replied || interaction.deferred) {
+          await interaction.editReply(embed)
+        } else {
+          await interaction.reply(embed)
+        }
         return
       }
     } else if (interaction.isContextMenuCommand()) {
@@ -29,16 +33,21 @@ export const { data, execute }: EventStructure<'interactionCreate'> = {
       }
 
       const contextMenu = interaction.client.contextMenus.get(interaction.commandName)
-      logging.info(`[Discord]   ${interaction.user.tag} used menu '${interaction.commandName}' in #${interaction.channel.name}/${interaction.guild.name}.`)
+      logging.info(`[Discord]   ${interaction.user.tag} used menu '${interaction.commandName}' in #${interaction.channel?.name}/${interaction.guild.name}.`)
 
       try {
         await contextMenu?.execute(interaction)
       } catch (error) {
         logging.error(error)
         const embed = errorEmbed('There was an error while executing this command!', true)
-        interaction.replied || interaction.deferred ? await interaction.editReply(embed) : await interaction.reply(embed)
+        if (interaction.replied || interaction.deferred) {
+          await interaction.editReply(embed)
+        } else {
+          await interaction.reply(embed)
+        }
         return
       }
     }
   }
 }
+export const { data, execute } = event

@@ -1,7 +1,7 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonComponent,
+  ButtonComponent, ButtonInteraction,
   ButtonStyle,
   EmbedBuilder,
   SlashCommandBuilder
@@ -12,17 +12,17 @@ import { durationOrLive, formatMusicFooter, msToHMS } from '../utilities/utiliti
 import { TrackInfo, UnresolvedTrackInfo } from 'lavalink-client'
 import { CommandStructure } from '../types/types'
 
-export const { data, execute }: CommandStructure = {
+const command: CommandStructure = {
   data: new SlashCommandBuilder()
     .setName('queue')
     .setDescription('Displays the queue.'),
   async execute(interaction) {
-    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
+    if (!genericChecks(interaction, player)) { return }
 
     const queue = player.queue
     const trackInfo = queue.current.info
-    const pages = []
+    const pages: EmbedBuilder[] = []
 
     const header =
       'Still using old and boring commands? Use the new [web dashboard](https://kalliope.cc) instead!\n\n' +
@@ -47,7 +47,7 @@ export const { data, execute }: CommandStructure = {
       const tracksText = tracks
         .map((track, index) => `\`${index + 1}.\`` + formatTrack(track.info))
         .join('')
-      const footer = `**${queue.tracks.length} songs in queue | `+
+      const footer = `**${queue.tracks.length} songs in queue | ` +
         msToHMS(queue.utils.totalDuration()) + ' total duration**\n' +
         '\u2015'.repeat(34)
 
@@ -55,7 +55,7 @@ export const { data, execute }: CommandStructure = {
         .setAuthor({ name: 'Queue.', iconURL: interaction.member.displayAvatarURL() })
         .setDescription(header + tracksText + footer)
         .setFooter({
-          text: `Kalliope | Page ${fromIndex / 10 + 1}/${Math.ceil(queue.tracks.length / 10)} | ${formatMusicFooter(player)}`,
+          text: `Kalliope | Page ${fromIndex / 10 + 1}/${Math.ceil(queue.tracks.length / 10)} | ${formatMusicFooter(player!)}`,
           iconURL: interaction.client.user.displayAvatarURL()
         })
 
@@ -109,8 +109,13 @@ export const { data, execute }: CommandStructure = {
       // Collect button interactions (when a user clicks a button),
       const collector = message.createMessageComponentCollector({ idle: 300000 })
       let currentIndex = 0
-      collector.on('collect', async (buttonInteraction) => {
-        buttonInteraction.customId === 'previous' ? currentIndex -= 1 : currentIndex += 1
+
+      const onCollect = async (buttonInteraction: ButtonInteraction<'cached'>) => {
+        if (buttonInteraction.customId === 'previous') {
+          currentIndex -= 1
+        } else {
+          currentIndex += 1
+        }
         const actionRow = new ActionRowBuilder<ButtonBuilder>({
           components: [
             previous.setDisabled(currentIndex === 0),
@@ -118,8 +123,10 @@ export const { data, execute }: CommandStructure = {
           ]
         })
         await buttonInteraction.update({ embeds: [pages[currentIndex]], components: [actionRow] })
-      })
-      collector.on('end', async () => {
+      }
+      collector.on('collect', (buttonInteraction: ButtonInteraction<'cached'>) => void onCollect(buttonInteraction))
+
+      const onEnd = async () => {
         const fetchedMessage = await message.fetch(true).catch((e) => {
           logging.warn(`[Discord]   Failed to edit message components: ${e}`)
         })
@@ -133,7 +140,9 @@ export const { data, execute }: CommandStructure = {
           )
         })
         await fetchedMessage.edit({ components: [actionRow] })
-      })
+      }
+      collector.on('end', () => void onEnd())
     }
   }
 }
+export const { data, execute } = command

@@ -3,9 +3,7 @@ declare module 'spotify-url-info' {
     getData: (url: string, opts: object) => Promise<{
       artists: { name: string }[],
       duration: number,
-      coverArt: {
-        sources: { url: string }[]
-      } | null,
+      coverArt: { sources: { url: string }[] } | null,
       name: string,
       title: string,
       subtitle: string,

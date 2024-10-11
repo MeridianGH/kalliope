@@ -3,16 +3,17 @@ import { genericChecks } from '../utilities/checks.js'
 import { simpleEmbed } from '../utilities/utilities.js'
 import { CommandStructure } from '../types/types'
 
-export const { data, execute }: CommandStructure = {
+const command: CommandStructure = {
   data: new SlashCommandBuilder()
     .setName('stop')
     .setDescription('Stops playback.'),
   async execute(interaction) {
-    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
+    if (!genericChecks(interaction, player)) { return }
 
     await player.destroy()
     await interaction.reply(simpleEmbed('⏹️ Stopped.'))
     interaction.client.websocket?.clearPlayer(interaction.guild.id)
   }
 }
+export const { data, execute } = command

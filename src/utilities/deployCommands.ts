@@ -1,11 +1,17 @@
 import { REST } from '@discordjs/rest'
-import { Routes } from 'discord-api-types/v10'
+import {
+  RESTPostAPIChatInputApplicationCommandsJSONBody,
+  RESTPostAPIContextMenuApplicationCommandsJSONBody,
+  Routes
+} from 'discord-api-types/v10'
 import { logging } from './logging.js'
 import { getFilesRecursively } from './utilities.js'
 import 'dotenv/config'
 import { CommandStructure, ContextMenuStructure } from '../types/types'
 
-const commands = []
+type DeployCommands = RESTPostAPIChatInputApplicationCommandsJSONBody | RESTPostAPIContextMenuApplicationCommandsJSONBody
+
+const commands: DeployCommands[] = []
 
 for (const file of getFilesRecursively('commands')) {
   const command = await import(file) as CommandStructure

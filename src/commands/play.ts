@@ -1,22 +1,20 @@
 import { SlashCommandBuilder } from 'discord.js'
 import { loadChecks, playChecks } from '../utilities/checks.js'
 import { addMusicControls, errorEmbed } from '../utilities/utilities.js'
-import { SearchResult } from 'lavalink-client'
 import { CommandStructure } from '../types/types'
 
-export const { data, execute }: CommandStructure = {
+const command: CommandStructure = {
   data: new SlashCommandBuilder()
     .setName('play')
     .setDescription('Plays a song or playlist from YouTube.')
     .addStringOption((option) => option.setName('query').setDescription('The query to search for.').setRequired(true)),
   async execute(interaction) {
-    // noinspection DuplicatedCode
     if (!playChecks(interaction)) { return }
     await interaction.deferReply()
 
     const player = interaction.client.lavalink.createPlayer(interaction)
-    const query = interaction.options.getString('query')
-    const result = await player.extendedSearch(query, interaction.member) as SearchResult
+    const query = interaction.options.getString('query', true)
+    const result = await player.extendedSearch(query, interaction.member)
     if (!loadChecks(interaction, result)) { return }
 
     if (!player.connected) {
@@ -35,3 +33,4 @@ export const { data, execute }: CommandStructure = {
     await addMusicControls(message, player)
   }
 }
+export const { data, execute } = command

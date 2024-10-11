@@ -12,18 +12,20 @@ import { TrackInfo } from 'lavalink-client'
 
 export type DistributedOmit<T, K extends keyof never> = T extends unknown ? Omit<T, K> : never
 
-export interface CommandStructure {
+export type CommandStructure = {
   data: SlashCommandOptionsOnlyBuilder,
   execute: (interaction: ChatInputCommandInteraction<'cached'>) => Awaitable<unknown>
 }
-export interface ContextMenuStructure {
+export type ContextMenuStructure = {
   data: ContextMenuCommandBuilder,
   execute: (interaction: ContextMenuCommandInteraction<'cached'>) => Awaitable<unknown>
 }
-export interface EventStructure<E extends keyof ClientEvents> {
+export type EventStructure<E extends keyof ClientEvents> = {
   data: { name: E, once?: boolean },
   execute: (...args: ClientEvents[E]) => Awaitable<void>
 }
+
+export type ChatOrMenuInteraction = ChatInputCommandInteraction<'cached'> | ContextMenuCommandInteraction<'cached'>
 
 export type Requester = GuildMember | User
 
@@ -72,9 +74,7 @@ export type SimpleTrack = {
 }
 
 export type LavalinkYML = {
-  server: {
-    port: number
-  },
+  server: { port: number },
   lavalink: {
     server: {
       youtubeConfig: {

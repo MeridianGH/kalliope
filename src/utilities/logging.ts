@@ -1,11 +1,11 @@
 import 'dotenv/config'
 
 export enum levels {
-  'none',
-  'info',
-  'warn',
-  'error',
-  'debug'
+  none,
+  info,
+  warn,
+  error,
+  debug
 }
 
 /**

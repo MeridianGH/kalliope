@@ -1,16 +1,16 @@
 import { AttachmentBuilder, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { genericChecks } from '../utilities/checks.js'
 import { addMusicControls, formatMusicFooter, generateTimelineImage, msToHMS } from '../utilities/utilities.js'
-import { CommandStructure } from '../types/types'
+import { CommandStructure, Requester } from '../types/types'
 
-export const { data, execute }: CommandStructure = {
+const command: CommandStructure = {
   data: new SlashCommandBuilder()
     .setName('nowplaying')
     .setDescription('Shows the currently playing song.'),
   async execute(interaction) {
-    if (!genericChecks(interaction)) { return }
-
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
+    if (!genericChecks(interaction, player)) { return }
+
     const track = player.queue.current
     const trackInfo = track.info
 
@@ -22,22 +22,24 @@ export const { data, execute }: CommandStructure = {
       .addFields([
         { name: 'Duration', value: trackInfo.isStream ? '🔴 Live' : msToHMS(trackInfo.duration), inline: true },
         { name: 'Author', value: trackInfo.author, inline: true },
-        { name: 'Requested By', value: track.requester.toString(), inline: true }
+        { name: 'Requested By', value: (track.requester as Requester).toString(), inline: true }
       ])
       .setFooter({ text: `Kalliope | ${formatMusicFooter(player)}`, iconURL: interaction.client.user.displayAvatarURL() })
       .setImage('attachment://timeline.png')
 
-    if (track.pluginInfo.uri) { embed.setDescription(`This track has been resolved on [YouTube](${track.pluginInfo.uri}).`) }
-    if (track.pluginInfo.clientData.fromAutoplay) { embed.setDescription('This track has been added by autoplay.') }
-    if (track.pluginInfo.clientData.segments) {
+    if (track.info.sourceName === 'spotify') { embed.setDescription(`This track has been resolved on [YouTube](${track.pluginInfo.uri}).`) }
+    if (track.pluginInfo.clientData?.fromAutoplay) { embed.setDescription('This track has been added by autoplay.') }
+    if (track.pluginInfo.clientData?.segments) {
       embed.addFields([{ name: 'SponsorBlock', value: 'This track contains SponsorBlock segments (in orange) that will be skipped automatically.' }])
     }
 
+    const timelineImage = await generateTimelineImage(player)
     const message = await interaction.reply({
       embeds: [embed],
       fetchReply: true,
-      files: [new AttachmentBuilder(await generateTimelineImage(player), { name: 'timeline.png' })]
+      files: timelineImage ? [new AttachmentBuilder(timelineImage, { name: 'timeline.png' })] : []
     })
     await addMusicControls(message, player)
   }
 }
+export const { data, execute } = command

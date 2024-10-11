@@ -1,10 +1,9 @@
 import { ApplicationCommandType, ContextMenuCommandBuilder } from 'discord.js'
 import { addMusicControls, errorEmbed } from '../utilities/utilities.js'
 import { loadChecks, playChecks } from '../utilities/checks.js'
-import { SearchResult } from 'lavalink-client'
 import { ContextMenuStructure } from '../types/types'
 
-export const { data, execute }: ContextMenuStructure = {
+const menu: ContextMenuStructure = {
   data: new ContextMenuCommandBuilder()
     .setName('Play this song again')
     .setType(ApplicationCommandType.Message),
@@ -35,7 +34,7 @@ export const { data, execute }: ContextMenuStructure = {
     await interaction.deferReply()
 
     const player = interaction.client.lavalink.createPlayer(interaction)
-    const result = await player.extendedSearch(targetMessage.embeds[0].data.url, interaction.member) as SearchResult
+    const result = await player.extendedSearch(targetMessage.embeds[0].data.url, interaction.member)
     // noinspection DuplicatedCode
     if (!loadChecks(interaction, result)) { return }
 
@@ -55,3 +54,5 @@ export const { data, execute }: ContextMenuStructure = {
     await addMusicControls(message, player)
   }
 }
+
+export const { data, execute } = menu

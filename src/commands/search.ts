@@ -7,10 +7,10 @@ import {
 } from 'discord.js'
 import { loadChecks, playChecks } from '../utilities/checks.js'
 import { addMusicControls, errorEmbed, formatMusicFooter, msToHMS, truncateString } from '../utilities/utilities.js'
-import { SearchResult, Track, UnresolvedTrack } from 'lavalink-client'
+import { Track, UnresolvedTrack } from 'lavalink-client'
 import { CommandStructure } from '../types/types'
 
-export const { data, execute }: CommandStructure = {
+const command: CommandStructure = {
   data: new SlashCommandBuilder()
     .setName('search')
     .setDescription('Searches songs from YouTube and lets you select one to play.')
@@ -20,18 +20,17 @@ export const { data, execute }: CommandStructure = {
       .setRequired(true)
     ),
   async execute(interaction) {
-    // noinspection DuplicatedCode
     if (!playChecks(interaction)) { return }
     await interaction.deferReply()
 
     const player = interaction.client.lavalink.createPlayer(interaction)
-    const query = interaction.options.getString('query')
-    const result = await player.extendedSearch(query, interaction.member) as SearchResult
+    const query = interaction.options.getString('query', true)
+    const result = await player.extendedSearch(query, interaction.member)
     if (!loadChecks(interaction, result)) { return }
 
     const tracks = result.tracks.map((track: Track | UnresolvedTrack, index: number) => ({
       label: truncateString(track.info.title, 100),
-      description: truncateString(track.info.author, 100),
+      description: truncateString(track.info.author ?? 'Unknown author', 100),
       value: truncateString(index.toString(), 100)
     }))
 
@@ -62,7 +61,8 @@ export const { data, execute }: CommandStructure = {
           return c.user.id === interaction.user.id
         }
       })
-    collector.on('collect', async (menuInteraction: StringSelectMenuInteraction) => {
+
+    const onCollect = async (menuInteraction: StringSelectMenuInteraction) => {
       const track = result.tracks[Number(menuInteraction.values[0])]
       player.queue.add(track)
       if (!player.connected) {
@@ -91,6 +91,8 @@ export const { data, execute }: CommandStructure = {
       const message = await menuInteraction.editReply({ embeds: [embed], components: [] })
       collector.stop()
       await addMusicControls(message, player)
-    })
+    }
+    collector.on('collect', (menuInteraction: StringSelectMenuInteraction) => void onCollect(menuInteraction))
   }
 }
+export const { data, execute } = command

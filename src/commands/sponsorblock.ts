@@ -3,13 +3,13 @@ import { genericChecks } from '../utilities/checks.js'
 import { errorEmbed, simpleEmbed } from '../utilities/utilities.js'
 import { CommandStructure } from '../types/types'
 
-export const { data, execute }: CommandStructure = {
+const command: CommandStructure = {
   data: new SlashCommandBuilder()
     .setName('sponsorblock')
     .setDescription('Toggles SponsorBlock. If enabled, automatically skip non-music segments in tracks.'),
   async execute(interaction) {
-    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
+    if (!genericChecks(interaction, player)) { return }
 
     const settings = player.get('settings')
     if (!settings.sponsorblockSupport) {
@@ -18,8 +18,9 @@ export const { data, execute }: CommandStructure = {
 
     settings.sponsorblock = !settings.sponsorblock
     player.set('settings', settings)
-    player.setSponsorBlock(settings.sponsorblock ? ['music_offtopic'] : [])
+    await player.setSponsorBlock(settings.sponsorblock ? ['music_offtopic'] : [])
     await interaction.reply(simpleEmbed(`⏭️ SponsorBlock: ${settings.sponsorblock ? 'Enabled ✅' : 'Disabled ❌'}`))
     interaction.client.websocket?.updatePlayer(player)
   }
 }
+export const { data, execute } = command

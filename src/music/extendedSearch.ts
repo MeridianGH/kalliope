@@ -22,8 +22,8 @@ export class ExtendedSearch {
    */
   constructor(player: Player) {
     this.player = player
-    player.extendedSearch = this.search.bind(this)
-    player.executeAutoplay = this.executeAutoplay.bind(this)
+    player.extendedSearch = this.search.bind(this) as ExtendedSearch['search']
+    player.executeAutoplay = this.executeAutoplay.bind(this) as ExtendedSearch['executeAutoplay']
     player.set('plugins', { ...player.get('plugins'), extendedSearch: true })
   }
 
@@ -41,39 +41,40 @@ export class ExtendedSearch {
 
     // YouTube Shorts
     const shortsRegex = /https:\/\/(www\.)?youtube\.com\/shorts\/(.*)$/
-    if (query.match(shortsRegex)) { query = query.replace('shorts/', 'watch?v=') }
+    if (shortsRegex.exec(query)) { query = query.replace('shorts/', 'watch?v=') }
 
     // YouTube Playlists
     const playlistRegex = /https:\/\/(www\.)?youtube\.com\/playlist(.*)$/
-    if (query.match(playlistRegex)) {
+    if (playlistRegex.exec(query)) {
       try {
         const result = await this.player.search(query, requestedBy) as SearchResult
         result.playlist = {
-          ...result.playlist,
-          thumbnail: await this.getBestThumbnail(result.tracks[0]),
+          ...result.playlist!,
+          thumbnail: await this.getBestThumbnail(result.tracks[0]) ?? undefined,
           uri: query,
           duration: result.tracks.map((track) => track.info.duration).reduce((acc, cur) => acc + cur)
         }
         return result
       } catch (e) {
-        return { loadType: LoadTypes.error, tracks: null, playlist: null, exception: { message: e.message, cause: 'Search Error', severity: 'COMMON' }, pluginInfo: null }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+        return { loadType: LoadTypes.error, tracks: [], playlist: null, exception: { message: e.message, cause: 'Search Error', severity: 'COMMON' }, pluginInfo: {} }
       }
     }
 
     // Spotify
     const spotifyRegex = /(?:https:\/\/open\.spotify\.com\/|spotify:)(.+)?(track|playlist|album)[/:]([A-Za-z0-9]+)/
-    const type = query.match(spotifyRegex)?.[2]
-    const locale = query.match(spotifyRegex)?.[1]
+    const type = spotifyRegex.exec(query)?.[2]
+    const locale = spotifyRegex.exec(query)?.[1]
     if (locale) { query = query.replace(locale, '') }
     try {
       if (type === 'track') {
         const track = await this.getSpotifyTrack(query, requestedBy)
         return {
           loadType: LoadTypes.track,
-          tracks: [track],
+          tracks: track ? [track] : [],
           playlist: null,
           exception: null,
-          pluginInfo: null
+          pluginInfo: {}
         }
       } else if (type === 'playlist' || type === 'album') {
         const { tracks, playlist } = await this.getSpotifyPlaylist(query, requestedBy)
@@ -82,11 +83,12 @@ export class ExtendedSearch {
           tracks: tracks,
           playlist: playlist,
           exception: null,
-          pluginInfo: null
+          pluginInfo: {}
         }
       }
     } catch (e) {
-      return { loadType: LoadTypes.error, tracks: null, playlist: null, exception: { message: e.message, cause: 'Search Error', severity: 'COMMON' }, pluginInfo: null }
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+      return { loadType: LoadTypes.error, tracks: [], playlist: null, exception: { message: e.message, cause: 'Search Error', severity: 'COMMON' }, pluginInfo: {} }
     }
 
     // Use best thumbnail available
@@ -99,18 +101,15 @@ export class ExtendedSearch {
     return search
   }
 
-  async executeAutoplay(client: Client, lastTrack: Track | UnresolvedTrack) {
+  async executeAutoplay(client: Client, lastTrack: Track | UnresolvedTrack): Promise<void> {
     if (!this.player.get('settings').autoplay || !lastTrack) { return }
 
-    const textChannel = client.channels.cache.get(this.player?.textChannelId) as GuildTextBasedChannel
+    const textChannel = client.channels.cache.get(this.player?.textChannelId ?? '') as GuildTextBasedChannel
 
-    let result: SearchResult
-    if (lastTrack.info.sourceName === 'youtube' || lastTrack.info.sourceName === 'youtubemusic') {
-      result = await this.player.search({
-        query: `https://www.youtube.com/watch?v=${lastTrack.info.identifier}&list=RD${lastTrack.info.identifier}`,
-        source: 'youtube'
-      }, lastTrack.requester as Requester) as SearchResult
-    }
+    const result = await this.player.search({
+      query: `https://www.youtube.com/watch?v=${lastTrack.info.identifier}&list=RD${lastTrack.info.identifier}`,
+      source: 'youtube'
+    }, lastTrack.requester as Requester) as SearchResult
 
     const track = result.tracks.find((track) => !this.isInPrevious(track))
 
@@ -119,7 +118,7 @@ export class ExtendedSearch {
     }
 
     track.info.artworkUrl = await this.getBestThumbnail(track)
-    track.pluginInfo.clientData.fromAutoplay = true
+    track.pluginInfo.clientData = { ...track.pluginInfo.clientData, fromAutoplay: true }
     await this.player.queue.add(track)
     if (!this.player.playing && !this.player.paused) { await this.player.play() }
 
@@ -134,7 +133,7 @@ export class ExtendedSearch {
         { name: 'Author', value: info.author, inline: true },
         { name: 'Position', value: this.player.queue.tracks.length.toString(), inline: true }
       ])
-      .setFooter({ text: `Kalliope | ${formatMusicFooter(this.player)}`, iconURL: client.user.displayAvatarURL() })
+      .setFooter({ text: `Kalliope | ${formatMusicFooter(this.player)}`, iconURL: client.user?.displayAvatarURL() })
     const message = await textChannel.send({ embeds: [embed] })
     await addMusicControls(message, this.player)
   }
@@ -145,14 +144,14 @@ export class ExtendedSearch {
    * @param requestedBy The member (or user) that requested this search.
    * @returns The track result.
    */
-  async getSpotifyTrack(query: string, requestedBy: Requester): Promise<Track> {
+  async getSpotifyTrack(query: string, requestedBy: Requester): Promise<Track | null> {
     const data = await spotify.getData(query, {})
     logging.debug('track', data)
     const trackData: SpotifyTrackInfo = {
       title: data.artists[0].name + ' - ' + data.name,
       author: data.artists[0].name,
       duration: data.duration,
-      artworkUrl: data.coverArt?.sources[0]?.url,
+      artworkUrl: data.coverArt?.sources[0]?.url ?? null,
       uri: this.spotifyURIToLink(data.uri)
     }
     return await this.findClosestTrack(trackData, requestedBy)
@@ -167,9 +166,9 @@ export class ExtendedSearch {
   async getSpotifyPlaylist(query: string, requestedBy: Requester): Promise<Pick<SearchResult, 'tracks' | 'playlist'>> {
     const data = await spotify.getData(query, {})
     logging.debug('playlist', data)
-    const tracks = await Promise.all(
-      data.trackList.map((trackData) => this.getSpotifyTrack(trackData.uri, requestedBy))
-    )
+    const tracks = (
+      await Promise.all(data.trackList.map((trackData) => this.getSpotifyTrack(trackData.uri, requestedBy)))
+    ).filter((track) => track !== null)
     return {
       tracks: tracks,
       playlist: {
@@ -191,7 +190,7 @@ export class ExtendedSearch {
    * @param [retries] How often to retry.
    * @returns The most closely matching track.
    */
-  async findClosestTrack(data: SpotifyTrackInfo, requestedBy: Requester, retries: number = 5): Promise<Track> {
+  async findClosestTrack(data: SpotifyTrackInfo, requestedBy: Requester, retries = 5): Promise<Track | null> {
     if (retries <= 0) { return null }
     const tracks = (await this.search(data.title, requestedBy)).tracks.slice(0, 10 - retries)
     const track =
@@ -201,7 +200,7 @@ export class ExtendedSearch {
       tracks[0]
     if (!track) { return await this.findClosestTrack(data, requestedBy, retries - 1) }
     track.pluginInfo = { ...track.pluginInfo, uri: track.info.uri }
-    track.info = { ...track.info, ...data }
+    track.info = { ...track.info, ...data, sourceName: 'spotify' }
     return track
   }
 
@@ -219,7 +218,7 @@ export class ExtendedSearch {
    * @param track The track of which to get the thumbnail.
    * @returns The URL of the thumbnail image.
    */
-  async getBestThumbnail(track: Track): Promise<string> {
+  async getBestThumbnail(track: Track): Promise<string | null> {
     for (const size of ['maxresdefault', 'hqdefault', 'mqdefault', 'default']) {
       const thumbnail = `https://i.ytimg.com/vi/${track.info.identifier}/${size}.jpg`
       if ((await fetch(thumbnail)).ok) { return thumbnail }

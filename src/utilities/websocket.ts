@@ -3,52 +3,64 @@ import { LoadTypes } from '../music/lavalink.js'
 import { logging } from './logging.js'
 import { addMusicControls, errorEmbed, simpleEmbed } from './utilities.js'
 import { Client, GuildTextBasedChannel, PermissionsBitField } from 'discord.js'
-import { Player, SearchResult } from 'lavalink-client'
+import { Player } from 'lavalink-client'
 import { DistributedOmit, Requester } from '../types/types'
-import { MessageToClient, MessageToServer, Player as SimplePlayer, Track as SimpleTrack } from 'kalliope-server/src/types/types'
+import {
+  MessageToClient,
+  MessageToServer,
+  Player as SimplePlayer,
+  Track as SimpleTrack
+} from 'kalliope-server/src/types/types'
 import fs from 'fs'
+import { Track } from 'lavalink-client/dist'
+import { SponsorBlockSegmentsLoaded } from 'lavalink-client/dist/types'
+import { CustomFilters } from '../music/customFilters'
 
 const production = !process.argv.includes('development')
 const socketURL = production ? 'wss://clients.kalliope.cc' : 'ws://clients.localhost'
-const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version as string
 
 /**
  * Simplifies a player object to an object that supports transfer as JSON.
  * @param player The player to convert.
  * @returns A JSON compatible player object.
  */
-function simplifyPlayer(player: Player): SimplePlayer | null {
-  return player ? {
-    guildId: player.guildId,
-    voiceChannelId: player.voiceChannelId,
-    textChannelId: player.textChannelId,
-    paused: player.paused,
-    volume: player.volume,
-    position: player.position,
-    repeatMode: player.repeatMode,
-    settings: player.get('settings'),
-    queue: {
-      tracks: player.queue?.tracks?.map((track) => ({
-        info: track.info as SimpleTrack['info'],
-        requester: {
-          displayName: (track.requester as Requester).displayName,
-          displayAvatarURL: (track.requester as Requester).displayAvatarURL()
+function simplifyPlayer(player: Player | null): SimplePlayer | null {
+  return player?.queue.current ?
+    {
+      guildId: player.guildId,
+      voiceChannelId: player.voiceChannelId,
+      textChannelId: player.textChannelId,
+      paused: player.paused,
+      volume: player.volume,
+      position: player.position,
+      repeatMode: player.repeatMode,
+      settings: player.get('settings'),
+      queue: {
+        tracks: player.queue?.tracks?.map((track) => ({
+          info: track.info as SimpleTrack['info'],
+          requester: {
+            displayName: (track.requester as Requester).displayName,
+            displayAvatarURL: (track.requester as Requester).displayAvatarURL()
+          }
+        })),
+        current: {
+          info: player.queue.current.info as SimpleTrack['info'],
+          requester: {
+            displayName: (player.queue.current.requester as Requester).displayName,
+            displayAvatarURL: (player.queue.current.requester as Requester).displayAvatarURL()
+          },
+          segments: player.queue.current.pluginInfo?.clientData?.segments as SponsorBlockSegmentsLoaded['segments'] ?? null
         }
-      })),
-      current: player.queue?.current ? {
-        info: player.queue.current.info as SimpleTrack['info'],
-        requester: {
-          displayName: (player.queue.current.requester as Requester).displayName,
-          displayAvatarURL: (player.queue.current.requester as Requester).displayAvatarURL()
-        },
-        segments: player.queue.current.pluginInfo?.clientData?.segments ?? null
-      } : null
-    },
-    filters: {
-      current: player.get('filters')?.current,
-      timescale: player.get('filters')?.timescale
-    }
-  } : null
+      },
+      filters: {
+        current: player.get('filters')?.current,
+        timescale: player.get('filters')?.timescale
+      }
+    } :
+    null
 }
 
 /**
@@ -58,13 +70,50 @@ function simplifyPlayer(player: Player): SimplePlayer | null {
  * @param data The data object containing the action information.
  * @returns Whether this action was completed successfully or not.
  */
-async function executePlayerAction(client: Client, player: Player, data: MessageToClient): Promise<boolean> {
+async function executePlayerAction(client: Client, player: Player | null, data: MessageToClient): Promise<boolean> {
   if (data.type !== 'requestPlayerAction') { return false }
+  if (!player) {
+    if (data.action !== 'play') {
+      client.websocket?.sendError(data.guildId, 'Nothing currently playing. Start playback with \'/play\' or by using the \'Add to queue\' field!', data.requestId)
+      return false
+    }
+
+    const me = client.guilds.cache.get(data.guildId)!.members.me!
+    const member = await me.guild.members.fetch(data.userId)
+    const channel = member.voice.channel
+    if (!channel) {
+      client.websocket?.sendError(data.guildId, 'You need to be in a voice channel to use this.', data.requestId)
+      return false
+    }
+    if (me.voice.channel && channel !== me.voice.channel) {
+      client.websocket?.sendError(data.guildId, 'You need to be in the same voice channel as the bot to use this!', data.requestId)
+      return false
+    }
+    if (!me.permissionsIn(channel).has([PermissionsBitField.Flags.Connect, PermissionsBitField.Flags.Speak])) {
+      client.websocket?.sendError(data.guildId, 'The bot does not have the correct permissions to play in your voice channel!', data.requestId)
+      return false
+    }
+    player = client.lavalink.createPlayer(data.guildId, channel.id)
+
+    if (!player.connected) {
+      if (!member.voice.channel) {
+        await player.destroy()
+        client.websocket?.sendError(data.guildId, 'You need to be in a voice channel to use this.', data.requestId)
+        return false
+      }
+      await player.connect()
+    }
+  }
+
   const textChannel = player?.textChannelId ? client.channels.cache.get(player.textChannelId) as GuildTextBasedChannel : undefined
 
   switch (data.action) {
     case 'pause': {
-      player.paused ? await player.resume() : await player.pause()
+      if (player.paused) {
+        await player.resume()
+      } else {
+        await player.pause()
+      }
       await textChannel?.send(simpleEmbed(player.paused ? '⏸️ Paused.' : '▶️ Resumed.'))
       break
     }
@@ -97,9 +146,9 @@ async function executePlayerAction(client: Client, player: Player, data: Message
         await player.seek(0)
         break
       }
-      const track = player.queue.previous.shift()
+      const track = player.queue.previous.shift()!
       await player.play({ track: track })
-      await player.queue.add(player.queue.previous.shift(), 0)
+      await player.queue.add(player.queue.previous.shift()!, 0)
       await textChannel?.send(simpleEmbed(`⏮️ Playing previous track \`#0\`: **${track.info.title}**.`))
       break
     }
@@ -109,9 +158,13 @@ async function executePlayerAction(client: Client, player: Player, data: Message
       break
     }
     case 'repeat': {
-      player.repeatMode === 'off' ? await player.setRepeatMode('track') :
-        player.repeatMode === 'track' ? await player.setRepeatMode('queue') :
-          await player.setRepeatMode('off')
+      if (player.repeatMode === 'off') {
+        await player.setRepeatMode('track')
+      } else if (player.repeatMode === 'track') {
+        await player.setRepeatMode('queue')
+      } else {
+        await player.setRepeatMode('off')
+      }
       await textChannel?.send(simpleEmbed(`Set repeat mode to ${player.repeatMode === 'queue' ? 'Queue 🔁' : player.repeatMode === 'track' ? 'Track 🔂' : 'Off ▶️'}`))
       break
     }
@@ -131,7 +184,7 @@ async function executePlayerAction(client: Client, player: Player, data: Message
       }
       settings.sponsorblock = !settings.sponsorblock
       player.set('settings', settings)
-      player.setSponsorBlock(settings.sponsorblock ? ['music_offtopic'] : [])
+      void player.setSponsorBlock(settings.sponsorblock ? ['music_offtopic'] : [])
       await textChannel?.send(simpleEmbed(`⏭️ SponsorBlock: ${settings.sponsorblock ? 'Enabled ✅' : 'Disabled ❌'}`))
       break
     }
@@ -141,42 +194,14 @@ async function executePlayerAction(client: Client, player: Player, data: Message
       break
     }
     case 'play': {
-      const guild = client.guilds.cache.get(data.guildId)
-      const member = await guild.members.fetch(data.userId)
-
-      if (!player) {
-        const channel = member.voice.channel
-        if (!channel) {
-          client.websocket?.sendError(guild.id, 'You need to be in a voice channel to use this.', data.requestId)
-          return false
-        }
-        if (guild.members.me.voice.channel && channel !== guild.members.me.voice.channel) {
-          client.websocket?.sendError(guild.id, 'You need to be in the same voice channel as the bot to use this!', data.requestId)
-          return false
-        }
-        if (!guild.members.me.permissionsIn(channel).has([PermissionsBitField.Flags.Connect, PermissionsBitField.Flags.Speak])) {
-          client.websocket?.sendError(guild.id, 'The bot does not have the correct permissions to play in your voice channel!', data.requestId)
-          return false
-        }
-        player = client.lavalink.createPlayer(data.guildId, channel.id)
-
-        if (!player.connected) {
-          if (!member.voice.channel) {
-            await player.destroy()
-            client.websocket?.sendError(guild.id, 'You need to be in a voice channel to use this.', data.requestId)
-            return false
-          }
-          await player.connect()
-        }
-      }
-
-      const result = await player.extendedSearch(data.payload.query, member) as SearchResult
+      const requester = await client.guilds.cache.get(data.guildId)!.members.fetch(data.userId)
+      const result = await player.extendedSearch(data.payload.query, requester)
       if (result.loadType === LoadTypes.error) {
-        client.websocket?.sendError(guild.id, 'There was an error while adding your track to the queue.', data.requestId)
+        client.websocket?.sendError(data.guildId, 'There was an error while adding your track to the queue.', data.requestId)
         return false
       }
       if (result.loadType === LoadTypes.empty) {
-        client.websocket?.sendError(guild.id, 'There were no tracks found using your query.', data.requestId)
+        client.websocket?.sendError(data.guildId, 'There were no tracks found using your query.', data.requestId)
         return false
       }
 
@@ -188,7 +213,7 @@ async function executePlayerAction(client: Client, player: Player, data: Message
       break
     }
     case 'filter': {
-      await player.get('filters').setFilter(data.payload.filter)
+      await player.get('filters').setFilter(data.payload.filter as keyof typeof CustomFilters.filterData)
       await textChannel?.send(simpleEmbed(`Set filter to ${data.payload.filterText}.`))
       break
     }
@@ -198,7 +223,7 @@ async function executePlayerAction(client: Client, player: Player, data: Message
       break
     }
     case 'remove': {
-      const track = await player.queue.splice(data.payload.index - 1, 1)
+      const track = player.queue.splice(data.payload.index - 1, 1) as Track
       await textChannel?.send(simpleEmbed(`🗑️ Removed track \`#${data.payload.index}\`: **${track.info.title}**`))
       break
     }
@@ -217,8 +242,8 @@ async function executePlayerAction(client: Client, player: Player, data: Message
  * Websocket client that manages and maintains a connection.
  */
 export class WebSocketConnector {
-  private readonly client: Client
-  private ws: WebSocket
+  private readonly client: Client<true>
+  private ws: WebSocket | null
   private heartbeatTimeoutId: NodeJS.Timeout
   private reconnectDelay: number
   private static statusCodes = {
@@ -244,7 +269,7 @@ export class WebSocketConnector {
    * Creates a new websocket client and attaches it to a discord.js client.
    * @param client The discord.js client.
    */
-  constructor(client: Client) {
+  constructor(client: Client<true>) {
     this.client = client
     this.ws = null
     this.reconnectDelay = 1000
@@ -257,7 +282,7 @@ export class WebSocketConnector {
     clearTimeout(this.heartbeatTimeoutId)
     this.heartbeatTimeoutId = setTimeout(() => {
       logging.warn('[WebSocket] Connection did not receive heartbeat after 60s. Assuming connection is dead.')
-      this.ws.terminate()
+      this.ws?.terminate()
     }, 60 * 1000 + 1000)
   }
 
@@ -336,7 +361,7 @@ export class WebSocketConnector {
     })
 
     this.ws.on('close', (code, reason) => {
-      logging.error(`[WebSocket] Socket closed with reason: ${code} (${WebSocketConnector.statusCodes[code]}) | ${reason}`)
+      logging.error(`[WebSocket] Socket closed with reason: ${code} (${WebSocketConnector.statusCodes[code]}) | ${reason.toString()}`)
       clearTimeout(this.heartbeatTimeoutId)
       this.reconnect(code)
     })
@@ -345,14 +370,20 @@ export class WebSocketConnector {
       this.heartbeatTimeout()
     })
 
-    this.ws.on('message', async (data) => {
+    const onMessage = async (data: WebSocket.RawData) => {
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
       const message = JSON.parse(data.toString()) as MessageToClient
       logging.debug('[WebSocket] Received data:', message)
 
       switch (message.type) {
         case 'requestPlayerData': {
           const player = this.client.lavalink.getPlayer(message.guildId)
-          this.send({ type: 'playerData', guildId: message.guildId, player: simplifyPlayer(player), requestId: message.requestId ?? 'none' })
+          this.send({
+            type: 'playerData',
+            guildId: message.guildId,
+            player: simplifyPlayer(player),
+            requestId: message.requestId ?? 'none'
+          })
           break
         }
         case 'requestClientData': {
@@ -373,7 +404,8 @@ export class WebSocketConnector {
           break
         }
       }
-    })
+    }
+    this.ws.on('message', (data) => { void onMessage(data) })
   }
 
   /**

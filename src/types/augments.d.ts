@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/consistent-type-definitions */
+
 import { Client, CollectedInteraction, Collection, InteractionCollector } from 'discord.js'
 import { Lavalink } from '../music/lavalink.js'
 import { WebSocketConnector } from '../utilities/websocket.js'
@@ -24,7 +26,7 @@ declare global {
 declare module 'discord.js' {
   interface Client {
     commands: Collection<string, CommandStructure>,
-    contextMenus: Collection<string, ContextMenuStructure>
+    contextMenus: Collection<string, ContextMenuStructure>,
     lavalink: Lavalink,
     websocket?: WebSocketConnector
   }
@@ -39,7 +41,7 @@ interface CustomPlayerProperties {
     autoplay: boolean,
     sponsorblock: boolean,
     sponsorblockSupport: boolean
-  }
+  },
   filters: CustomFilters,
   collectors: InteractionCollector<CollectedInteraction>[]
 }

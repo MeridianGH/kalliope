@@ -3,13 +3,13 @@ import { genericChecks } from '../utilities/checks.js'
 import { simpleEmbed } from '../utilities/utilities.js'
 import { CommandStructure } from '../types/types'
 
-export const { data, execute }: CommandStructure = {
+const command: CommandStructure = {
   data: new SlashCommandBuilder()
     .setName('autoplay')
     .setDescription('Toggles autoplay. If enabled, automatically fetches new tracks when the queue ends.'),
   async execute(interaction) {
-    if (!genericChecks(interaction)) { return }
     const player = interaction.client.lavalink.getPlayer(interaction.guild.id)
+    if (!genericChecks(interaction, player)) { return }
 
     const settings = player.get('settings')
     settings.autoplay = !settings.autoplay
@@ -18,3 +18,4 @@ export const { data, execute }: CommandStructure = {
     interaction.client.websocket?.updatePlayer(player)
   }
 }
+export const { data, execute } = command
