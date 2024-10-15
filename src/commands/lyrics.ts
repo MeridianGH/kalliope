@@ -30,9 +30,7 @@ const command: CommandStructure = {
 
     const track = player.queue.current
     const trackInfo = track.info
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const info = await ytdl.getInfo(trackInfo.uri)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const title = info.videoDetails.media.category === 'Music' ? info.videoDetails.media.artist + ' ' + info.videoDetails.media.song : trackInfo.title
 
     try {
