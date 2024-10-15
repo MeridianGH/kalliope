@@ -12,7 +12,7 @@ import path from 'path'
 import { iconURL } from '../events/ready.js'
 import { logging } from './logging.js'
 import { Player, TrackInfo, UnresolvedTrackInfo, SponsorBlockSegmentsLoaded } from 'lavalink-client'
-import { createCanvas } from 'canvas'
+import { createCanvas } from '@napi-rs/canvas'
 import { decode, Image } from 'imagescript'
 import fetch from 'node-fetch'
 
@@ -234,7 +234,7 @@ export async function generateTimelineImage(player: Player) {
   ctx.textAlign = 'end'
   ctx.fillText(msToHMS(track.info.duration), canvas.width, timelineHeight * 2)
 
-  return canvas.toBuffer()
+  return canvas.toBuffer('image/png')
 }
 
 /**
