@@ -3,7 +3,7 @@ import { LoadTypes } from '../music/lavalink.js'
 import { logging } from './logging.js'
 import { addMusicControls, errorEmbed, simpleEmbed } from './utilities.js'
 import { Client, GuildTextBasedChannel, PermissionsBitField } from 'discord.js'
-import { Player } from 'lavalink-client'
+import { Player, SponsorBlockSegmentsLoaded, Track } from 'lavalink-client'
 import { DistributedOmit, Requester } from '../types/types'
 import {
   MessageToClient,
@@ -12,8 +12,6 @@ import {
   Track as SimpleTrack
 } from 'kalliope-server/src/types/types'
 import fs from 'fs'
-import { Track } from 'lavalink-client/dist'
-import { SponsorBlockSegmentsLoaded } from 'lavalink-client/dist/types'
 import { CustomFilters } from '../music/customFilters'
 
 const production = !process.argv.includes('development')

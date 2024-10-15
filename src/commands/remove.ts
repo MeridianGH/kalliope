@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from 'discord.js'
 import { genericChecks } from '../utilities/checks.js'
 import { errorEmbed, simpleEmbed } from '../utilities/utilities.js'
 import { CommandStructure } from '../types/types'
-import { Track } from 'lavalink-client/dist'
+import { Track } from 'lavalink-client'
 
 const command: CommandStructure = {
   data: new SlashCommandBuilder()
