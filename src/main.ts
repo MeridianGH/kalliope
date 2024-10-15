@@ -1,4 +1,6 @@
 import { ActivityType, Client, ClientEvents, Collection, GatewayIntentBits } from 'discord.js'
+import fetch from 'node-fetch'
+import fs from 'fs'
 import { Lavalink } from './music/lavalink.js'
 import { logging } from './utilities/logging.js'
 import { getFilesRecursively } from './utilities/utilities.js'
@@ -59,7 +61,19 @@ async function shutdown() {
   process.exit(0)
 }
 
+// Check for updates
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version as string
+const availableVersion = await fetch('https://api.github.com/repos/MeridianGH/kalliope/releases/latest', {
+  method: 'GET',
+  headers: { Accept: 'application/vnd.github+json' }
+}).then((response) => response.json()).then((release: { tag_name: string }) => release.tag_name)
+if (version.localeCompare(availableVersion, undefined, { numeric: true, sensitivity: 'base' }) < 0) {
+  logging.warn(`[Process]   There is a newer version ${availableVersion} available. You may encounter unexpected behaviour. Please update.`)
+} else {
+  logging.info(`[Process]   Running on latest version ${version}.`)
+}
+
 // Login
-void client.lavalink.initialize().then(() => {
-  void client.login(process.env.DISCORD_TOKEN)
-})
+await client.lavalink.initialize()
+void client.login(process.env.DISCORD_TOKEN)
