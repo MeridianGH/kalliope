@@ -15,7 +15,7 @@ import fs from 'fs'
 import { CustomFilters } from '../music/customFilters'
 
 const production = !process.argv.includes('development')
-const socketURL = production ? 'wss://clients.kalliope.cc' : 'ws://clients.localhost'
+const socketURL = production ? 'wss://clients.kalliope.cc' : 'ws://clients.localhost/dev'
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version as string
