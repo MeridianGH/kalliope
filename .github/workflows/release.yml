@@ -16,7 +16,7 @@ jobs:
           - os: 'ubuntu-latest'
             artifact_name: kalliope
             asset_name: kalliope-linux-amd64
-          - os: 'macos-13'
+          - os: 'macos-latest'
             artifact_name: kalliope
             asset_name: kalliope-macos-amd64
     runs-on: ${{ matrix.os }}
@@ -53,7 +53,7 @@ jobs:
           npx --yes postject kalliope NODE_SEA_BLOB ./bin/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
 
       - name: Compile binary (macOS)
-        if: matrix.os == 'macos-13'
+        if: matrix.os == 'macos-latest'
         run: |
           cd ./build
           cp $(command -v node) kalliope
@@ -61,21 +61,27 @@ jobs:
           npx --yes postject kalliope NODE_SEA_BLOB ./bin/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --macho-segment-name NODE_SEA
           codesign --sign - kalliope
 
-      - name: Create changelog
-        id: create_changelog
-        uses: mikepenz/release-changelog-builder-action@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Read changelog
+        id: read_changelog
+        shell: bash
+        run: |
+          r=$(cat CHANGELOG.md)
+          r="${r//'%'/'%25'}"
+          r="${r//$'\n'/'%0A'}"
+          r="${r//$'\r'/'%0D'}"
+          echo "changelog=$r" >> $GITHUB_OUTPUT
+
 
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./build/${{ matrix.artifact_name }}
-          body: ${{steps.create_changelog.outputs.changelog}}
+          body: ${{steps.read_changelog.outputs.changelog}}
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ github.ref }}
 
   deploy:
     needs: build
     uses: ./.github/workflows/deploy.yml
+    secrets: inherit

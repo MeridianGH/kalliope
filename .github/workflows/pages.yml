@@ -30,7 +30,7 @@ jobs:
         run: npm run docs
 
       - name: Build GH Pages Artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs/
 
