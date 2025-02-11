@@ -8,10 +8,14 @@ const nativeNodeModulesPlugin = {
   setup(build) {
     // If a ".node" file is imported within a module in the "file" namespace, resolve
     // it to an absolute path and put it into the "node-file" virtual namespace.
-    build.onResolve({ filter: /\.node$/, namespace: 'file' }, (args) => ({
-      path: require.resolve(args.path, { paths: [args.resolveDir] }),
-      namespace: 'node-file'
-    }))
+    build.onResolve({ filter: /\.node$/, namespace: 'file' }, (args) => {
+      try {
+        const resolvedPath = require.resolve(args.path, { paths: [args.resolveDir] })
+        return { path: resolvedPath, namespace: 'node-file' }
+      } catch {
+        return { external: true }
+      }
+    })
 
     // Files in the "node-file" virtual namespace call "require()" on the
     // path from esbuild of the ".node" file in the output directory.
@@ -41,10 +45,10 @@ const nativeNodeModulesPlugin = {
 
 await esbuild.build({
   entryPoints: ['../src/main.ts'],
-  format: 'cjs',
+  format: 'esm',
   target: 'node22',
   platform: 'node',
   bundle: true,
-  outfile: './bin/bundle.cjs',
+  outfile: './bin/bundle.mjs',
   plugins: [nativeNodeModulesPlugin]
 })

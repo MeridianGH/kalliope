@@ -1,4 +1,4 @@
 {
-  "main": "./bin/bundle.cjs",
+  "main": "./bin/bundle.mjs",
   "output": "./bin/sea-prep.blob"
 }
