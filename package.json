@@ -49,6 +49,7 @@
     "globals": "^15.14.0",
     "husky": "^9.1.7",
     "kalliope-server": "github:MeridianGH/kalliope-server",
+    "rimraf": "^6.0.1",
     "typedoc": "^0.27.7",
     "typedoc-plugin-extras": "^4.0.0",
     "typedoc-theme-hierarchy": "^5.0.4",
