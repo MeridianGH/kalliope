@@ -13,7 +13,8 @@
     "deploy": "npm run build && node dist/utilities/deployCommands.js",
     "docs": "typedoc",
     "prepare": "husky",
-    "release": "commit-and-tag-version --skip.changelog --releaseCommitMessageFormat \"chore: release %s\""
+    "release": "commit-and-tag-version",
+    "preview-release": "npm run release -- --dry-run"
   },
   "main": "dist/main.js",
   "type": "module",

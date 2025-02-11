@@ -1,0 +1,6 @@
+{
+  "header": "# Changelog\n\nAll notable changes in this version will be documented in this file. Go to [GitHub Releases](https://github.com/MeridianGH/kalliope/releases) to check all changes over previous versions.\\\nSee [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.",
+  "releaseCommitMessageFormat": "chore: release {{currentTag}}",
+  "tagPrefix": "",
+  "scripts": { "prechangelog": "rimraf ./CHANGELOG.md" }
+}
