@@ -26,7 +26,6 @@ export function genericChecks(interaction: ChatInputCommandInteraction<'cached'>
 /**
  * Executes playback checks and replies based on possible errors.
  * @param interaction The interaction that called this check.
- * @param interaction.member The member that instantiated the interaction.
  * @returns If the checks succeeded or not.
  */
 export function playChecks(interaction: ChatOrMenuInteraction): interaction is ChatOrMenuInteraction & { member: { voice: { channel: string } } } {
