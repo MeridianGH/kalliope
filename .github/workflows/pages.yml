@@ -6,13 +6,6 @@ on:
 
 jobs:
   build:
-    permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      name: github-pages
-
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -34,5 +27,17 @@ jobs:
         with:
           path: docs/
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+
+    steps:
       - name: Publish to GH Pages
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
