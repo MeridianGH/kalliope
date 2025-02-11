@@ -34,12 +34,12 @@ const command: CommandStructure = {
     }
 
     const timelineImage = await generateTimelineImage(player)
-    const message = await interaction.reply({
+    const response = await interaction.reply({
       embeds: [embed],
-      fetchReply: true,
+      withResponse: true,
       files: timelineImage ? [new AttachmentBuilder(timelineImage, { name: 'timeline.png' })] : []
     })
-    await addMusicControls(message, player)
+    if (response.resource?.message) { await addMusicControls(response.resource.message, player) }
   }
 }
 export const { data, execute } = command

@@ -99,14 +99,15 @@ const command: CommandStructure = {
         next.setDisabled(false)
       ]
     })
-    const message = await interaction.reply({
+    const response = await interaction.reply({
       embeds: [pages[0]],
       components: isOnePage ? [] : [actionRow],
-      fetchReply: true
+      withResponse: true
     })
 
-    if (!isOnePage) {
-      // Collect button interactions (when a user clicks a button),
+    if (!isOnePage && response.resource?.message) {
+      const message = response.resource.message
+      // Collect button interactions (when a user clicks a button)
       const collector = message.createMessageComponentCollector({ idle: 300000 })
       let currentIndex = 0
 
